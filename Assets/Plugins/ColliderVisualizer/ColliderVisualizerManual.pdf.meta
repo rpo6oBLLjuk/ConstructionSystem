@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 171b2654b4587624590e353314d7336b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 318546
+  packageName: Collider Visualizer
+  packageVersion: 1.0.0
+  assetPath: Assets/ColliderVisualizer/ColliderVisualizerManual.pdf
+  uploadId: 752951
