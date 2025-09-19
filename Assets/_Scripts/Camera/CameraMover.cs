@@ -4,12 +4,15 @@ public class CameraMover : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 10;
     [SerializeField] private float _fastMoveSpeed = 50;
+    [SerializeField] private float _verticalSpeedMultiplier = 0.5f;
     [SerializeField] private float _moveDamping = 0.1f;
 
-    [SerializeField] private Vector3 inputVelocity = new();
-    [SerializeField] private Vector3 previousVelocity = new();
 
-    [SerializeField] private Vector3 upDownInputVelocity = new();
+
+    [SerializeField] private Vector3 _inputVelocity = new();
+    [SerializeField] private Vector3 _previousVelocity = new();
+
+    //[SerializeField] private Vector3 _upDownInputVelocity = new();
 
     private Vector3 refVector = Vector3.zero;
 
@@ -20,18 +23,18 @@ public class CameraMover : MonoBehaviour
         transform.position += CalculateLinearVelocity();
     }
 
-    private void GetInputVelocity() => inputVelocity = (transform.forward * GetVerticalInput() + transform.right * GetHorizontalInput() + Vector3.up * GetUpDownInput()) * GetMoveSpeed() * Time.deltaTime;
+    private void GetInputVelocity() => _inputVelocity = (transform.forward * GetVerticalInput() + transform.right * GetHorizontalInput() + Vector3.up * GetUpDownInput()) * GetMoveSpeed() * Time.deltaTime;
 
     private Vector3 CalculateLinearVelocity()
     {
-        Vector3 returnValue = Vector3.SmoothDamp(previousVelocity, inputVelocity, ref refVector, _moveDamping);
-        previousVelocity = returnValue;
+        Vector3 returnValue = Vector3.SmoothDamp(_previousVelocity, _inputVelocity, ref refVector, _moveDamping);
+        _previousVelocity = returnValue;
         return returnValue;
     }
 
     private float GetVerticalInput() => Input.GetAxisRaw("Vertical"); //ned convert to new Input System
     private float GetHorizontalInput() => Input.GetAxisRaw("Horizontal"); //need convert to new Input System
-    private float GetUpDownInput() => (Input.GetKey(KeyCode.Space) ? 0.5f : 0) + (Input.GetKey(KeyCode.LeftControl) ? -0.5f : 0);
+    private float GetUpDownInput() => (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.Q) ? _verticalSpeedMultiplier : 0) - (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.E) ? _verticalSpeedMultiplier : 0);
 
     private float GetMoveSpeed() => Input.GetKey(KeyCode.LeftShift) ? _fastMoveSpeed : _moveSpeed;
 }

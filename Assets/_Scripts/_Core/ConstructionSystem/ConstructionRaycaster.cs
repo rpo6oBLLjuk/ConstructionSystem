@@ -5,7 +5,7 @@ public class ConstructionRaycaster : MonoBehaviour
     public Vector3 hitPoint;
 
     [SerializeField] Camera _camera;
-    [SerializeField] LayerMask _layerMask;
+    [SerializeField] public LayerMask _layerMask;
 
     [SerializeField] float _maxCameraRaycastDistance = 10;
     [SerializeField] float _maxSnapRaycastDistance = 100;
@@ -19,7 +19,7 @@ public class ConstructionRaycaster : MonoBehaviour
         else
             hitPoint = Vector3.zero;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Cursor.visible = false; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 }

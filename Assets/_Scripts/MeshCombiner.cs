@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class MeshCombiner : MonoBehaviour
 {
-    List<MeshFilter> meshFilters = new();
+    List<MeshFilter> _meshFilters = new();
 
-    private void Start()
+    private void Awake()
     {
         AddMeshByObj(transform); //take self mesh
 
@@ -15,34 +15,31 @@ public class MeshCombiner : MonoBehaviour
 
     private void CombineMeshes()
     {
-        CombineInstance[] combine = new CombineInstance[meshFilters.Count];
+        CombineInstance[] combine = new CombineInstance[_meshFilters.Count];
 
-        for (int i = 0; i < meshFilters.Count; ++i)
+        for (int i = 0; i < _meshFilters.Count; ++i)
         {
-            // ЗАМЕНИЛИ матрицу трансформации:
-            Matrix4x4 relativeMatrix = transform.worldToLocalMatrix * meshFilters[i].transform.localToWorldMatrix;
-            combine[i].transform = relativeMatrix;
-
-            combine[i].mesh = meshFilters[i].sharedMesh;
-            //combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-            meshFilters[i].gameObject.SetActive(false);
+            combine[i].mesh = _meshFilters[i].sharedMesh;
+            combine[i].transform = transform.worldToLocalMatrix * _meshFilters[i].transform.localToWorldMatrix;
+            _meshFilters[i].gameObject.SetActive(false);
         }
 
         Mesh mesh = new();
         mesh.CombineMeshes(combine, true);
 
         if(transform.TryGetComponent(out MeshFilter filter))
-        {
             filter.sharedMesh = mesh;
-        }
         else
-        {
             transform.gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
 
-            Material material = transform.GetComponentInChildren<MeshRenderer>(true).sharedMaterial;
+        Material material = transform.GetComponentInChildren<MeshRenderer>(true).sharedMaterial;
+        if(transform.TryGetComponent(out MeshRenderer meshRenderer))
+            meshRenderer.sharedMaterial = material;
+        else
             transform.gameObject.AddComponent<MeshRenderer>().sharedMaterial = material;
-        }
+
         transform.gameObject.SetActive(true);
+        transform.gameObject.AddComponent<BoxCollider>();
     }
 
     private void GetChildrenRecursive(Transform current)
@@ -60,7 +57,7 @@ public class MeshCombiner : MonoBehaviour
     private void AddMeshByObj(Transform obj)
     {
         if (obj.TryGetComponent(out MeshFilter meshF))
-            if (!meshFilters.Contains(meshF))
-                meshFilters.Add(meshF);
+            if (meshF.mesh && !_meshFilters.Contains(meshF))
+                _meshFilters.Add(meshF);
     }
 }
