@@ -7,10 +7,15 @@ public class MeshCombiner : MonoBehaviour
 
     private void Awake()
     {
+        if (!enabled)
+            return;
+
         AddMeshByObj(transform); //take self mesh
 
         GetChildrenRecursive(transform);
         CombineMeshes();
+
+        this.enabled = false;
     }
 
     private void CombineMeshes()

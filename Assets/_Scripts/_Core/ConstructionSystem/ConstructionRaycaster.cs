@@ -5,7 +5,7 @@ public class ConstructionRaycaster : MonoBehaviour
     public Vector3 hitPoint;
 
     [SerializeField] Camera _camera;
-    [SerializeField] public LayerMask _layerMask;
+    [SerializeField] LayerMask _layerMask;
 
     [SerializeField] float _maxCameraRaycastDistance = 10;
     [SerializeField] float _maxSnapRaycastDistance = 100;

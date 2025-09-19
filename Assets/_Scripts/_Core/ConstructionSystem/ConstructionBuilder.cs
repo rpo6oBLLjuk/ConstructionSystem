@@ -1,4 +1,6 @@
 using ColliderVisualizerNamespace;
+using System.Linq;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class ConstructionBuilder : MonoBehaviour
@@ -10,11 +12,15 @@ public class ConstructionBuilder : MonoBehaviour
     [SerializeField] Color _goodColor = Color.green;
     [SerializeField] Color _badColor = Color.red;
 
+    [SerializeField] LayerMask _testLayerMask;
+
+    private int instancesCount = 0;
+
 
     private void Start()
     {
         _hologram.GetComponent<MeshFilter>().mesh = _testConstrustion.mesh; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!\
-        if(_hologram.TryGetComponent(out BoxCollider hologramBoxCollider)) //!!!!!!!!!!!!!!!!!!! нужно переместить в контроллер, в "выбранный обект"
+        if (_hologram.TryGetComponent(out BoxCollider hologramBoxCollider)) //!!!!!!!!!!!!!!!!!!! нужно переместить в контроллер, в "выбранный обект"
         {
             hologramBoxCollider.size = _testConstrustion.mesh.bounds.size;
             hologramBoxCollider.center = _testConstrustion.mesh.bounds.center;
@@ -29,18 +35,29 @@ public class ConstructionBuilder : MonoBehaviour
 
         _hologram.transform.position = position + Vector3.up * 0.001f; //prevent textures from being clamped
 
-        if (Physics.BoxCast(position, size, Vector3.up, _testConstrustion.transform.rotation, 10, _raycaster._layerMask))
+        if (Physics.CheckBox(position + (Vector3.up * size.y / 2), size / 2 * 0.99999f, Quaternion.identity, _testLayerMask, QueryTriggerInteraction.Ignore))
         {
             SetHologrammColor(_badColor);
             Debug.Log("Bad");
+
+            Collider[] colliders = Physics.OverlapBox(position + size / 2, size, Quaternion.identity, _testLayerMask, QueryTriggerInteraction.Ignore);
+            string names = "Colliders: " + string.Join(", ", colliders.Select(c => c.gameObject.name));
+            Debug.LogWarning(names);
         }
         else
             SetHologrammColor(_goodColor);
 
 
         if (Input.GetMouseButtonDown(0))
-            GameObject.Instantiate(_testConstrustion, position, Quaternion.identity);
+            InstantiateConstruction(position, Quaternion.identity);
     }
 
     private void SetHologrammColor(Color color) => _hologram.SolidColor = color;
+
+    private void InstantiateConstruction(Vector3 position, Quaternion rotation)
+    {
+        instancesCount++;
+        string name = _testConstrustion.gameObject.name + $"Instance_{instancesCount}";
+        Instantiate(_testConstrustion, position, rotation);
+    }
 }

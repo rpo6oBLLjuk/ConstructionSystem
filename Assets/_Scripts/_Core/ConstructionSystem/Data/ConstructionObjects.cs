@@ -4,16 +4,16 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "ConstructionObjects", menuName = "Scriptable Objects/ConstructionObjects")]
 public class ConstructionObjects : ScriptableObject
 {
-    public IReadOnlyList<GameObject> AllObjects => _allObjects.AsReadOnly();
-    public IReadOnlyList<GameObject> BuiltInObjects => _builtInObjects.AsReadOnly();
-    public IReadOnlyList<GameObject> ImportedObjects => _importedObjects.AsReadOnly();
+    public IReadOnlyList<ConstructionObject> AllObjects => _allObjects.AsReadOnly();
+    public IReadOnlyList<ConstructionObject> BuiltInObjects => _builtInObjects.AsReadOnly();
+    public IReadOnlyList<ConstructionObject> ImportedObjects => _importedObjects.AsReadOnly();
 
-    [SerializeField] private List<GameObject> _allObjects = new();
-    [SerializeField] private List<GameObject> _builtInObjects = new();
-    [SerializeField] private List<GameObject> _importedObjects = new();
+    [SerializeField] private List<ConstructionObject> _allObjects = new();
+    [SerializeField] private List<ConstructionObject> _builtInObjects = new();
+    [SerializeField] private List<ConstructionObject> _importedObjects = new();
 
 
-    public void ImportObject(GameObject newObject)
+    public void ImportObject(ConstructionObject newObject)
     {
         if (!newObject || _importedObjects.Contains(newObject))
             return;
@@ -21,15 +21,15 @@ public class ConstructionObjects : ScriptableObject
         _importedObjects.Add(newObject);
         _allObjects.Add(newObject);
 
-        Debug.Log($"Object {newObject.name} imported");
+        Debug.Log($"Object {newObject.Name} imported");
     }
-    public void ImportObjects(List<GameObject> newObjects)
+    public void ImportObjects(List<ConstructionObject> newObjects)
     {
-        foreach (GameObject newObject in newObjects)
+        foreach (ConstructionObject newObject in newObjects)
             ImportObject(newObject);
     }
 
-    public void RemoveImportedObject(GameObject objectToRemove)
+    public void RemoveImportedObject(ConstructionObject objectToRemove)
     {
         if (!objectToRemove || !_importedObjects.Contains(objectToRemove))
             return;
@@ -37,11 +37,11 @@ public class ConstructionObjects : ScriptableObject
         _importedObjects.Remove(objectToRemove);
         _allObjects.Remove(objectToRemove);
 
-        Debug.Log($"Object {objectToRemove.name} removed");
+        Debug.Log($"Object {objectToRemove.Name} removed");
     }
-    public void RemoveImportedObjects(List<GameObject> objectsToRemove)
+    public void RemoveImportedObjects(List<ConstructionObject> objectsToRemove)
     {
-        foreach (GameObject newObject in objectsToRemove)
+        foreach (ConstructionObject newObject in objectsToRemove)
             RemoveImportedObject(newObject);
     }
     public void ClearImportedObjects() => RemoveImportedObjects(_importedObjects);
@@ -53,4 +53,13 @@ public class ConstructionObjects : ScriptableObject
 
         _allObjects = _builtInObjects;
     }
+}
+
+public class ConstructionObject
+{
+    [field: SerializeField] public ConstructionObject Prefab { get; }
+    [field: SerializeField] public Sprite Image { get; }
+    [field: SerializeField] public string Name { get; }
+
+    public static bool operator !(ConstructionObject obj) => obj == null;
 }
