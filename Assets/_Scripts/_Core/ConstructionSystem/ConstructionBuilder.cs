@@ -36,14 +36,7 @@ public class ConstructionBuilder : MonoBehaviour
         _hologram.transform.position = position + Vector3.up * 0.001f; //prevent textures from being clamped
 
         if (Physics.CheckBox(position + (Vector3.up * size.y / 2), size / 2 * 0.99999f, Quaternion.identity, _testLayerMask, QueryTriggerInteraction.Ignore))
-        {
             SetHologrammColor(_badColor);
-            Debug.Log("Bad");
-
-            Collider[] colliders = Physics.OverlapBox(position + size / 2, size, Quaternion.identity, _testLayerMask, QueryTriggerInteraction.Ignore);
-            string names = "Colliders: " + string.Join(", ", colliders.Select(c => c.gameObject.name));
-            Debug.LogWarning(names);
-        }
         else
             SetHologrammColor(_goodColor);
 

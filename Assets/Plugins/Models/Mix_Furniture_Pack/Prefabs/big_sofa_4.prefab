@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8299565949867632499}
   - component: {fileID: 6120652551866660581}
   - component: {fileID: 9109530024084424657}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: cloth.013
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 1139049827117887838}
   - component: {fileID: 1671569362711726945}
   - component: {fileID: 6338557222606836259}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: big_sofa_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -153,7 +153,7 @@ GameObject:
   - component: {fileID: 986171779050667417}
   - component: {fileID: 3911208304137485010}
   - component: {fileID: 4642553878047980699}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: cloth.014
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 2043175440023381662}
   - component: {fileID: 2864726421033845189}
   - component: {fileID: 5960950296820470740}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: cloth.015
   m_TagString: Untagged
   m_Icon: {fileID: 0}

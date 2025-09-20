@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5454557511475104304}
   - component: {fileID: 7432592504662922493}
   - component: {fileID: 6424263735425548868}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: small_sofa_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,7 +66,7 @@ GameObject:
   - component: {fileID: 3776547715378577065}
   - component: {fileID: 2825187972623690323}
   - component: {fileID: 6637296694753142851}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane.009
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 1620292577580643837}
   - component: {fileID: 4739537819786465182}
   - component: {fileID: 2301780797439626734}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane.010
   m_TagString: Untagged
   m_Icon: {fileID: 0}

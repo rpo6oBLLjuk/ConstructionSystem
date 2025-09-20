@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3181922813769613407}
   - component: {fileID: 1016615145370500716}
   - component: {fileID: 3427305095014023943}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: desk.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 9075448494581757367}
   - component: {fileID: 4840604530546209317}
   - component: {fileID: 5873766381724096410}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_1.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 1270548812503288725}
   - component: {fileID: 7152242494862110552}
   - component: {fileID: 3332854448878703154}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_4.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 3820430140169839425}
   - component: {fileID: 3294498454768028605}
   - component: {fileID: 3098220653895611872}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_3.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 1984396022870772726}
   - component: {fileID: 1170582548701966947}
   - component: {fileID: 2049079929739289248}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -415,7 +415,7 @@ GameObject:
   - component: {fileID: 2449079800975285719}
   - component: {fileID: 1832142528560142878}
   - component: {fileID: 5720286507975000886}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_2.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -501,7 +501,7 @@ GameObject:
   - component: {fileID: 7631118386208831163}
   - component: {fileID: 1926840495086119170}
   - component: {fileID: 1878577947825160622}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_6.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +587,7 @@ GameObject:
   - component: {fileID: 1620320402781070067}
   - component: {fileID: 5617950368315565925}
   - component: {fileID: 3581652854322900673}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: drawer_5.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}

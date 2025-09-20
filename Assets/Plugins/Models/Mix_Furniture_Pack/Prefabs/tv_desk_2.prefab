@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1424504114720415317}
   - component: {fileID: 9070376340339149601}
   - component: {fileID: 2817728242323877007}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: tv_desk.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 6462266674134127270}
   - component: {fileID: 5281187049134352835}
   - component: {fileID: 2508239843452710824}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: tv_desk_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 8279155185103828786}
   - component: {fileID: 9107544446016485165}
   - component: {fileID: 9159390959218352625}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: tv_desk_open.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}

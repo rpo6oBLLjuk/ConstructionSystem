@@ -3,17 +3,15 @@ using UnityEngine;
 
 public class ConstructionController : MonoBehaviour
 {
-    public event Action<ConstructionObject> OnNewObjectEquiped;
+    public event Action<ConstructionObject> OnNewObjectSelected;
 
     public ConstructionObjects Objects;
-    public ConstructionObject EquipedObject;
+    public ConstructionObject SelectedObject;
 
 
-
-
-    public void EquipNewObject(ConstructionObject objToEquip)
+    public void SelectNewObject(ConstructionObject objToSelect)
     {
-        EquipedObject = objToEquip;
-        OnNewObjectEquiped?.Invoke(objToEquip);
+        SelectedObject = objToSelect;
+        OnNewObjectSelected?.Invoke(objToSelect);
     }
 }

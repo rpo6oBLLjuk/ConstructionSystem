@@ -1,0 +1,24 @@
+using CustomInspector;
+using UnityEditor;
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "ConstructionObject", menuName = "Scriptable Objects/Construction/Object")]
+public class ConstructionObject : ScriptableObject
+{
+    [field: SerializeField] public GameObject Prefab { get; private set; }
+    [field: SerializeField, Preview(Size.medium)] public Texture2D Image { get; private set; }
+    [field: SerializeField] public string Name { get; private set; }
+
+    public static bool operator !(ConstructionObject obj) => obj == null;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (Prefab != null)
+        {
+            Texture2D texture = AssetPreview.GetAssetPreview(Prefab);
+            Image = texture;
+        }
+    }
+#endif
+}

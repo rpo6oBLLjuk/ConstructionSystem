@@ -1,16 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-[CreateAssetMenu(fileName = "ConstructionObjects", menuName = "Scriptable Objects/ConstructionObjects")]
+[CreateAssetMenu(fileName = "ConstructionObjectsContainer", menuName = "Scriptable Objects/Construction/ObjectsContainer")]
 public class ConstructionObjects : ScriptableObject
 {
     public IReadOnlyList<ConstructionObject> AllObjects => _allObjects.AsReadOnly();
     public IReadOnlyList<ConstructionObject> BuiltInObjects => _builtInObjects.AsReadOnly();
     public IReadOnlyList<ConstructionObject> ImportedObjects => _importedObjects.AsReadOnly();
 
-    [SerializeField] private List<ConstructionObject> _allObjects = new();
+    private List<ConstructionObject> _allObjects = new();
     [SerializeField] private List<ConstructionObject> _builtInObjects = new();
-    [SerializeField] private List<ConstructionObject> _importedObjects = new();
+    private List<ConstructionObject> _importedObjects = new();
 
 
     public void ImportObject(ConstructionObject newObject)
@@ -53,13 +54,4 @@ public class ConstructionObjects : ScriptableObject
 
         _allObjects = _builtInObjects;
     }
-}
-
-public class ConstructionObject
-{
-    [field: SerializeField] public ConstructionObject Prefab { get; }
-    [field: SerializeField] public Sprite Image { get; }
-    [field: SerializeField] public string Name { get; }
-
-    public static bool operator !(ConstructionObject obj) => obj == null;
 }
