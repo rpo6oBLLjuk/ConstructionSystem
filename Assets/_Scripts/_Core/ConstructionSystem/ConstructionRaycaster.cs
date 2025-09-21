@@ -18,8 +18,5 @@ public class ConstructionRaycaster : MonoBehaviour
             hitPoint = downHit.point;
         else
             hitPoint = Vector3.zero;
-
-        Cursor.lockState = CursorLockMode.Locked;  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        Cursor.visible = false; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 }
