@@ -73,5 +73,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-ProjectSettings/ProjectVersion.txt
-Assets/Plugins/Zenject/Source/Zenject.csproj.meta
+/ProjectVersion.txt
+/Assets/Plugins/Zenject/Source/Zenject.csproj.meta
+/ProjectSettings/ProjectVersion.txt
