@@ -25,7 +25,7 @@ public class CameraMover : MonoBehaviour
 
     private void GetInputVelocity()
     {
-        Debug.Log($"Readed value: {_inputSystem.InputActionAsset.Player.Move.ReadValue<Vector2>()}");
+        //Debug.Log($"Readed value: {_inputSystem.InputActionAsset.Player.Move.ReadValue<Vector2>()}");
 
         if (!_inputSystem.InputActionAsset.Player.enabled)
         {

@@ -25,7 +25,6 @@ public class ConstructionBuilder : MonoBehaviour
         {
             hologramBoxCollider.size = _testConstrustion.mesh.bounds.size;
             hologramBoxCollider.center = _testConstrustion.mesh.bounds.center;
-            //hologramBoxCollider.center = new Vector3(0, _testConstrustion.mesh.bounds.size.y / 2, 0);
         }
     }
 
@@ -42,7 +41,7 @@ public class ConstructionBuilder : MonoBehaviour
             SetHologrammColor(_goodColor);
 
 
-        if (Input.GetMouseButtonDown(0) && !_inputSystem.InputActionAsset.Player.enabled)
+        if (Input.GetMouseButtonDown(0) && _inputSystem.InputActionAsset.Player.enabled)
             InstantiateConstruction(position, Quaternion.identity);
     }
 
