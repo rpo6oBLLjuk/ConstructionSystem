@@ -1,7 +1,10 @@
 using UnityEngine;
+using Zenject;
 
 public class CameraRotator : MonoBehaviour
 {
+    [Inject] InputSystem _inputSystem;
+
     [SerializeField] private float _rotateSpeed = 10;
     [SerializeField] private float _moveDamping = 0.1f;
 
@@ -17,19 +20,20 @@ public class CameraRotator : MonoBehaviour
         RotateCamera();
     }
 
-    private void GetInputVelocity() => inputVelocity = new Vector2(Input.mousePositionDelta.y, Input.mousePositionDelta.x) * _rotateSpeed * Time.deltaTime;
+    private void GetInputVelocity()
+    {
+        if(!_inputSystem.InputActionAsset.Player.enabled)
+        {
+            inputVelocity = Vector3.zero;
+            return;
+        }
+        inputVelocity = _rotateSpeed * Time.deltaTime * new Vector2(Input.mousePositionDelta.y, Input.mousePositionDelta.x);
+    }
 
     private void RotateCamera()
     {
         Vector3 _smoothedVelocity = Vector3.SmoothDamp(previousVelocity, inputVelocity, ref refVector, _moveDamping);
         previousVelocity = _smoothedVelocity;
-
-        //transform.Rotate(Vector3.right, -_smoothedVelocity.x, Space.Self);
-        //transform.Rotate(Vector3.up, _smoothedVelocity.y, Space.Self);
-
-        //Vector3 eulerRotation = transform.eulerAngles;
-        //eulerRotation.z = 0;
-        //transform.eulerAngles = eulerRotation;
 
         Vector3 currentEuler = transform.localEulerAngles;
 

@@ -1,18 +1,18 @@
 using UnityEngine;
+using Zenject;
 
 public class CameraMover : MonoBehaviour
 {
+    [Inject] InputSystem _inputSystem;
+
+
     [SerializeField] private float _moveSpeed = 10;
     [SerializeField] private float _fastMoveSpeed = 50;
     [SerializeField] private float _verticalSpeedMultiplier = 0.5f;
     [SerializeField] private float _moveDamping = 0.1f;
 
-
-
     [SerializeField] private Vector3 _inputVelocity = new();
     [SerializeField] private Vector3 _previousVelocity = new();
-
-    //[SerializeField] private Vector3 _upDownInputVelocity = new();
 
     private Vector3 refVector = Vector3.zero;
 
@@ -23,7 +23,17 @@ public class CameraMover : MonoBehaviour
         transform.position += CalculateLinearVelocity();
     }
 
-    private void GetInputVelocity() => _inputVelocity = (transform.forward * GetVerticalInput() + transform.right * GetHorizontalInput() + Vector3.up * GetUpDownInput()) * GetMoveSpeed() * Time.deltaTime;
+    private void GetInputVelocity()
+    {
+        Debug.Log($"Readed value: {_inputSystem.InputActionAsset.Player.Move.ReadValue<Vector2>()}");
+
+        if (!_inputSystem.InputActionAsset.Player.enabled)
+        {
+            _inputVelocity = Vector3.zero;
+            return;
+        }
+        _inputVelocity = GetMoveSpeed() * Time.deltaTime * (transform.forward * GetVerticalInput() + transform.right * GetHorizontalInput() + Vector3.up * GetUpDownInput());
+    }
 
     private Vector3 CalculateLinearVelocity()
     {

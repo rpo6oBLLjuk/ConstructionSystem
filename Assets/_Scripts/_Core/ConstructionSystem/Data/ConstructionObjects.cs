@@ -1,6 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
-using System;
+using UnityEngine;
 
 [CreateAssetMenu(fileName = "ConstructionObjectsContainer", menuName = "Scriptable Objects/Construction/ObjectsContainer")]
 public class ConstructionObjects : ScriptableObject

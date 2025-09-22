@@ -1,10 +1,11 @@
 using ColliderVisualizerNamespace;
-using System.Linq;
-using Unity.Cinemachine;
 using UnityEngine;
+using Zenject;
 
 public class ConstructionBuilder : MonoBehaviour
 {
+    [Inject] InputSystem _inputSystem;
+
     [SerializeField] private ConstructionRaycaster _raycaster;
     [SerializeField] private MeshFilter _testConstrustion;
     [SerializeField] ColliderVisualizer _hologram;
@@ -41,7 +42,7 @@ public class ConstructionBuilder : MonoBehaviour
             SetHologrammColor(_goodColor);
 
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !_inputSystem.InputActionAsset.Player.enabled)
             InstantiateConstruction(position, Quaternion.identity);
     }
 
