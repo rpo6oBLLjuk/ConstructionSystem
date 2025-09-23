@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CursorUIPanel : MonoBehaviour, IPointerDownHandler
+public class CursorHiderUIPanel : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField] CursorController _cursorController;
 

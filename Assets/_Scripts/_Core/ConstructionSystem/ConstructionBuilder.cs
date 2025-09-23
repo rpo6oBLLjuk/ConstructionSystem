@@ -5,6 +5,7 @@ using Zenject;
 public class ConstructionBuilder : MonoBehaviour
 {
     [Inject] InputSystem _inputSystem;
+    [Inject] ConstructionSystem _constructionSystem;
 
     [SerializeField] private ConstructionRaycaster _raycaster;
     [SerializeField] private MeshFilter _testConstrustion;
@@ -20,7 +21,7 @@ public class ConstructionBuilder : MonoBehaviour
 
     private void Start()
     {
-        _hologram.GetComponent<MeshFilter>().mesh = _testConstrustion.mesh; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!\
+        _hologram.GetComponent<MeshFilter>().mesh = _constructionSystem.SelectedConstruction.Prefab.GetComponent<MeshFilter>().sharedMesh; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!\
         if (_hologram.TryGetComponent(out BoxCollider hologramBoxCollider)) //!!!!!!!!!!!!!!!!!!! нужно переместить в контроллер, в "выбранный обект"
         {
             hologramBoxCollider.size = _testConstrustion.mesh.bounds.size;
