@@ -3563,6 +3563,7 @@ MonoBehaviour:
   _testLayerMask:
     serializedVersion: 2
     m_Bits: 119
+  mouseScrollMultiplier: 100
 --- !u!1 &343451713
 GameObject:
   m_ObjectHideFlags: 0
@@ -13703,8 +13704,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   drawSolid: 1
   drawWire: 1
-  solidColor: {r: 0, g: 1, b: 0, a: 0}
-  wireColor: {r: 1, g: 1, b: 1, a: 1}
+  solidColor: {r: 0, g: 1, b: 0, a: 1}
+  wireColor: {r: 0, g: 0.136693, b: 1, a: 1}
   wireSegments: 24
   maxMeshTriangles: 0
   capsuleArcSegments: 8

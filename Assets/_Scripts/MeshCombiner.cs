@@ -47,12 +47,11 @@ public class MeshCombiner
     {
         BoxCollider boxCollider = transform.GetOrAddComponent<BoxCollider>();
         boxCollider.isTrigger = true;
-        boxCollider.size = renderer.bounds.size;
-        boxCollider.center = renderer.bounds.center;
+        boxCollider.size = renderer.bounds.size + Vector3.one * 0.0001f;
+        boxCollider.center = renderer.bounds.center - transform.position;
 
         MeshCollider meshCollider = transform.GetOrAddComponent<MeshCollider>();
         
-
         return (boxCollider, meshCollider);
     }
 
