@@ -267,8 +267,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8356158604573464703}
-  - component: {fileID: 5923265315476653389}
-  - component: {fileID: 9076069893984478749}
+  - component: {fileID: 1101264286964594245}
+  - component: {fileID: -5642865956902884344}
+  - component: {fileID: 4435303038119228242}
   m_Layer: 6
   m_Name: big_sofa_3
   m_TagString: Untagged
@@ -294,7 +295,7 @@ Transform:
   - {fileID: 8386114514110527007}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5923265315476653389
+--- !u!114 &1101264286964594245
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -303,14 +304,52 @@ MonoBehaviour:
   m_GameObject: {fileID: 7719422313021434366}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43fa96612381f3c4da6686b1e55d5153, type: 3}
+  m_Script: {fileID: 11500000, guid: 2bc76dcb814d95247b537f3bf52ac36a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!33 &9076069893984478749
-MeshFilter:
+--- !u!65 &-5642865956902884344
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7719422313021434366}
-  m_Mesh: {fileID: 0}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4435303038119228242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7719422313021434366}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0de9c2653c954307856264ec248eab4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawSolid: 1
+  drawWire: 1
+  solidColor: {r: 0, g: 1, b: 0, a: 0.15}
+  wireColor: {r: 0, g: 1, b: 0, a: 1}
+  wireSegments: 24
+  maxMeshTriangles: 0
+  capsuleArcSegments: 8
+  meshBox: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  meshSphere: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  meshCylinder: {fileID: 0}
+  upperHalfSphere: {fileID: 0}
+  lowerHalfSphere: {fileID: 0}
+  coloredShader: {fileID: 4800000, guid: 38859b428448107418ad51fa96d642e7, type: 3}

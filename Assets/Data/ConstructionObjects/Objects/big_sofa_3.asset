@@ -9,9 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c502909b6115f5e4cb0d035305d10854, type: 3}
+  m_Script: {fileID: 11500000, guid: 0da6e57aef297b24ea760762b9a6e714, type: 3}
   m_Name: big_sofa_3
   m_EditorClassIdentifier: 
+  <Id>k__BackingField: 13
   <Prefab>k__BackingField: {fileID: 7719422313021434366, guid: 0598270ec67d0b9468e63c4f4d50d8b9, type: 3}
   <Image>k__BackingField: {fileID: 0}
   <Name>k__BackingField: big_sofa_3

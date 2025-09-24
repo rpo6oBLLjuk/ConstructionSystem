@@ -353,8 +353,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1984396022870772726}
-  - component: {fileID: 1170582548701966947}
-  - component: {fileID: 2049079929739289248}
+  - component: {fileID: 5382361351038106780}
+  - component: {fileID: -854003555842075814}
   m_Layer: 6
   m_Name: drawer_1
   m_TagString: Untagged
@@ -384,26 +384,52 @@ Transform:
   - {fileID: 7631118386208831163}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1170582548701966947
+--- !u!65 &5382361351038106780
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6986859864966456171}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-854003555842075814
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6986859864966456171}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43fa96612381f3c4da6686b1e55d5153, type: 3}
+  m_Script: {fileID: 11500000, guid: 0de9c2653c954307856264ec248eab4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!33 &2049079929739289248
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6986859864966456171}
-  m_Mesh: {fileID: 0}
+  drawSolid: 1
+  drawWire: 1
+  solidColor: {r: 0, g: 1, b: 0, a: 0.15}
+  wireColor: {r: 0, g: 1, b: 0, a: 1}
+  wireSegments: 24
+  maxMeshTriangles: 0
+  capsuleArcSegments: 8
+  meshBox: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  meshSphere: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  meshCylinder: {fileID: 0}
+  upperHalfSphere: {fileID: 0}
+  lowerHalfSphere: {fileID: 0}
+  coloredShader: {fileID: 4800000, guid: 38859b428448107418ad51fa96d642e7, type: 3}
 --- !u!1 &7900148787753700488
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,42 +1,60 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeshCombiner : MonoBehaviour
+public class MeshCombiner
 {
-    public Bounds bounds;
-    public BoxCollider boxCollider;
-
     [SerializeField] private bool skipMeshCombination = true;
 
 
     List<MeshFilter> _meshFilters = new();
 
 
-    private void Awake()
+    public Mesh GetCombinedMesh(Transform transform)
     {
-        if (!enabled)
-            return;
-
         AddMeshByObj(transform); //take self mesh
-
         GetChildrenRecursive(transform);
 
-        if (skipMeshCombination)
-        {
-            GetTotalMeshBounds();
+        return CombineMeshes(transform);
 
-            boxCollider = gameObject.AddComponent<BoxCollider>();
-            boxCollider.size = bounds.size;
-            boxCollider.center = bounds.center;
-        }
-        else
-        {
-            CombineMeshes();
-        }
+        //if (skipMeshCombination) //!!!!!!!!!!!!!!!! Данный код был создан для генерации фейкового комбайн-меша, а точнее для Bounds вокруг. Подлежит экзекуции. !!!!!!!!!!!!!!!!!!!!
+        //{
+        //    GetTotalMeshBounds();
 
-        this.enabled = false;
+        //    boxCollider = gameObject.AddComponent<BoxCollider>();
+        //    boxCollider.size = bounds.size;
+        //    boxCollider.center = bounds.center;
+        //}
+        //else
+        //{
+        //    CombineMeshes();
+        //}
     }
 
+    public (MeshFilter, MeshRenderer) AddMeshToTransform(Transform transform, Mesh mesh)
+    {
+        MeshFilter meshFilter = transform.GetOrAddComponent<MeshFilter>();
+        meshFilter.sharedMesh = mesh;
+
+        Material material = transform.GetComponentInChildren<MeshRenderer>(true).sharedMaterial;
+
+        MeshRenderer meshRenderer = transform.GetOrAddComponent<MeshRenderer>();
+        meshRenderer.sharedMaterial = material;
+
+        return (meshFilter, meshRenderer);
+    }
+
+    public (BoxCollider, MeshCollider) AddCollidersToTransform(Transform transform, MeshRenderer renderer)
+    {
+        BoxCollider boxCollider = transform.GetOrAddComponent<BoxCollider>();
+        boxCollider.isTrigger = true;
+        boxCollider.size = renderer.bounds.size;
+        boxCollider.center = renderer.bounds.center;
+
+        MeshCollider meshCollider = transform.GetOrAddComponent<MeshCollider>();
+        
+
+        return (boxCollider, meshCollider);
+    }
 
     private void GetChildrenRecursive(Transform current)
     {
@@ -57,25 +75,8 @@ public class MeshCombiner : MonoBehaviour
                 _meshFilters.Add(meshF);
     }
 
-    //Fake combine
-    private void GetTotalMeshBounds()
-    {
-        if (_meshFilters.Count == 0)
-            return;
-
-        bounds = _meshFilters[0].sharedMesh.bounds;
-
-        Bounds currentBounds;
-        for (int i = 1; i < _meshFilters.Count; i++)
-        {
-            currentBounds = _meshFilters[i].sharedMesh.bounds;
-            currentBounds.center += _meshFilters[i].transform.localPosition;
-            bounds.Encapsulate(currentBounds);
-        }
-    }
-
     //Real combine
-    private void CombineMeshes()
+    private Mesh CombineMeshes(Transform transform)
     {
         CombineInstance[] combine = new CombineInstance[_meshFilters.Count];
 
@@ -89,18 +90,24 @@ public class MeshCombiner : MonoBehaviour
         Mesh mesh = new();
         mesh.CombineMeshes(combine, true);
 
-        if (transform.TryGetComponent(out MeshFilter filter))
-            filter.sharedMesh = mesh;
-        else
-            transform.gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
-
-        Material material = transform.GetComponentInChildren<MeshRenderer>(true).sharedMaterial;
-        if (transform.TryGetComponent(out MeshRenderer meshRenderer))
-            meshRenderer.sharedMaterial = material;
-        else
-            transform.gameObject.AddComponent<MeshRenderer>().sharedMaterial = material;
-
-        transform.gameObject.SetActive(true);
-        transform.gameObject.AddComponent<BoxCollider>();
+        return mesh;
     }
+
+    //!!!!!!!!!!!!!!!! Данный код был создан для генерации фейкового комбайн-меша, а точнее для Bounds вокруг. Подлежит экзекуции. !!!!!!!!!!!!!!!!!!!!
+    //Fake combine
+    //private void GetTotalMeshBounds()
+    //{
+    //    if (_meshFilters.Count == 0)
+    //        return;
+
+    //    bounds = _meshFilters[0].sharedMesh.bounds;
+
+    //    Bounds currentBounds;
+    //    for (int i = 1; i < _meshFilters.Count; i++)
+    //    {
+    //        currentBounds = _meshFilters[i].sharedMesh.bounds;
+    //        currentBounds.center += _meshFilters[i].transform.localPosition;
+    //        bounds.Encapsulate(currentBounds);
+    //    }
+    //}
 }

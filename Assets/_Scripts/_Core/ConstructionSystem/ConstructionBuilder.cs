@@ -8,8 +8,8 @@ public class ConstructionBuilder : MonoBehaviour
     [Inject] ConstructionSystem _constructionSystem;
 
     [SerializeField] private ConstructionRaycaster _raycaster;
-    [SerializeField] private MeshFilter _testConstrustion;
-    [SerializeField] ColliderVisualizer _hologram;
+    [SerializeField] ConstructionHandler _hologramHandler;
+    [SerializeField] ColliderVisualizer _hologramVisualizer;
 
     [SerializeField] Color _goodColor = Color.green;
     [SerializeField] Color _badColor = Color.red;
@@ -21,22 +21,28 @@ public class ConstructionBuilder : MonoBehaviour
 
     private void Start()
     {
-        _hologram.GetComponent<MeshFilter>().mesh = _constructionSystem.SelectedConstruction.Prefab.GetComponent<MeshFilter>().sharedMesh; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!\
-        if (_hologram.TryGetComponent(out BoxCollider hologramBoxCollider)) //!!!!!!!!!!!!!!!!!!! нужно переместить в контроллер, в "выбранный обект"
-        {
-            hologramBoxCollider.size = _testConstrustion.mesh.bounds.size;
-            hologramBoxCollider.center = _testConstrustion.mesh.bounds.center;
-        }
+        if (_hologramHandler)
+            Destroy(_hologramHandler.gameObject);
+
+        _hologramHandler = Instantiate(_constructionSystem.CurrentConstructionData.Prefab).GetComponent<ConstructionHandler>();
+        _hologramHandler.Initialize(_constructionSystem.CurrentConstructionData, _constructionSystem.Constructions);
+
+        _hologramHandler.BoxCollider.isTrigger = true;
+        _hologramHandler.MeshCollider.convex = true;
+        _hologramHandler.MeshCollider.isTrigger = true;
+
+        _hologramVisualizer = _hologramHandler.GetComponent<ColliderVisualizer>();
+        _hologramVisualizer.enabled = true;
     }
 
     private void Update()
     {
         Vector3 position = _raycaster.hitPoint;
-        Vector3 size = _testConstrustion.mesh.bounds.size;
+        Vector3 size = _hologramHandler.MeshRenderer.bounds.size;
 
-        _hologram.transform.position = position + Vector3.up * 0.001f; //prevent textures from being clamped
+        _hologramHandler.transform.position = position + Vector3.up * 0.001f; //prevent textures from being clamped
 
-        if (Physics.CheckBox(position + (Vector3.up * size.y / 2), size / 2 * 0.99999f, Quaternion.identity, _testLayerMask, QueryTriggerInteraction.Ignore))
+        if (Physics.CheckBox(position + _hologramHandler.BoxCollider.bounds.center, size / 2 * 0.99999f, Quaternion.identity, _testLayerMask, QueryTriggerInteraction.Ignore))
             SetHologrammColor(_badColor);
         else
             SetHologrammColor(_goodColor);
@@ -46,12 +52,13 @@ public class ConstructionBuilder : MonoBehaviour
             InstantiateConstruction(position, Quaternion.identity);
     }
 
-    private void SetHologrammColor(Color color) => _hologram.SolidColor = color;
+    private void SetHologrammColor(Color color) => _hologramVisualizer.SolidColor = color;
 
-    private void InstantiateConstruction(Vector3 position, Quaternion rotation)
+    private void InstantiateConstruction(Vector3 position, Quaternion rotation) //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Написать фабрику для создания объектов
     {
         instancesCount++;
-        string name = _testConstrustion.gameObject.name + $"Instance_{instancesCount}";
-        Instantiate(_testConstrustion, position, rotation);
+        string name = _hologramHandler.gameObject.name + $"Instance_{instancesCount}";
+        GameObject instance = Instantiate(_constructionSystem.CurrentConstructionData.Prefab, position, rotation);
+        instance.GetComponent<ConstructionHandler>().Initialize(_constructionSystem.CurrentConstructionData, _constructionSystem.Constructions);
     }
 }

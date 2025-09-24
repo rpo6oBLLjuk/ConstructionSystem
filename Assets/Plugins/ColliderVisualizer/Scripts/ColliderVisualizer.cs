@@ -143,8 +143,11 @@ namespace ColliderVisualizerNamespace
         /// </summary>
         public void Initialize()
         {
-            col = GetComponent<Collider>();
-            if (col == null) return;
+            if (!TryGetComponent<Collider>(out col))
+            {
+                Debug.Log("Visualizer couldn't find the collider");
+                return;
+            }
 
             _transform = transform;
 

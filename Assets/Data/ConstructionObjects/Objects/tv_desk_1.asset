@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0da6e57aef297b24ea760762b9a6e714, type: 3}
-  m_Name: big_sofa_1
+  m_Name: tv_desk_1
   m_EditorClassIdentifier: 
-  <Id>k__BackingField: 11
-  <Prefab>k__BackingField: {fileID: 3674752681661450430, guid: 1753cc96b5edc6643a3cd89df54c69e1, type: 3}
+  <Id>k__BackingField: 51
+  <Prefab>k__BackingField: {fileID: 3135091939257642254, guid: 69369ec453f080b4593d075490969e9d, type: 3}
   <Image>k__BackingField: {fileID: 0}
-  <Name>k__BackingField: big_sofa_1
+  <Name>k__BackingField: tv_desk_1
