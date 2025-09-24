@@ -107,6 +107,51 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GridSnapping"",
+                    ""type"": ""Button"",
+                    ""id"": ""c3c3ca8c-dba7-4396-bd4c-1ba1e756e6e9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GroundSnapping"",
+                    ""type"": ""Button"",
+                    ""id"": ""b8753f12-44bb-4ee4-bc94-b304b8514a6d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ConstructionSnapping"",
+                    ""type"": ""Button"",
+                    ""id"": ""fa1d89d7-4319-4ce8-841b-d5d3a8c11c80"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotationFixing"",
+                    ""type"": ""Button"",
+                    ""id"": ""3574af6c-35cf-416a-b2fe-9a941b506bee"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HologramVisualize"",
+                    ""type"": ""Button"",
+                    ""id"": ""0e5b5aba-f9c4-4171-a4e6-187e1c4726c5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -492,6 +537,61 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8cee8b44-a5b3-4d02-be3e-ede34a31b475"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GridSnapping"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a5185f96-ec32-4f7e-baff-fccc990fb961"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GroundSnapping"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf9b9b9b-c9a9-4829-9b6b-834044ef8f6d"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ConstructionSnapping"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""870eb98e-f85b-4561-8994-160e1eb77df6"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotationFixing"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ae08a4f5-54b0-47ca-8cca-7aa28edb10b1"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HologramVisualize"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1088,6 +1188,11 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
         m_Player_Previous = m_Player.FindAction("Previous", throwIfNotFound: true);
         m_Player_Next = m_Player.FindAction("Next", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
+        m_Player_GridSnapping = m_Player.FindAction("GridSnapping", throwIfNotFound: true);
+        m_Player_GroundSnapping = m_Player.FindAction("GroundSnapping", throwIfNotFound: true);
+        m_Player_ConstructionSnapping = m_Player.FindAction("ConstructionSnapping", throwIfNotFound: true);
+        m_Player_RotationFixing = m_Player.FindAction("RotationFixing", throwIfNotFound: true);
+        m_Player_HologramVisualize = m_Player.FindAction("HologramVisualize", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1176,6 +1281,11 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
     private readonly InputAction m_Player_Previous;
     private readonly InputAction m_Player_Next;
     private readonly InputAction m_Player_Sprint;
+    private readonly InputAction m_Player_GridSnapping;
+    private readonly InputAction m_Player_GroundSnapping;
+    private readonly InputAction m_Player_ConstructionSnapping;
+    private readonly InputAction m_Player_RotationFixing;
+    private readonly InputAction m_Player_HologramVisualize;
     public struct PlayerActions
     {
         private @PlayerInputActionAsset m_Wrapper;
@@ -1189,6 +1299,11 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
         public InputAction @Previous => m_Wrapper.m_Player_Previous;
         public InputAction @Next => m_Wrapper.m_Player_Next;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
+        public InputAction @GridSnapping => m_Wrapper.m_Player_GridSnapping;
+        public InputAction @GroundSnapping => m_Wrapper.m_Player_GroundSnapping;
+        public InputAction @ConstructionSnapping => m_Wrapper.m_Player_ConstructionSnapping;
+        public InputAction @RotationFixing => m_Wrapper.m_Player_RotationFixing;
+        public InputAction @HologramVisualize => m_Wrapper.m_Player_HologramVisualize;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1225,6 +1340,21 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
+            @GridSnapping.started += instance.OnGridSnapping;
+            @GridSnapping.performed += instance.OnGridSnapping;
+            @GridSnapping.canceled += instance.OnGridSnapping;
+            @GroundSnapping.started += instance.OnGroundSnapping;
+            @GroundSnapping.performed += instance.OnGroundSnapping;
+            @GroundSnapping.canceled += instance.OnGroundSnapping;
+            @ConstructionSnapping.started += instance.OnConstructionSnapping;
+            @ConstructionSnapping.performed += instance.OnConstructionSnapping;
+            @ConstructionSnapping.canceled += instance.OnConstructionSnapping;
+            @RotationFixing.started += instance.OnRotationFixing;
+            @RotationFixing.performed += instance.OnRotationFixing;
+            @RotationFixing.canceled += instance.OnRotationFixing;
+            @HologramVisualize.started += instance.OnHologramVisualize;
+            @HologramVisualize.performed += instance.OnHologramVisualize;
+            @HologramVisualize.canceled += instance.OnHologramVisualize;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1256,6 +1386,21 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
+            @GridSnapping.started -= instance.OnGridSnapping;
+            @GridSnapping.performed -= instance.OnGridSnapping;
+            @GridSnapping.canceled -= instance.OnGridSnapping;
+            @GroundSnapping.started -= instance.OnGroundSnapping;
+            @GroundSnapping.performed -= instance.OnGroundSnapping;
+            @GroundSnapping.canceled -= instance.OnGroundSnapping;
+            @ConstructionSnapping.started -= instance.OnConstructionSnapping;
+            @ConstructionSnapping.performed -= instance.OnConstructionSnapping;
+            @ConstructionSnapping.canceled -= instance.OnConstructionSnapping;
+            @RotationFixing.started -= instance.OnRotationFixing;
+            @RotationFixing.performed -= instance.OnRotationFixing;
+            @RotationFixing.canceled -= instance.OnRotationFixing;
+            @HologramVisualize.started -= instance.OnHologramVisualize;
+            @HologramVisualize.performed -= instance.OnHologramVisualize;
+            @HologramVisualize.canceled -= instance.OnHologramVisualize;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1447,6 +1592,11 @@ public partial class @PlayerInputActionAsset: IInputActionCollection2, IDisposab
         void OnPrevious(InputAction.CallbackContext context);
         void OnNext(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
+        void OnGridSnapping(InputAction.CallbackContext context);
+        void OnGroundSnapping(InputAction.CallbackContext context);
+        void OnConstructionSnapping(InputAction.CallbackContext context);
+        void OnRotationFixing(InputAction.CallbackContext context);
+        void OnHologramVisualize(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

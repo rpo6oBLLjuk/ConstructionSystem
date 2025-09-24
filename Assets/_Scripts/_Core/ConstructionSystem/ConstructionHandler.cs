@@ -12,26 +12,34 @@ public class ConstructionHandler : MonoBehaviour
     public MeshFilter MeshFilter { get; private set; }
     public MeshRenderer MeshRenderer { get; private set; }
 
-    private ConstructionObjectsDataContainer _constructionObjectsDataContainer;
+    //private ConstructionObjectsDataContainer _constructionObjectsDataContainer;
 
     private MeshCombiner _meshCombiner = new();
+    private Mesh mesh;
 
+    //Handler не должен знать о глобальном конфиге и т€нуть его зависимость 
 
-    public void Initialize(ConstructionObjectData data, ConstructionObjectsDataContainer constructionObjectsDataContainer)
+    public void InitializeWithMesh(ConstructionObjectData data, Mesh mesh)
     {
         Data = data;
-        _constructionObjectsDataContainer = constructionObjectsDataContainer;
+        this.mesh = mesh;
+
         InitializeComponents();
     }
+    public Mesh InitializeWithoutMesh(ConstructionObjectData data) //ѕопытатьс€ удалить второй аргумент
+    {
+        Data = data;
+        mesh = GetCombinedMesh();
+
+        InitializeComponents();
+
+        return mesh;
+    }
+
+    private Mesh GetCombinedMesh() => _meshCombiner.GetCombinedMesh(transform);
 
     private void InitializeComponents()
     {
-        if (!_constructionObjectsDataContainer.TryGetCombinedMesh(Data.Id, out Mesh mesh))
-        {
-            mesh = _meshCombiner.GetCombinedMesh(transform);
-            _constructionObjectsDataContainer.AddCombinedMesh(Data.Id, mesh);
-        }
-
         (MeshFilter, MeshRenderer) = _meshCombiner.AddMeshToTransform(transform, mesh);
         (BoxCollider, MeshCollider) = _meshCombiner.AddCollidersToTransform(transform, MeshRenderer);
     }

@@ -157,9 +157,14 @@ namespace ColliderVisualizerNamespace
             wireMat = new Material(coloredShader);
         }
 
+        public void ChangeCollider(Collider collider) => col = collider;
+
         private void OnRenderObject()
         {
-            if (!enabled || col == null) return;
+            if (!enabled)
+                return;
+            if(col == null & !TryGetComponent(out col))
+                return;
 
             if (drawSolid)
             {

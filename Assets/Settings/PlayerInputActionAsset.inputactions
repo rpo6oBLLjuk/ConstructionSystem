@@ -85,6 +85,51 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "GridSnapping",
+                    "type": "Button",
+                    "id": "c3c3ca8c-dba7-4396-bd4c-1ba1e756e6e9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "GroundSnapping",
+                    "type": "Button",
+                    "id": "b8753f12-44bb-4ee4-bc94-b304b8514a6d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ConstructionSnapping",
+                    "type": "Button",
+                    "id": "fa1d89d7-4319-4ce8-841b-d5d3a8c11c80",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RotationFixing",
+                    "type": "Button",
+                    "id": "3574af6c-35cf-416a-b2fe-9a941b506bee",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HologramVisualize",
+                    "type": "Button",
+                    "id": "0e5b5aba-f9c4-4171-a4e6-187e1c4726c5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -470,6 +515,61 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8cee8b44-a5b3-4d02-be3e-ede34a31b475",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GridSnapping",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a5185f96-ec32-4f7e-baff-fccc990fb961",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GroundSnapping",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bf9b9b9b-c9a9-4829-9b6b-834044ef8f6d",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ConstructionSnapping",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "870eb98e-f85b-4561-8994-160e1eb77df6",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotationFixing",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ae08a4f5-54b0-47ca-8cca-7aa28edb10b1",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HologramVisualize",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

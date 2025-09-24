@@ -1,17 +1,24 @@
+using CustomInspector;
 using System;
 using UnityEngine;
 
 public class UserInputHandler : MonoBehaviour
 {
-    public KeyBindContainer softSnapping; //Привязка к земле или привязка к координатам
-    public KeyBindContainer groundSnapping; //Привязка к земле с игнорированием объектов
-    public KeyBindContainer magnetSnapping; //Привязка к другим объектам
-    public KeyBindContainer visualizeHologram; //Визуализация голограммы установки объекта
+    public KeyBindContainer fixedSnapping; //Привязка к координатам                           //Предположительно S
+    public KeyBindContainer groundSnapping; //Привязка к земле с игнорированием объектов      //Предположительно G
+    public KeyBindContainer magnetSnapping; //Привязка к другим объектам                      //Предположительно M
+    public KeyBindContainer visualizeHologram; //Визуализация голограммы установки объекта    //Предположительно V
+
+    public KeyBindContainer fixedRotating; //Фиксация вращения по определённым делениям углов //Предположительно R
+
 
     private void Update()
     {
-        softSnapping.Update();
+        fixedSnapping.Update();
         groundSnapping.Update();
+        magnetSnapping.Update();
+        visualizeHologram.Update();
+        fixedRotating.Update();
     }
 }
 
@@ -22,7 +29,7 @@ public class KeyBindContainer
 
     public KeyCode KeyCode;
     public bool IsHoldable;
-    [HideInInspector] public bool IsPressed;
+    [ReadOnly] public bool IsPressed;
 
 
     public void Update()

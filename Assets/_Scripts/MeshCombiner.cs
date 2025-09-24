@@ -3,9 +3,7 @@ using UnityEngine;
 
 public class MeshCombiner
 {
-    [SerializeField] private bool skipMeshCombination = true;
-
-
+    //[SerializeField] private bool skipMeshCombination = true;
     List<MeshFilter> _meshFilters = new();
 
 
@@ -42,11 +40,9 @@ public class MeshCombiner
 
         return (meshFilter, meshRenderer);
     }
-
     public (BoxCollider, MeshCollider) AddCollidersToTransform(Transform transform, MeshRenderer renderer)
     {
         BoxCollider boxCollider = transform.GetOrAddComponent<BoxCollider>();
-        boxCollider.isTrigger = true;
         boxCollider.size = renderer.bounds.size + Vector3.one * 0.0001f;
         boxCollider.center = renderer.bounds.center - transform.position;
 
