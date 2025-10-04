@@ -21,7 +21,7 @@ public class ConstructionObjectsDataContainer : ScriptableObject
         _allObjects.Clear();
         _importedObjects.Clear();
 
-        _allObjects = _builtInObjects;
+        _allObjects = _builtInObjects.GetRange(0, _builtInObjects.Count);
         _meshCombines.Clear();
     }
 

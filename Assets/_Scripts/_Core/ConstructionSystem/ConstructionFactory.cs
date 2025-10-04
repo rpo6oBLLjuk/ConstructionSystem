@@ -25,7 +25,7 @@ public class ConstructionFactory
             handler.InitializeWithMesh(constructionObjectData, mesh);
         }
 
-        instance.transform.rotation = rotation; //After initialize, MeshRenderer.Bounds work correctly only in default rotation
+        instance.transform.rotation = rotation; //After initialize, MeshRenderer.Bounds work correctly only in default rotation (Quaternion.identity)
 
         return handler;
     }

@@ -1,22 +1,27 @@
+using System;
 using UnityEngine;
+using Zenject;
 
-public class ConstructionRaycaster : MonoBehaviour
+public class ConstructionRaycaster
 {
-    public Vector3 hitPoint;
+    [Inject] ConstructionSystemConfig _config;
+    Camera _camera;
 
-    [SerializeField] Camera _camera;
-    [SerializeField] LayerMask _layerMask;
 
-    [SerializeField] float _maxCameraRaycastDistance = 10;
-    [SerializeField] float _maxSnapRaycastDistance = 100;
-
-    private void Update()
+    [Obsolete("¬ынести ссылку на камеру в сервис камеры")]
+    public ConstructionRaycaster()
     {
-        if (Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hitInfo, _maxCameraRaycastDistance, _layerMask, QueryTriggerInteraction.Ignore))
-            hitPoint = hitInfo.point;
-        else if (Physics.Raycast(_camera.transform.position + _camera.transform.forward * _maxCameraRaycastDistance, Vector3.down, out RaycastHit downHit, _maxSnapRaycastDistance, _layerMask, QueryTriggerInteraction.Ignore))
-            hitPoint = downHit.point;
+        _camera = Camera.main; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+
+
+    public Vector3 Update()
+    {
+        if (Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hitInfo, _config.MaxCameraRaycastDistance, _config.RaycasterLayerMask, QueryTriggerInteraction.Ignore))
+            return hitInfo.point;
+        else if (Physics.Raycast(_camera.transform.position + _camera.transform.forward * _config.MaxCameraRaycastDistance, Vector3.down, out RaycastHit downHit, _config.MaxSnapRaycastDistance, _config.RaycasterLayerMask, QueryTriggerInteraction.Ignore))
+            return downHit.point;
         else
-            hitPoint = Vector3.zero;
+            return Vector3.zero;
     }
 }

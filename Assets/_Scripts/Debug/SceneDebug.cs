@@ -1,21 +1,27 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 public class SceneDebug : MonoBehaviour
 {
     [SerializeField] TMP_Text debugText;
+    [SerializeField] TMP_Text fpsText;
     [SerializeField] Toggle autoDebugToggle;
     [SerializeField] Button forceDebugButton;
+
+    [SerializeField] private float fpsUpdateDelay = 0.25f;
 
     MeshFilter[] _meshFilters;
     SkinnedMeshRenderer[] _skinnedMeshes;
     [SerializeField] bool _enableAutoDebug = true;
 
+    List<float> _previousDeltaTimes = new();
     private Coroutine _coroutine;
+
 
     private void OnEnable()
     {
@@ -30,7 +36,13 @@ public class SceneDebug : MonoBehaviour
         forceDebugButton.onClick.RemoveListener(OnButtonClick);
     }
 
+    private void Awake() => StartCoroutine(FPSCounterTicker());
     private void Start() => OnToggleValueChanged(_enableAutoDebug);
+
+    private void Update()
+    {
+        _previousDeltaTimes.Add(Time.deltaTime);
+    }
 
     void CountTrianglesInScene()
     {
@@ -66,10 +78,29 @@ public class SceneDebug : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.25f);
             CountTrianglesInScene();
         }
 
+    }
+    IEnumerator FPSCounterTicker()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(fpsUpdateDelay);
+            fpsText.text = $"FPS: {CalculateFPSCount()}";
+        }
+    }
+
+    float CalculateFPSCount()
+    {
+        float deltaTimesSum = 0;
+        _previousDeltaTimes.ForEach(deltaTime => deltaTimesSum += deltaTime);
+
+        float fpsCount = _previousDeltaTimes.Count / deltaTimesSum;
+        _previousDeltaTimes.Clear();
+
+        return fpsCount;
     }
 
     void OnToggleValueChanged(bool value)
@@ -77,7 +108,7 @@ public class SceneDebug : MonoBehaviour
         _enableAutoDebug = value;
         if (_enableAutoDebug)
             _coroutine = StartCoroutine(AutoDebugTicker());
-        else if(_coroutine != null)
+        else if (_coroutine != null)
             StopCoroutine(_coroutine);
     }
     void OnButtonClick() => CountTrianglesInScene();

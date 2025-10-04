@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _builtInObjects:
   - {fileID: 11400000, guid: c70ccebe9f0b3934493f12e28d256a6d, type: 2}
-  - {fileID: 11400000, guid: 8b4fb83591776594f98694ac43508564, type: 2}
-  - {fileID: 11400000, guid: b5873a858da09ec409b11c3143c87ac7, type: 2}
-  - {fileID: 11400000, guid: 10e7a49120b803343b665aaf98c8007d, type: 2}
+  _meshCombines:
+    _: 0
+    keyValuePairs:
+    - key: 11
+      value: {fileID: 0}
+      isValid: 1
