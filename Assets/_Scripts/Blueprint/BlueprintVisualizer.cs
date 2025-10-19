@@ -9,14 +9,15 @@ public class BlueprintVisualizer : MonoBehaviour
 
     [SerializeField] float Height = 5;
 
-    [SerializeField] List<Vector2> blueprintPoints = new();
-    [SerializeField] List<Image> lines = new();
+    List<Vector2> blueprintPoints = new();
+    List<Image> lines = new();
 
     [SerializeField] bool loop = true;
 
 
     private void Awake()
     {
+        lines.Clear();
         for (int i = 0; i < visualPoints.Count; i++)
         {
             lines.Add(GameObject.Instantiate(lineImage, lineImage.transform.parent).GetComponent<Image>());
@@ -40,7 +41,7 @@ public class BlueprintVisualizer : MonoBehaviour
         for (int i = 0; i < visualPoints.Count - 1; i++)
             ConfugurateLine(lines[i], blueprintPoints[i], blueprintPoints[i + 1]);
         if (loop)
-            ConfugurateLine(lines[lines.Count - 1], blueprintPoints[blueprintPoints.Count - 1], blueprintPoints[0]);
+            ConfugurateLine(lines[^1], blueprintPoints[^1], blueprintPoints[0]);
     }
 
     private void ConfugurateLine(Image line, Vector2 startPosition, Vector2 endPosition)
