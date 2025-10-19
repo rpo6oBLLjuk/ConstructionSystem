@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 3821303975886048792}
   - component: {fileID: 956835140306273645}
   - component: {fileID: 8744803498287326085}
-  - component: {fileID: 7410930187394605643}
-  - component: {fileID: 5312413739417945162}
   m_Layer: 6
   m_Name: bookshelf_2
   m_TagString: Untagged
@@ -88,49 +86,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &7410930187394605643
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7701410119653093872}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.7408314, y: 2.3517723, z: 0.64039516}
-  m_Center: {x: 0.018382221, y: 1.1758862, z: 0.05145912}
---- !u!114 &5312413739417945162
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7701410119653093872}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0de9c2653c954307856264ec248eab4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  drawSolid: 1
-  drawWire: 1
-  solidColor: {r: 0, g: 1, b: 0, a: 0.15}
-  wireColor: {r: 0, g: 1, b: 0, a: 1}
-  wireSegments: 24
-  maxMeshTriangles: 0
-  capsuleArcSegments: 8
-  meshBox: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  meshSphere: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  meshCylinder: {fileID: 0}
-  upperHalfSphere: {fileID: 0}
-  lowerHalfSphere: {fileID: 0}
-  coloredShader: {fileID: 4800000, guid: 38859b428448107418ad51fa96d642e7, type: 3}

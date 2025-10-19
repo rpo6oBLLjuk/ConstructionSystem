@@ -28,12 +28,12 @@ public class MeshCombiner
         //}
     }
 
-    public (MeshFilter, MeshRenderer) AddMeshToTransform(Transform transform, Mesh mesh)
+    public (MeshFilter, MeshRenderer) AddMeshToTransform(Transform transform, Mesh mesh, Material material)
     {
         MeshFilter meshFilter = transform.GetOrAddComponent<MeshFilter>();
         meshFilter.sharedMesh = mesh;
 
-        Material material = transform.GetComponentInChildren<MeshRenderer>(true).sharedMaterial;
+        //Material material = transform.GetComponentInChildren<MeshRenderer>(true).sharedMaterial;
 
         MeshRenderer meshRenderer = transform.GetOrAddComponent<MeshRenderer>();
         meshRenderer.sharedMaterial = material;
@@ -47,7 +47,7 @@ public class MeshCombiner
         boxCollider.center = renderer.bounds.center - transform.position;
 
         MeshCollider meshCollider = transform.GetOrAddComponent<MeshCollider>();
-        
+
         return (boxCollider, meshCollider);
     }
 
@@ -66,12 +66,13 @@ public class MeshCombiner
     private void AddMeshByObj(Transform obj)
     {
         if (obj.TryGetComponent(out MeshFilter meshF))
-            if (meshF.mesh && !_meshFilters.Contains(meshF))
+            if (meshF.sharedMesh && !_meshFilters.Contains(meshF))
                 _meshFilters.Add(meshF);
     }
 
     //Real combine
-    private Mesh CombineMeshes(Transform transform)
+    //If dont need destroy then pbj will be deactivate
+    private Mesh CombineMeshes(Transform transform/*, bool needDestroy = true*/)
     {
         CombineInstance[] combine = new CombineInstance[_meshFilters.Count];
 
@@ -79,12 +80,17 @@ public class MeshCombiner
         {
             combine[i].mesh = _meshFilters[i].sharedMesh;
             combine[i].transform = transform.worldToLocalMatrix * _meshFilters[i].transform.localToWorldMatrix;
-            _meshFilters[i].gameObject.SetActive(false);
+            
+            //if (needDestroy)
+            //    MonoBehaviour.Destroy(_meshFilters[i].gameObject);
+            //else
+            //    _meshFilters[i].gameObject.SetActive(false);
         }
 
         Mesh mesh = new();
         mesh.CombineMeshes(combine, true);
 
+        _meshFilters.Clear();
         return mesh;
     }
 

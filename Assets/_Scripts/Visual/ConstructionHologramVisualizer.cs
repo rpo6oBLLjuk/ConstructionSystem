@@ -12,6 +12,9 @@ public class ConstructionHologramVisualizer : MonoBehaviour
     [SerializeField] Color _hasColliderSolidColor = Color.red;
     [SerializeField] Color _hasntColliderSolidColor = Color.green;
 
+    [SerializeField] Color _hasColliderWireColor = Color.red;
+    [SerializeField] Color _hasntColliderWireColor = Color.green;
+
 
     private void OnEnable()
     {
@@ -43,10 +46,11 @@ public class ConstructionHologramVisualizer : MonoBehaviour
     private void ConstructionDataPlacementChanged(ConstructionPlacementData data)
     {
         _hologramVisualizer.SolidColor = data.HasCollisions ? _hasColliderSolidColor : _hasntColliderSolidColor;
+        _hologramVisualizer.WireColor = data.HasCollisions? _hasColliderWireColor : _hasntColliderWireColor;
 
         //Ранее было hologram.transform.position, соответственно position - offset. => теперь голограмму надо ставить в position + offset
         Vector3 offset = _constructionSystem.PlacementData.TargetRotation * new Vector3(_constructionSystem.CurrentConstructionData.BoxCollider.center.x, 0.001f, _constructionSystem.CurrentConstructionData.BoxCollider.center.z);
-        _hologramHandler.transform.position = data.TargetPosition - offset;
+        _hologramHandler.transform.position = data.TargetPosition - offset + Vector3.up * 0.0001f;
         _hologramHandler.transform.rotation = data.TargetRotation;
     }
 }

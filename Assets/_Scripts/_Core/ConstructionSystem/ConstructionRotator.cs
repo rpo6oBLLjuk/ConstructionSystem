@@ -15,8 +15,6 @@ public class ConstructionRotator
         if (_inputSystem.InputActionAsset.Player.enabled)
             CalculateRotation(Input.mouseScrollDelta.y);
 
-
-        Debug.Log($"Rotation: {currentRotationAngle}");
         return Quaternion.Euler(0, currentRotationAngle, 0);
     }
 
