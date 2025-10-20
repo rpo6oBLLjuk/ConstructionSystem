@@ -7,56 +7,93 @@ using UnityEngine.UI;
 public class BlueprintPointsConstroller
 {
     BlueprintManager _blueprintManager;
+    
+    public List<BlueprintPointHandler> Points { get; private set; } = new();
 
     [SerializeField] BlueprintPointHandler _defaultPoint;
-    
-    public List<BlueprintPointHandler> points;
-    Image activePoint;
 
-    private bool isActiveDragging = false;
+    [SerializeField] float _snapDistance = 10;
+    [SerializeField] float _snapSmooth = 5;
+
+    [SerializeField] Color _inactivePointColor = Color.white; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
+    [SerializeField] Color _dragPointColor = Color.yellow;
+
+    Image _activePoint;
+    bool _isDragging = false;
+    bool _isShift = false; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
 
 
-    public void OnEnable()
-    {
-        foreach (var point in points)
-        {
-            point.PointerDown += OnPointDown;
-            point.PointerUp += OnPointUp;
-        }
-    }
+    //public void OnEnable()
+    //{
+    //    foreach (var point in Points)
+    //    {
+    //        point.PointerDown += OnPointDown;
+    //        point.PointerUp += OnPointUp;
+    //    }
+    //}
     public void OnDisable()
     {
-        foreach (var point in points)
+        foreach (var point in Points)
         {
             point.PointerDown -= OnPointDown;
             point.PointerUp -= OnPointUp;
         }
     }
 
-    public void Awake(BlueprintManager blueprintManager) => _blueprintManager = blueprintManager;
+    public void Awake(BlueprintManager blueprintManager)
+    {
+        _blueprintManager = blueprintManager;
+        _defaultPoint.gameObject.SetActive(false);
+    }
+
     public void Update()
     {
-        if (isActiveDragging)
-            activePoint.rectTransform.position = Input.mousePosition;
+        if (_isDragging)
+        {
+            _isShift = Input.GetKey(KeyCode.LeftShift); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
+
+            Vector3 inputPosition = Input.mousePosition;
+            if (_isShift)
+                inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
+
+            _activePoint.rectTransform.position = inputPosition;
+        }
     }
 
     public void AddPoint(int index, Vector2 position)
     {
         GameObject pointInstance = GameObject.Instantiate(_defaultPoint.gameObject, _defaultPoint.transform.parent);
-        //
-        //
-        //
+        pointInstance.SetActive(true);
+
+        BlueprintPointHandler bph = pointInstance.GetComponent<BlueprintPointHandler>();
+        bph.SelfImage.color = _inactivePointColor;
+
+        Points.Insert(index, bph);
+        bph.transform.position = position;
+
+        bph.PointerDown += OnPointDown;
+        bph.PointerUp += OnPointUp;
     }
 
-
-    void OnPointDown(Image image)
+    private float CalculateSnappedCoordinate(float coordinate)
     {
-        isActiveDragging = true;
-        activePoint = image;
+        float snapValue = _snapDistance * _blueprintManager.ScaleFactor / _snapSmooth;
+        float remainder = coordinate % snapValue;
+        return coordinate - remainder + (remainder >= snapValue / 2 ? snapValue : 0);
     }
-    void OnPointUp(Image image)
+
+    private void OnPointDown(Image image)
     {
-        isActiveDragging = false;
-        activePoint = null;
+        _isDragging = true;
+        _activePoint = image;
+
+        _activePoint.color = _dragPointColor;
+    }
+    private void OnPointUp(Image image)
+    {
+        _isDragging = false;
+        _activePoint = null;
+
+        image.color = _inactivePointColor;
     }
 }

@@ -1,13 +1,14 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BlueprintLineHandler : BlueprintPointerHandler<Vector2>
+public class BlueprintLineHandler : MonoBehaviour, IPointerClickHandler
 {
+    public event Action<BlueprintLineHandler, Vector2> PointerClicked;
     public Image SelfImage { get; private set; }
 
     private void Awake() => SelfImage ??= GetComponent<Image>();
 
-    public override void OnPointerDown(PointerEventData eventData) => PointerDown?.Invoke(eventData.position);
-    public override void OnPointerUp(PointerEventData eventData) => PointerUp?.Invoke(eventData.position);
+    public void OnPointerClick(PointerEventData eventData) => PointerClicked?.Invoke(this, eventData.position);
 }
