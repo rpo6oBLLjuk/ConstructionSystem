@@ -5,8 +5,9 @@ public class BlueprintManager : MonoBehaviour
 {
     public List<Vector2> BlueprintPoints { get; private set; } = new();
 
-    public BlueprintLinesController LinesController;
-    public BlueprintPointsConstroller PointsController;
+    [field: SerializeField] public BlueprintLinesController LinesController { get; private set; }
+    [field: SerializeField] public BlueprintPointsConstroller PointsController { get; private set; }
+    [field: SerializeField] public BlueprintHistoryController HistoryController { get; private set; } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Жёсткая зависимость и лишний код, need execution
 
     public float ScaleFactor => _canvas.scaleFactor;
 
@@ -18,37 +19,42 @@ public class BlueprintManager : MonoBehaviour
     //    LinesController.OnEnable();
     //    PointsController.OnEnable();
     //}
-    private void OnDisable()
+    void OnDisable()
     {
         LinesController.OnDisable();
         PointsController.OnDisable();
     }
 
-    private void Awake()
+    void Awake()
     {
         _canvas ??= transform.root.GetComponent<Canvas>();
 
         LinesController.Awake(this);
         PointsController.Awake(this);
+        HistoryController.Awake(this);
 
-        for(int i = 0; i < _defaultPoints.Count; i++)
-        {
-            AddPoint(i, new Vector2(transform.position.x, transform.position.y) + _defaultPoints[i]);
-        }
+        ResetBlueprint();
     }
-
     void Update()
     {
         PointsController.Update();
 
-        for (int i = 0; i < BlueprintPoints.Count; i++)
-            BlueprintPoints[i] = PointsController.Points[i].transform.position;
 
         LinesController.Update();
     }
 
+    public void MovePoint(int index, Vector2 newPosition)
+    {
+        HistoryController.MovePointAction(index, BlueprintPoints[index], newPosition); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        BlueprintPoints[index] = newPosition;
+        PointsController.Points[index].transform.position = newPosition;
+    }
+
     public void AddPoint(int index, Vector2 position)
     {
+        HistoryController.AddPointAction(index, position); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         BlueprintPoints.Insert(index, position);
 
         PointsController.AddPoint(index, position);
@@ -56,15 +62,32 @@ public class BlueprintManager : MonoBehaviour
 
         Debug.Log($"Point added by position: {position}");
     }
-
-    public void DeletePoint(int index)
+    public void RemovePoint(int index, bool forceDelete = false)
     {
-        if(BlueprintPoints.Count > 3)
-        {
-            BlueprintPoints.RemoveAt(index);
+        if (!forceDelete && BlueprintPoints.Count <= 3)
+            return;
 
-            PointsController.RemovePoint(index);
-            LinesController.RemoveLine(index);
-        }
+        HistoryController.RemovePointAction(index, BlueprintPoints[index]); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        BlueprintPoints.RemoveAt(index);
+
+        PointsController.RemovePoint(index);
+        LinesController.RemoveLine(index);
+    }
+
+    public void ResetBlueprint()
+    {
+        HistoryController.ResetBlueprintAction(BlueprintPoints); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        SetBlueprintData(_defaultPoints);
+    }
+
+    public void SetBlueprintData(List<Vector2> points)
+    {
+        for (int i = 0; i < BlueprintPoints.Count; i++)
+            RemovePoint(i, true);
+
+        for (int i = 0; i < points.Count; i++)
+            AddPoint(i, new Vector2(transform.position.x, transform.position.y) + points[i]);
     }
 }

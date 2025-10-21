@@ -36,10 +36,10 @@ public class BlueprintLinesController
     }
     public void Update()
     {
-        for (int i = 0; i < _blueprintManager.BlueprintPoints.Count - 1; i++)
-            ConfigurateLine(Lines[i].SelfImage, _blueprintManager.BlueprintPoints[i], _blueprintManager.BlueprintPoints[i + 1]);
-        if (_looped & _blueprintManager.BlueprintPoints.Count > 2)
-            ConfigurateLine(Lines[^1].SelfImage, _blueprintManager.BlueprintPoints[^1], _blueprintManager.BlueprintPoints[0]);
+        for (int i = 0; i < _blueprintManager.PointsController.Points.Count - 1; i++)
+            ConfigurateLine(Lines[i].SelfImage, _blueprintManager.PointsController.Points[i].transform.position, _blueprintManager.PointsController.Points[i + 1].transform.position);
+        if (_looped & _blueprintManager.PointsController.Points.Count > 2)
+            ConfigurateLine(Lines[^1].SelfImage, _blueprintManager.PointsController.Points[^1].transform.position, _blueprintManager.PointsController.Points[0].transform.position);
 
         CheckIntersections();
     }
@@ -62,25 +62,25 @@ public class BlueprintLinesController
 
     private void CheckIntersections()
     {
-        for (int i = 0; i < _blueprintManager.BlueprintPoints.Count; i++)
+        for (int i = 0; i < _blueprintManager.PointsController.Points.Count; i++)
         {
-            int nextI = (i + 1) % _blueprintManager.BlueprintPoints.Count;
-            Vector2 start1 = _blueprintManager.BlueprintPoints[i];
-            Vector2 start2 = _blueprintManager.BlueprintPoints[nextI];
+            int nextI = (i + 1) % _blueprintManager.PointsController.Points.Count;
+            Vector2 start1 = _blueprintManager.PointsController.Points[i].transform.position;
+            Vector2 start2 = _blueprintManager.PointsController.Points[nextI].transform.position;
 
             bool notIntersecting = true;
 
-            for (int j = 0; j < _blueprintManager.BlueprintPoints.Count; j++)
+            for (int j = 0; j < _blueprintManager.PointsController.Points.Count; j++)
             {
-                int nextJ = (j + 1) % _blueprintManager.BlueprintPoints.Count;
+                int nextJ = (j + 1) % _blueprintManager.PointsController.Points.Count;
 
                 if (i == j || nextI == j || i == nextJ ||
-                    (i == 0 && j == _blueprintManager.BlueprintPoints.Count - 1) ||
-                    (j == 0 && i == _blueprintManager.BlueprintPoints.Count - 1))
+                    (i == 0 && j == _blueprintManager.PointsController.Points.Count - 1) ||
+                    (j == 0 && i == _blueprintManager.PointsController.Points.Count - 1))
                     continue;
 
-                Vector2 end1 = _blueprintManager.BlueprintPoints[j];
-                Vector2 end2 = _blueprintManager.BlueprintPoints[nextJ];
+                Vector2 end1 = _blueprintManager.PointsController.Points[j].transform.position;
+                Vector2 end2 = _blueprintManager.PointsController.Points[nextJ].transform.position;
 
                 if (AreSegmentsIntersecting(start1, start2, end1, end2))
                 {

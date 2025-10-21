@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class BlueprintPointsConstroller
 {
     BlueprintManager _blueprintManager;
-    
+
     public List<BlueprintPointHandler> Points { get; private set; } = new();
 
     [SerializeField] BlueprintPointHandler _defaultPoint;
@@ -18,7 +18,7 @@ public class BlueprintPointsConstroller
     [SerializeField] Color _inactivePointColor = Color.white; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
     [SerializeField] Color _dragPointColor = Color.yellow;
 
-    Image _activePoint;
+    BlueprintPointHandler _activePoint;
     bool _isDragging = false;
     bool _isShift = false; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
 
@@ -58,7 +58,7 @@ public class BlueprintPointsConstroller
             if (_isShift)
                 inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
 
-            _activePoint.rectTransform.position = inputPosition;
+            _activePoint.transform.position = inputPosition;
         }
     }
 
@@ -92,20 +92,22 @@ public class BlueprintPointsConstroller
         return coordinate - remainder + (remainder >= snapValue / 2 ? snapValue : 0);
     }
 
-    private void OnPointDown(Image image)
+    private void OnPointDown(BlueprintPointHandler blueprintPointHandler)
     {
         _isDragging = true;
-        _activePoint = image;
+        _activePoint = blueprintPointHandler;
 
-        _activePoint.color = _dragPointColor;
+        _activePoint.SelfImage.color = _dragPointColor;
     }
-    private void OnPointUp(Image image)
+    private void OnPointUp(BlueprintPointHandler blueprintPointHandler)
     {
+        _blueprintManager.MovePoint(Points.IndexOf(_activePoint), _activePoint.transform.position);
+
         _isDragging = false;
         _activePoint = null;
 
-        image.color = _inactivePointColor;
+        blueprintPointHandler.SelfImage.color = _inactivePointColor;
     }
 
-    private void OnPointLeftClick(BlueprintPointHandler blueprintPointHandler) => _blueprintManager.DeletePoint(Points.IndexOf(blueprintPointHandler));
+    private void OnPointLeftClick(BlueprintPointHandler blueprintPointHandler) => _blueprintManager.RemovePoint(Points.IndexOf(blueprintPointHandler));
 }

@@ -10,7 +10,7 @@ namespace ASze.CustomPlayButton
     {
         const float COLLUMN_WIDTH = 200.0f;
         readonly GUILayoutOption[] ICON_LAYOUT = new GUILayoutOption[] {
-            GUILayout.Width(20.0f), GUILayout.Height(20.0f)
+            GUILayout.Width(15.0f), GUILayout.Height(20.0f)
         };
 
 

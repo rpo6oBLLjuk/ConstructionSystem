@@ -6,17 +6,18 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]
 public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
-    public Action<Image> PointerDown;
-    public Action<Image> PointerUp;
+    public Action<BlueprintPointHandler> PointerDown;
+    public Action<BlueprintPointHandler> PointerUp;
 
     public Action<BlueprintPointHandler> PointerLeftClick;
 
     public Image SelfImage { get; private set; }
 
+
     private void Awake() => SelfImage ??= GetComponent<Image>();
 
-    public void OnPointerDown(PointerEventData eventData) => PointerDown?.Invoke(SelfImage);
-    public void OnPointerUp(PointerEventData eventData) => PointerUp?.Invoke(SelfImage);
+    public void OnPointerDown(PointerEventData eventData) => PointerDown?.Invoke(this);
+    public void OnPointerUp(PointerEventData eventData) => PointerUp?.Invoke(this);
 
     public void OnPointerClick(PointerEventData eventData)
     {
