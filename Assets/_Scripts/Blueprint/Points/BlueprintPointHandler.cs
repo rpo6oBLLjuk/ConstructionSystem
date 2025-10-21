@@ -4,10 +4,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
-public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
     public Action<Image> PointerDown;
     public Action<Image> PointerUp;
+
+    public Action<BlueprintPointHandler> PointerLeftClick;
 
     public Image SelfImage { get; private set; }
 
@@ -15,4 +17,10 @@ public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointe
 
     public void OnPointerDown(PointerEventData eventData) => PointerDown?.Invoke(SelfImage);
     public void OnPointerUp(PointerEventData eventData) => PointerUp?.Invoke(SelfImage);
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if(eventData.button == PointerEventData.InputButton.Right)
+            PointerLeftClick?.Invoke(this);
+    }
 }

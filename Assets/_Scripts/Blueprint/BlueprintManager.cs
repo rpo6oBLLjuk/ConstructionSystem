@@ -11,6 +11,7 @@ public class BlueprintManager : MonoBehaviour
     public float ScaleFactor => _canvas.scaleFactor;
 
     [SerializeField] Canvas _canvas;
+    [SerializeField] List<Vector2> _defaultPoints;
 
     //void OnEnable()
     //{
@@ -30,10 +31,10 @@ public class BlueprintManager : MonoBehaviour
         LinesController.Awake(this);
         PointsController.Awake(this);
 
-        AddPoint(0, transform.position);
-        AddPoint(1, transform.position + Vector3.up * 100);
-        AddPoint(2, transform.position + Vector3.up * 100 + Vector3.right * 100);
-        AddPoint(3, transform.position + Vector3.right * 100);
+        for(int i = 0; i < _defaultPoints.Count; i++)
+        {
+            AddPoint(i, new Vector2(transform.position.x, transform.position.y) + _defaultPoints[i]);
+        }
     }
 
     void Update()
@@ -54,5 +55,16 @@ public class BlueprintManager : MonoBehaviour
         LinesController.AddLine(index);
 
         Debug.Log($"Point added by position: {position}");
+    }
+
+    public void DeletePoint(int index)
+    {
+        if(BlueprintPoints.Count > 3)
+        {
+            BlueprintPoints.RemoveAt(index);
+
+            PointsController.RemovePoint(index);
+            LinesController.RemoveLine(index);
+        }
     }
 }

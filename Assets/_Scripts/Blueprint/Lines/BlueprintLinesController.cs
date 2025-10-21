@@ -54,6 +54,11 @@ public class BlueprintLinesController
 
         Lines.Insert(index, blh);
     }
+    public void RemoveLine(int index)
+    {
+        GameObject.Destroy(Lines[index].gameObject);
+        Lines.RemoveAt(index);
+    }
 
     private void CheckIntersections()
     {
@@ -128,13 +133,11 @@ public class BlueprintLinesController
 
         return false;
     }
-
     // Векторное произведение (определяет ориентацию тройки точек)
     private static float Direction(Vector2 pi, Vector2 pj, Vector2 pk)
     {
         return (pk.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (pk.y - pi.y);
     }
-
     // Проверяет, лежит ли точка pk на отрезке pi-pj
     private static bool OnSegment(Vector2 pi, Vector2 pj, Vector2 pk)
     {

@@ -37,6 +37,8 @@ public class BlueprintPointsConstroller
         {
             point.PointerDown -= OnPointDown;
             point.PointerUp -= OnPointUp;
+
+            point.PointerLeftClick -= OnPointLeftClick;
         }
     }
 
@@ -73,6 +75,14 @@ public class BlueprintPointsConstroller
 
         bph.PointerDown += OnPointDown;
         bph.PointerUp += OnPointUp;
+
+        bph.PointerLeftClick += OnPointLeftClick;
+    }
+
+    public void RemovePoint(int index)
+    {
+        GameObject.Destroy(Points[index].gameObject);
+        Points.RemoveAt(index);
     }
 
     private float CalculateSnappedCoordinate(float coordinate)
@@ -96,4 +106,6 @@ public class BlueprintPointsConstroller
 
         image.color = _inactivePointColor;
     }
+
+    private void OnPointLeftClick(BlueprintPointHandler blueprintPointHandler) => _blueprintManager.DeletePoint(Points.IndexOf(blueprintPointHandler));
 }
