@@ -60,61 +60,103 @@ public class BlueprintHistoryController
         public override void Undo(BlueprintManager blueprintManager) => blueprintManager.MovePoint(_index, _previousPosition);
     }
 
-    private class ResetBlueprintActionData : HistoryActionData
+    private class BlueprintChangeActionData : HistoryActionData
     {
-        private List<Vector2> _points;
+        public Vector2[] _previousPoints;
+        public Vector2[]? _nextPoints;
 
-        public ResetBlueprintActionData(List<Vector2> points)
-        {
-            _points = points;
-        }
+        public BlueprintChangeActionData(Vector2[] points) => _previousPoints = points;
+        public void AddNextPoints(Vector2[] nextPoints) => _nextPoints ??= nextPoints;
 
-        public override void Execute(BlueprintManager blueprintManager) => blueprintManager.SetBlueprintData(_points);
-        public override void Undo(BlueprintManager blueprintManager) => blueprintManager.ResetBlueprint();
+        public override void Execute(BlueprintManager blueprintManager) => blueprintManager.SetBlueprintData(_nextPoints.ToList());
+        public override void Undo(BlueprintManager blueprintManager) => blueprintManager.SetBlueprintData(_previousPoints.ToList());
     }
 
     public List<HistoryActionData> History { get; private set; } = new();
     public List<HistoryActionData> RedoHistory = new();
 
+    private bool _isPerformingUndoRedo = false;
+    private bool _isPerformingDataChanging = false;
+
+
+    public void OnEnable()
+    {
+        _blueprintManager.OnPointAdded += AddPointAction;
+        _blueprintManager.OnPointRemoved += RemovePointAction;
+        _blueprintManager.OnPointMoved += MovePointAction;
+
+        _blueprintManager.OnBlueprintDataChanging += BlueprintDataChangingAction;
+        _blueprintManager.OnBlueprintDataChanged += BlueprintDataChangeAction;
+    }
+    public void OnDisable()
+    {
+        _blueprintManager.OnPointAdded -= AddPointAction;
+        _blueprintManager.OnPointRemoved -= RemovePointAction;
+        _blueprintManager.OnPointMoved -= MovePointAction;
+
+        _blueprintManager.OnBlueprintDataChanging -= BlueprintDataChangingAction;
+        _blueprintManager.OnBlueprintDataChanged -= BlueprintDataChangeAction;
+    }
 
     public void Awake(BlueprintManager blueprintManager) => _blueprintManager = blueprintManager;
 
     public void AddPointAction(int index, Vector2 position)
     {
-        AddActionData(new AddPointActionData(index, position));
-        Debug.Log("Point Added");
+        if (AddActionData(new AddPointActionData(index, position)))
+            DebugWrapper.FastLog(this, "Point Added");
     }
 
     public void RemovePointAction(int index, Vector2 position)
     {
-        AddActionData(new RemovePointActionData(index, position));
-        Debug.Log("Point Removed");
-    }
-
-    public void ResetBlueprintAction(List<Vector2> points)
-    {
-        AddActionData(new ResetBlueprintActionData(points));
-        Debug.Log("Blueprint Reseted");
+        if (AddActionData(new RemovePointActionData(index, position)))
+            DebugWrapper.FastLog(this, "Point Removed");
     }
 
     public void MovePointAction(int index, Vector2 previousPosition, Vector2 nextPosition)
     {
-        AddActionData(new MovePointActionData(index, previousPosition, nextPosition));
-        Debug.Log("Point Moved");
+        if (AddActionData(new MovePointActionData(index, previousPosition, nextPosition)))
+            DebugWrapper.FastLog(this, "Point Moved");
+    }
+
+    public void BlueprintDataChangingAction(List<Vector2> points)
+    {
+        if (AddActionData(new BlueprintChangeActionData(points.ToArray())))
+            DebugWrapper.FastLog(this, "Blueprint Changing Start");
+        
+        _isPerformingDataChanging = true;
+
+    }
+    public void BlueprintDataChangeAction(List<Vector2> points)
+    {
+        BlueprintChangeActionData actionData = History[^1] as BlueprintChangeActionData;
+        actionData ??= RedoHistory[^1] as BlueprintChangeActionData; //Если в History нет данной информации, значит команда выполняется через Redo
+
+        actionData.AddNextPoints(points.ToArray());
+
+        string pointsStr = "Previous points: " + string.Join(", ", actionData._previousPoints.Select(p => p.ToString()));
+        pointsStr += "\nNext points: " + string.Join(", ", actionData._nextPoints.Select(p => p.ToString()));
+
+        DebugWrapper.LogWarning(this, pointsStr);
+
+        DebugWrapper.FastLog(this, "Blueprint Changed");
+        _isPerformingDataChanging = false;
     }
 
     public void Undo()
     {
-        if(History.Count == 0)
+        if (History.Count == 0)
             return;
 
-        Debug.Log("<color=green>Undo</color> completed");
+        _isPerformingUndoRedo = true;
 
         HistoryActionData had = History.Last();
         had.Undo(_blueprintManager);
-        
+
         History.RemoveAt(History.Count - 1);
         RedoHistory.Add(had);
+
+        DebugWrapper.FastLog(this, "<color=green>Undo</color> completed");
+        _isPerformingUndoRedo = false;
     }
 
     public void Redo()
@@ -122,18 +164,26 @@ public class BlueprintHistoryController
         if (RedoHistory.Count == 0)
             return;
 
-        Debug.Log("<color=red>Redo</color> completed");
+        _isPerformingUndoRedo = true;
 
         HistoryActionData had = RedoHistory.Last();
         had.Execute(_blueprintManager);
 
-        RedoHistory.RemoveAt(History.Count - 1);
+        RedoHistory.RemoveAt(RedoHistory.Count - 1);
         History.Add(had);
+
+        DebugWrapper.FastLog(this, "<color=green>Redo</color> completed");
+        _isPerformingUndoRedo = false;
     }
 
-    private void AddActionData(HistoryActionData actionData)
+    private bool AddActionData(HistoryActionData actionData)
     {
+        if (_isPerformingUndoRedo || _isPerformingDataChanging)
+            return false;
+
         RedoHistory.Clear();
         History.Add(actionData);
+
+        return true;
     }
 }

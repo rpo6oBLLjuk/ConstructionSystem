@@ -1376,7 +1376,7 @@ GameObject:
   - component: {fileID: 512244943}
   - component: {fileID: 512244944}
   m_Layer: 5
-  m_Name: BlueprintMenu (1)
+  m_Name: BlueprintHistoryMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4493,10 +4493,10 @@ RectTransform:
   - {fileID: 8632155148077685859}
   m_Father: {fileID: 1006165857}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 245.57, y: -38.6545}
+  m_SizeDelta: {x: 150.38, y: 57.309}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1234010613851828984
 RectTransform:
@@ -4514,10 +4514,10 @@ RectTransform:
   - {fileID: 8632155148428678031}
   m_Father: {fileID: 1006165857}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 85.19, y: -38.6545}
+  m_SizeDelta: {x: 150.38, y: 57.309}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1312893090083395130
 GameObject:
@@ -4955,7 +4955,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &6662495418462097329
 GameObject:
   m_ObjectHideFlags: 0
