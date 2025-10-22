@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class BlueprintManager : MonoBehaviour
 
     [SerializeField] Canvas _canvas;
     [SerializeField] List<Vector2> _defaultPoints;
+    [SerializeField] float pointMoveDuration = 0.25f; //Нужно вынести в конфиг
 
     // События
     public Action<int, Vector2> OnPointAdded;
@@ -60,7 +62,7 @@ public class BlueprintManager : MonoBehaviour
         OnPointMoved?.Invoke(index, BlueprintPoints[index], newPosition);
 
         BlueprintPoints[index] = newPosition;
-        PointsController.Points[index].transform.position = newPosition;
+        PointsController.Points[index].transform.DOMove(newPosition, pointMoveDuration);
     }
 
     public void AddPoint(int index, Vector2 position)
