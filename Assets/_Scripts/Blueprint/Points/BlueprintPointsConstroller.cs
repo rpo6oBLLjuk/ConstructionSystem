@@ -112,6 +112,8 @@ public class BlueprintPointsConstroller
     private float CalculateSnappedCoordinate(float coordinate)
     {
         float snapValue = _snapDistance / _snapSmooth;
+        coordinate -= (coordinate < 0 ? snapValue / 2 : 0);
+
         float remainder = coordinate % snapValue;
         return coordinate - remainder + (remainder >= snapValue / 2 ? snapValue : 0);
     }
