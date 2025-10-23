@@ -11,7 +11,8 @@ public class BlueprintManager : MonoBehaviour
     [field: SerializeField] public BlueprintPointsConstroller PointsController { get; private set; }
     [field: SerializeField] public BlueprintHistoryController HistoryController { get; private set; } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Жёсткая зависимость и лишний код, need execution
 
-    public float ScaleFactor => Canvas.scaleFactor;
+    public float CanvasScaleFactor => Canvas.scaleFactor;
+    public float BlueprintScaleFactor { get; private set; }
 
     public Canvas Canvas;
     [SerializeField] List<Vector2> _defaultPoints;
@@ -42,6 +43,7 @@ public class BlueprintManager : MonoBehaviour
     void Awake()
     {
         Canvas ??= transform.root.GetComponent<Canvas>();
+        BlueprintScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
 
         LinesController.Awake(this);
         PointsController.Awake(this);
@@ -89,8 +91,17 @@ public class BlueprintManager : MonoBehaviour
         PointsController.RemovePoint(index, _pointDestroyDuration);
     }
 
-    public void ResetBlueprint() => SetBlueprintData(_defaultPoints);
+    public void SetBlueprintScaleFactor(float newScaleFactor)
+    {
+        if (newScaleFactor < 1)
+            newScaleFactor = 1;
 
+        BlueprintScaleFactor = newScaleFactor;
+
+        transform.DOScale(newScaleFactor, 0.1f);
+    }
+
+    public void ResetBlueprint() => SetBlueprintData(_defaultPoints);
     public void SetBlueprintData(List<Vector2> points)
     {
         OnBlueprintDataChanging?.Invoke(BlueprintPoints);

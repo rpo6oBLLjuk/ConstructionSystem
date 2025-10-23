@@ -1,9 +1,9 @@
-using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
+//Изменение цвета прописано костыльно, если !isVisible, то DOFade. Перенести всё в 1-2 метода.
 [Serializable]
 public class BlueprintPointsConstroller
 {
@@ -21,9 +21,13 @@ public class BlueprintPointsConstroller
 
     [SerializeField] float _snapDuration = 0.05f; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
 
+    [SerializeField] float _visibilityFadeDuration = 0.25f; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
+
     BlueprintPointHandler _activePoint;
     bool _isDragging = false;
     bool _isShift = false; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
+
+    bool _isVisible = true;
 
 
     //public void OnEnable()
@@ -50,7 +54,6 @@ public class BlueprintPointsConstroller
         _blueprintManager = blueprintManager;
         _defaultPoint.gameObject.SetActive(false);
     }
-
     public void Update()
     {
         if (_isDragging)
@@ -58,10 +61,11 @@ public class BlueprintPointsConstroller
             _isShift = Input.GetKey(KeyCode.LeftShift); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
 
             Vector3 inputPosition = Input.mousePosition;
+            inputPosition = (inputPosition - _activePoint.transform.parent.position) / _blueprintManager.CanvasScaleFactor / _blueprintManager.BlueprintScaleFactor;
             if (_isShift)
                 inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
 
-            _activePoint.transform.DOMove(inputPosition, _snapDuration);
+            _activePoint.SelfImage.rectTransform.DOAnchorPos(inputPosition, _snapDuration);
         }
     }
 
@@ -72,6 +76,8 @@ public class BlueprintPointsConstroller
 
         BlueprintPointHandler bph = pointInstance.GetComponent<BlueprintPointHandler>();
         bph.SelfImage.color = _inactivePointColor;
+        if (!_isVisible)
+            bph.SelfImage.DOFade(0, _visibilityFadeDuration);
 
         Points.Insert(index, bph);
         bph.SelfImage.rectTransform.anchoredPosition = position;
@@ -81,7 +87,6 @@ public class BlueprintPointsConstroller
 
         bph.PointerLeftClick += OnPointLeftClick;
     }
-
     public void RemovePoint(int index, float durationTime)
     {
         BlueprintPointHandler bph = Points[index];
@@ -97,9 +102,16 @@ public class BlueprintPointsConstroller
             }));
     }
 
+    public void SetPointsVisible(bool isVisible)
+    {
+        _isVisible = isVisible;
+        foreach (BlueprintPointHandler bph in Points)
+            bph.SelfImage.DOFade(isVisible ? _inactivePointColor.a : 0, _visibilityFadeDuration);
+    }
+
     private float CalculateSnappedCoordinate(float coordinate)
     {
-        float snapValue = _snapDistance * _blueprintManager.ScaleFactor / _snapSmooth;
+        float snapValue = _snapDistance / _snapSmooth;
         float remainder = coordinate % snapValue;
         return coordinate - remainder + (remainder >= snapValue / 2 ? snapValue : 0);
     }
@@ -119,6 +131,8 @@ public class BlueprintPointsConstroller
         _activePoint = null;
 
         blueprintPointHandler.SelfImage.color = _inactivePointColor;
+        if (!_isVisible)
+            blueprintPointHandler.SelfImage.DOFade(0, _visibilityFadeDuration);
     }
 
     private void OnPointLeftClick(BlueprintPointHandler blueprintPointHandler) => _blueprintManager.RemovePoint(Points.IndexOf(blueprintPointHandler));
