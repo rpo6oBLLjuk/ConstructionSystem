@@ -11,9 +11,7 @@ ShaderVariantCollection:
   - first: {fileID: 4800000, guid: 96246b1ead49a4c5a996fd477bc5a117, type: 3}
     second:
       variants:
-      - keywords: COLOR_FILTER
-        passType: 0
-      - keywords: EDGE_PLAIN
+      - keywords: DETAIL_MASKING EDGE_PLAIN
         passType: 0
 --- !u!114 &11400000
 MonoBehaviour:
@@ -28,7 +26,8 @@ MonoBehaviour:
   m_Name: UIEffectProjectSettings
   m_EditorClassIdentifier: 
   m_RuntimePresets: []
-  m_RuntimePresetsV2: []
+  m_RuntimePresetsV2:
+  - {fileID: 11400000, guid: 48c95faa938165a498a770760da95b44, type: 2}
   m_UseHDRColorPicker: 1
   m_ShaderVariantCollection: {fileID: 0}
   m_ShaderVariantRegistry:
@@ -36,5 +35,5 @@ MonoBehaviour:
     - key: Hidden/UI/Default (SoftMaskable)
       value: Hidden/UI/Default (UIEffect)
     m_Asset: {fileID: -4265458424788727188}
-    m_ErrorOnUnregisteredVariant: 0
+    m_ErrorOnUnregisteredVariant: 1
     m_UnregisteredVariants: []

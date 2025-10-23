@@ -10,7 +10,7 @@ public class BlueprintManagerView : MonoBehaviour
     [SerializeField] BlueprintManager _blueprintManager;
 
     [Header("Text")]
-    [SerializeField] ButtonSpriteSwapper textVisibilityButton = new();
+    [SerializeField] ButtonSpriteSwapper textVisibilityButton;
     BlueprintLineHandler[] _blueprintLineHandlers;
     List<TMP_Text> _lineTexts;
 
