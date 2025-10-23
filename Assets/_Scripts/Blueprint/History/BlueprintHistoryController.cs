@@ -103,32 +103,32 @@ public class BlueprintHistoryController
     public void AddPointAction(int index, Vector2 position)
     {
         if (AddActionData(new AddPointActionData(index, position)))
-            DebugWrapper.FastLog(this, "Point Added");
+            DebugWrapper.InactiveLog(this, "Point Added");
     }
 
     public void RemovePointAction(int index, Vector2 position)
     {
         if (AddActionData(new RemovePointActionData(index, position)))
-            DebugWrapper.FastLog(this, "Point Removed");
+            DebugWrapper.InactiveLog(this, "Point Removed");
     }
 
     public void MovePointAction(int index, Vector2 previousPosition, Vector2 nextPosition)
     {
         if (AddActionData(new MovePointActionData(index, previousPosition, nextPosition)))
-            DebugWrapper.FastLog(this, "Point Moved");
+            DebugWrapper.InactiveLog(this, "Point Moved");
     }
 
     public void BlueprintDataChangingAction(List<Vector2> points)
     {
         if (AddActionData(new BlueprintChangeActionData(points.ToArray())))
-            DebugWrapper.FastLog(this, "Blueprint Changing Start");
-        
+            DebugWrapper.InactiveLog(this, "Blueprint Changing Start");
+
         _isPerformingDataChanging = true;
 
     }
     public void BlueprintDataChangeAction(List<Vector2> points)
     {
-        BlueprintChangeActionData actionData = History[^1] as BlueprintChangeActionData;
+        BlueprintChangeActionData actionData = (History.Count > 0) ? History[^1] as BlueprintChangeActionData : null;
         actionData ??= RedoHistory[^1] as BlueprintChangeActionData; //Если в History нет данной информации, значит команда выполняется через Redo
 
         actionData.AddNextPoints(points.ToArray());
@@ -136,9 +136,7 @@ public class BlueprintHistoryController
         string pointsStr = "Previous points: " + string.Join(", ", actionData._previousPoints.Select(p => p.ToString()));
         pointsStr += "\nNext points: " + string.Join(", ", actionData._nextPoints.Select(p => p.ToString()));
 
-        DebugWrapper.LogWarning(this, pointsStr);
-
-        DebugWrapper.FastLog(this, "Blueprint Changed");
+        DebugWrapper.InactiveLog(this, "Blueprint Changed");
         _isPerformingDataChanging = false;
     }
 
@@ -155,7 +153,7 @@ public class BlueprintHistoryController
         History.RemoveAt(History.Count - 1);
         RedoHistory.Add(had);
 
-        DebugWrapper.FastLog(this, "<color=green>Undo</color> completed");
+        DebugWrapper.InactiveLog(this, "<color=green>Undo</color> completed");
         _isPerformingUndoRedo = false;
     }
 
@@ -172,7 +170,7 @@ public class BlueprintHistoryController
         RedoHistory.RemoveAt(RedoHistory.Count - 1);
         History.Add(had);
 
-        DebugWrapper.FastLog(this, "<color=green>Redo</color> completed");
+        DebugWrapper.InactiveLog(this, "<color=green>Redo</color> completed");
         _isPerformingUndoRedo = false;
     }
 

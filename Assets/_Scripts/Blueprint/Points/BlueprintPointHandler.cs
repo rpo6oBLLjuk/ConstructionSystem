@@ -16,12 +16,20 @@ public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointe
 
     private void Awake() => SelfImage ??= GetComponent<Image>();
 
-    public void OnPointerDown(PointerEventData eventData) => PointerDown?.Invoke(this);
-    public void OnPointerUp(PointerEventData eventData) => PointerUp?.Invoke(this);
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+            PointerDown?.Invoke(this);
+    }
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+            PointerUp?.Invoke(this);
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(eventData.button == PointerEventData.InputButton.Right)
+        if (eventData.button == PointerEventData.InputButton.Right)
             PointerLeftClick?.Invoke(this);
     }
 }

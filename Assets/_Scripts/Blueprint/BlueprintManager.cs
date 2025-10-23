@@ -11,11 +11,12 @@ public class BlueprintManager : MonoBehaviour
     [field: SerializeField] public BlueprintPointsConstroller PointsController { get; private set; }
     [field: SerializeField] public BlueprintHistoryController HistoryController { get; private set; } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Жёсткая зависимость и лишний код, need execution
 
-    public float ScaleFactor => _canvas.scaleFactor;
+    public float ScaleFactor => Canvas.scaleFactor;
 
-    [SerializeField] Canvas _canvas;
+    public Canvas Canvas;
     [SerializeField] List<Vector2> _defaultPoints;
-    [SerializeField] float pointMoveDuration = 0.25f; //Нужно вынести в конфиг
+    [SerializeField] float _pointMoveDuration = 0.25f; //Нужно вынести в конфиг
+    [SerializeField] float _pointDestroyDuration = 0.1f;
 
     // События
     public Action<int, Vector2> OnPointAdded;
@@ -40,17 +41,15 @@ public class BlueprintManager : MonoBehaviour
 
     void Awake()
     {
-        _canvas ??= transform.root.GetComponent<Canvas>();
-
-        for (int i = 0; i < _defaultPoints.Count; i++)
-            _defaultPoints[i] += new Vector2(transform.position.x, transform.position.y);
+        Canvas ??= transform.root.GetComponent<Canvas>();
 
         LinesController.Awake(this);
         PointsController.Awake(this);
         HistoryController.Awake(this);
 
-        ResetBlueprint();
+        ResetBlueprint(); //Почему-то вынося в Start() данный метод - History Controller захватывает создание дефолтной доски как обновление, => Undo может откатить чертёж в небытие
     }
+
     void Update()
     {
         PointsController.Update();
@@ -62,7 +61,7 @@ public class BlueprintManager : MonoBehaviour
         OnPointMoved?.Invoke(index, BlueprintPoints[index], newPosition);
 
         BlueprintPoints[index] = newPosition;
-        PointsController.Points[index].transform.DOMove(newPosition, pointMoveDuration);
+        PointsController.Points[index].SelfImage.rectTransform.DOAnchorPos(newPosition, _pointMoveDuration);
     }
 
     public void AddPoint(int index, Vector2 position)
@@ -86,8 +85,8 @@ public class BlueprintManager : MonoBehaviour
 
         BlueprintPoints.RemoveAt(index);
 
-        PointsController.RemovePoint(index);
-        LinesController.RemoveLine(index);
+        LinesController.RemoveLine(index, _pointDestroyDuration); //LineController обновляется первым, чтобы запомнить точку, к которой будет привязана линия (таким образом обоих можно вывести из ротации индексов)
+        PointsController.RemovePoint(index, _pointDestroyDuration);
     }
 
     public void ResetBlueprint() => SetBlueprintData(_defaultPoints);
@@ -100,7 +99,10 @@ public class BlueprintManager : MonoBehaviour
             RemovePoint(i, true);
 
         for (int i = 0; i < points.Count; i++)
-            AddPoint(i, points[i]);
+        {
+            AddPoint(i, Vector2.zero);
+            MovePoint(i, points[i]);
+        }
 
         OnBlueprintDataChanged?.Invoke(points);
     }

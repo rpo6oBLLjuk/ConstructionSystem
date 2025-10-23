@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,8 @@ public class BlueprintPointsConstroller
 
     [SerializeField] Color _inactivePointColor = Color.white; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
     [SerializeField] Color _dragPointColor = Color.yellow;
+
+    [SerializeField] float _snapDuration = 0.05f; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
 
     BlueprintPointHandler _activePoint;
     bool _isDragging = false;
@@ -58,7 +61,7 @@ public class BlueprintPointsConstroller
             if (_isShift)
                 inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
 
-            _activePoint.transform.position = inputPosition;
+            _activePoint.transform.DOMove(inputPosition, _snapDuration);
         }
     }
 
@@ -71,7 +74,7 @@ public class BlueprintPointsConstroller
         bph.SelfImage.color = _inactivePointColor;
 
         Points.Insert(index, bph);
-        bph.transform.position = position;
+        bph.SelfImage.rectTransform.anchoredPosition = position;
 
         bph.PointerDown += OnPointDown;
         bph.PointerUp += OnPointUp;
@@ -79,10 +82,19 @@ public class BlueprintPointsConstroller
         bph.PointerLeftClick += OnPointLeftClick;
     }
 
-    public void RemovePoint(int index)
+    public void RemovePoint(int index, float durationTime)
     {
-        GameObject.Destroy(Points[index].gameObject);
+        BlueprintPointHandler bph = Points[index];
         Points.RemoveAt(index);
+
+        Sequence sequence = DOTween.Sequence();
+
+        sequence.Append(bph.SelfImage.DOFade(0, durationTime))
+            .Join(bph.transform.DOScale(2, durationTime)
+            .OnComplete(() =>
+            {
+                GameObject.Destroy(bph.gameObject);
+            }));
     }
 
     private float CalculateSnappedCoordinate(float coordinate)
@@ -101,7 +113,7 @@ public class BlueprintPointsConstroller
     }
     private void OnPointUp(BlueprintPointHandler blueprintPointHandler)
     {
-        _blueprintManager.MovePoint(Points.IndexOf(_activePoint), _activePoint.transform.position);
+        _blueprintManager.MovePoint(Points.IndexOf(_activePoint), _activePoint.SelfImage.rectTransform.anchoredPosition);
 
         _isDragging = false;
         _activePoint = null;
