@@ -15,6 +15,7 @@ public class BlueprintPointsConstroller
 
     [SerializeField] float _snapDistance = 10;
     [SerializeField] float _snapSmooth = 5;
+    [SerializeField] float _textureTileMultiplyer = 1;
 
     [SerializeField] Color _inactivePointColor = Color.white; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
     [SerializeField] Color _dragPointColor = Color.yellow;
@@ -111,7 +112,7 @@ public class BlueprintPointsConstroller
 
     private float CalculateSnappedCoordinate(float coordinate)
     {
-        float snapValue = _snapDistance / _snapSmooth;
+        float snapValue = _snapDistance / _snapSmooth / _textureTileMultiplyer;
         coordinate -= (coordinate < 0 ? snapValue / 2 : 0);
 
         float remainder = coordinate % snapValue;
