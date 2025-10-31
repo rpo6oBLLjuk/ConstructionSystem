@@ -28,10 +28,10 @@ public class BlueprintManagerView : MonoBehaviour
 
     private void Start()
     {
-        pointsVisibilityButton.Button.onClick.AddListener(() => _blueprintManager.PointsController.SetPointsVisible(pointsVisibilityButton.IsActiveSprite));
-        textVisibilityButton.Button.onClick.AddListener(UpdateTextVisibility);
+        //pointsVisibilityButton.Button.onClick.AddListener(() => _blueprintManager.PointsController.SetPointsVisible(pointsVisibilityButton.IsActiveSprite));
+        //textVisibilityButton.Button.onClick.AddListener(UpdateTextVisibility);
 
-        scaleSlider.onValueChanged.AddListener(_blueprintManager.SetBlueprintScaleFactor);
+        //scaleSlider.onValueChanged.AddListener(_blueprintManager.SetBlueprintScaleFactor);
     }
 
     private void LateUpdate()
@@ -85,9 +85,9 @@ public class BlueprintManagerView : MonoBehaviour
 
     private void UpdateTextVisibility()
     {
-        foreach (var tmp_text in _lineTexts)
-        {
-            tmp_text.GetComponentInParent<CanvasGroup>().DOFade(textVisibilityButton.IsActiveSprite ? 1 : 0, _textFadeDuration);
-        }
+        //foreach (var tmp_text in _lineTexts)
+        //{
+        //    tmp_text.GetComponentInParent<CanvasGroup>().DOFade(textVisibilityButton.IsActiveSprite ? 1 : 0, _textFadeDuration);
+        //}
     }
 }

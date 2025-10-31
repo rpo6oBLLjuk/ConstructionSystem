@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,11 +33,6 @@ public class TopBarDefaultUI : MonoBehaviour
         Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
         Screen.fullScreen = true;
         fullScreen = Screen.fullScreen;
-
-        StartCoroutine(Coroutine());
-
-        MaximizeButtonClick();
-        MaximizeButtonClick();
     }
 
     private void MinimizeButtonClick()
@@ -76,14 +71,5 @@ public class TopBarDefaultUI : MonoBehaviour
 #else
         Application.Quit();
 #endif
-    }
-
-    private IEnumerator Coroutine()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(1f);
-            //
-        }
     }
 }
