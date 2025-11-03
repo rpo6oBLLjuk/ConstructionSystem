@@ -5,5 +5,5 @@ public abstract class AbstractSOInstaller<T> : ScriptableObjectInstaller where T
 {
     [SerializeField] T instance;
 
-    public override void InstallBindings() => Container.Bind<T>().FromInstance(instance);
+    public override void InstallBindings() => Container.Bind<T>().FromInstance(instance).AsSingle();
 }
