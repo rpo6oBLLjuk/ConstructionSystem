@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 53cda844bc5d2314ca6b16cc37f30ff5, type: 3}
-  m_Name: ColorSchemeConfigInstaller
+  m_Name: StyleSchemeConfigInstaller
   m_EditorClassIdentifier: 
   instance: {fileID: 11400000, guid: b0414aa065dd72344a45707397edb329, type: 2}

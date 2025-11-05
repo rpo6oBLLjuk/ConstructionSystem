@@ -83,11 +83,11 @@ public class BorderlessToggle : MonoBehaviour
     const int SW_SHOWMAXIMIZED = 3; // maximize  
     const int SW_SHOWRESTORE = 1; // Restore
 
-    void Start()
-    {
-        if (borderless)
-            SetBorderless();
-    }
+    //void Start()
+    //{
+    //    if (borderless)
+    //        SetBorderless();
+    //}
 
     public void ToggleBorders()
     {

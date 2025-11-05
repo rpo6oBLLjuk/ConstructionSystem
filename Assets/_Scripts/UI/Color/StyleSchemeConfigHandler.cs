@@ -5,11 +5,11 @@ using UnityEngine.UI;
 using Zenject;
 
 [RequireComponent(typeof(Graphics))]
-public class ColorConfigApplyHandler : MonoBehaviour
+public class StyleSchemeConfigHandler : MonoBehaviour
 {
-    [Inject] ColorSchemeConfig _colorSchemeCfg;
+    [Inject] StyleSchemeConfig _colorSchemeCfg;
 
-    ColorSchemeConfig ColorSchemeCfg
+    StyleSchemeConfig ColorSchemeCfg
     {
         get
         {
@@ -21,7 +21,7 @@ public class ColorConfigApplyHandler : MonoBehaviour
                 {
                     try
                     {
-                        _colorSchemeCfg = AssetDatabase.LoadAssetAtPath<ColorSchemeConfig>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets($"t:{typeof(ColorSchemeConfig).Name}")[0]));
+                        _colorSchemeCfg = AssetDatabase.LoadAssetAtPath<StyleSchemeConfig>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets($"t:{typeof(StyleSchemeConfig).Name}")[0]));
                     }
                     catch
                     {
