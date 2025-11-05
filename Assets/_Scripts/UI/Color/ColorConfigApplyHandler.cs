@@ -13,33 +13,32 @@ public class ColorConfigApplyHandler : MonoBehaviour
     {
         get
         {
-//#if UNITY_EDITOR
-//            //Hand-made inject config from project files for editor use
-//            if (_colorSchemeCfg == null)
-//            {
-//                if (!Application.isPlaying)
-//                {
-//                    try
-//                    {
-//                        _colorSchemeCfg = AssetDatabase.LoadAssetAtPath<ColorSchemeConfig>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets($"t:{typeof(ColorSchemeConfig).Name}")[0]));
-//                    }
-//                    catch
-//                    {
-//                        Debug.LogError("Check ColorSchemeConfig instance in project files!");
-//                    }
-//                }
-//                else
-//                {
-//                    ProjectContext.Instance.Container.Inject(this);
-//                }
-//            }
-//#endif
+#if UNITY_EDITOR
+#region Hand-made inject config from project files for editor use
+            if (_colorSchemeCfg == null)
+            {
+                if (!Application.isPlaying)
+                {
+                    try
+                    {
+                        _colorSchemeCfg = AssetDatabase.LoadAssetAtPath<ColorSchemeConfig>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets($"t:{typeof(ColorSchemeConfig).Name}")[0]));
+                    }
+                    catch
+                    {
+                        Debug.LogError("Check ColorSchemeConfig instance in project files!");
+                    }
+                }
+                else
+                {
+                    ProjectContext.Instance.Container.Inject(this);
+                }
+            }
+#endregion
+#endif
             return _colorSchemeCfg;
         }
     }
-
-    [SerializeField] Image _image;
-    [SerializeField] TMP_Text _text;
+    Graphic _graphicSource;
 
     [SerializeField] ColorShemeType _colorShemeType = ColorShemeType.Default;
 
@@ -47,7 +46,6 @@ public class ColorConfigApplyHandler : MonoBehaviour
     private void OnEnable() => ColorSchemeCfg.OnColorChanged += ApplyColor;
     private void OnDisable() => ColorSchemeCfg.OnColorChanged -= ApplyColor;
 
-    private void Awake() => GetGhaphicsComponent();
     private void Start() => ApplyColor();
 
     private void Reset()
@@ -59,30 +57,23 @@ public class ColorConfigApplyHandler : MonoBehaviour
 
     private void ApplyColor()
     {
+        GetGhaphicsComponent();
         Color color = ColorSchemeCfg.GetColorByType(_colorShemeType);
 
-        if (_image != null)
-        {
-            _image.color = color;
-            return;
-        }
-
-        if (_text != null)
-        {
-            _text.color = color;
-            Debug.Log($"Text color changed to: {color}", this);
-            return;
-        }
+        if (_graphicSource != null)
+            _graphicSource.color = color;
     }
     private void GetGhaphicsComponent()
     {
-        if (!_image && TryGetComponent(out _image))
+        if (_graphicSource)
             return;
 
-        if (!_text && TryGetComponent(out _text))
+        if (TryGetComponent(out Image image))
+            _graphicSource = image;
+        else if (TryGetComponent(out TMP_Text text))
         {
+            _graphicSource = text;
             _colorShemeType = ColorShemeType.Text;
-            return;
         }
     }
 }
