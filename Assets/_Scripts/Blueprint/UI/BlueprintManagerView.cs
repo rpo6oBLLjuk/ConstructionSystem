@@ -22,9 +22,6 @@ public class BlueprintManagerView : MonoBehaviour
     [Header("Points")]
     [SerializeField] ButtonSpriteSwapper pointsVisibilityButton;
 
-    [Header("Scale")]
-    [SerializeField] Slider scaleSlider;
-
 
     private void Start()
     {
@@ -42,7 +39,7 @@ public class BlueprintManagerView : MonoBehaviour
         SetLinesSizeTexts();
 
         if (Input.mouseScrollDelta.y != 0)
-            scaleSlider.value += Input.mouseScrollDelta.y;
+            _blueprintManager.SetBlueprintScaleFactor(_blueprintManager.BlueprintScaleFactor + Input.mouseScrollDelta.y);
     }
 
     private void ActualizeLinesCount()

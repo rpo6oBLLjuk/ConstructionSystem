@@ -27,6 +27,11 @@ public class BlueprintManager : MonoBehaviour
     public Action<List<Vector2>> OnBlueprintDataChanging;
     public Action<List<Vector2>> OnBlueprintDataChanged;
 
+    /// <summary>
+    /// First arg: scale, second arg: tween duration
+    /// </summary>
+    public event Action<float, float> OnBlueprintScaleFactorChanged;
+
 
     private void OnEnable()
     {
@@ -47,6 +52,7 @@ public class BlueprintManager : MonoBehaviour
 
         LinesController.Awake(this);
         PointsController.Awake(this);
+
         HistoryController.Awake(this);
 
         ResetBlueprint(); //Почему-то вынося в Start() данный метод - History Controller захватывает создание дефолтной доски как обновление, => Undo может откатить чертёж в небытие
@@ -98,7 +104,10 @@ public class BlueprintManager : MonoBehaviour
 
         BlueprintScaleFactor = newScaleFactor;
 
-        transform.DOScale(newScaleFactor, 0.1f);
+        float duration = 0.1f;
+
+        transform.DOScale(newScaleFactor, duration); // HARDCODE tween !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (Blueprint Angles tween controller too)
+        OnBlueprintScaleFactorChanged?.Invoke(newScaleFactor, duration);
     }
 
     public void ResetBlueprint() => SetBlueprintData(_defaultPoints);
