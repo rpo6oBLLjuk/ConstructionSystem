@@ -16,7 +16,7 @@ public class BlueprintAnglesController : MonoBehaviour
     List<AngleInstance> _anglesInstances = new();
 
     [SerializeField] AnimationCurve _anglesTextDistanceInterpolation = AnimationCurve.EaseInOut(1, 0, 180, 0);
-    
+
     private float _defaultTextDistance;
     private float _defaultAnglePrefabSize;
 
@@ -71,33 +71,71 @@ public class BlueprintAnglesController : MonoBehaviour
 
     private void UpdateAngleInstance(int index, AngleInstance instance)
     {
-        instance.Root.position = _points[index].SelfImage.rectTransform.position;
+        UpdatePosition(index, instance);
+        UpdateRotation(index, instance);
+        UpdateScale(index, instance);
+        UpdateVisuals(index, instance);
+    }
 
-        int previousIndex = index == 0 ? _anglesInstances.Count - 1 : index - 1;
-        int nextIndex = index == _anglesInstances.Count - 1 ? 0 : index + 1;
+    private void UpdatePosition(int index, AngleInstance instance) => instance.Root.position = _points[index].SelfImage.rectTransform.position;
+    private void UpdateRotation(int index, AngleInstance instance)
+    {
+        int previousIndex = GetPreviousIndex(index);
+        int nextIndex = GetNextIndex(index);
 
-        float angle = CalculateAngle(_points[previousIndex].SelfImage.rectTransform.anchoredPosition,
+        float angle = CalculateAngle(
+            _points[previousIndex].SelfImage.rectTransform.anchoredPosition,
             _points[index].SelfImage.rectTransform.anchoredPosition,
             _points[nextIndex].SelfImage.rectTransform.anchoredPosition
-            );
-
+        );
 
         instance.Root.rotation = _lines[previousIndex].transform.rotation;
         instance.TextContainer.localRotation = Quaternion.Euler(0, 0, -angle / 2);
-        instance.Text.transform.rotation = Quaternion.identity;
+        instance.Text.transform.parent.rotation = Quaternion.identity;
+    }
 
-        float lineSize = Mathf.Min(
-            (_lines[previousIndex].SelfImage.rectTransform.sizeDelta.x - _lines[previousIndex].SelfImage.rectTransform.sizeDelta.y) / _defaultAnglePrefabSize,
-            (_lines[index].SelfImage.rectTransform.sizeDelta.x - _lines[index].SelfImage.rectTransform.sizeDelta.y) / _defaultAnglePrefabSize);
+    private void UpdateScale(int index, AngleInstance instance)
+    {
+        int previousIndex = GetPreviousIndex(index);
+        float lineSize = CalculateLineSize(previousIndex, index);
 
-        Vector3 localScale = lineSize > 1 / _blueprintManager.BlueprintScaleFactor ? Vector3.one : Vector3.one * lineSize * _blueprintManager.BlueprintScaleFactor;
+        Vector3 localScale = lineSize > 1 / _blueprintManager.BlueprintScaleFactor
+            ? Vector3.one
+            : Vector3.one * lineSize * _blueprintManager.BlueprintScaleFactor;
+
         instance.Root.localScale = localScale / _blueprintManager.BlueprintScaleFactor;
+    }
+
+    private void UpdateVisuals(int index, AngleInstance instance)
+    {
+        int previousIndex = GetPreviousIndex(index);
+        int nextIndex = GetNextIndex(index);
+
+        float angle = CalculateAngle(
+            _points[previousIndex].SelfImage.rectTransform.anchoredPosition,
+            _points[index].SelfImage.rectTransform.anchoredPosition,
+            _points[nextIndex].SelfImage.rectTransform.anchoredPosition
+        );
 
         instance.Filler.transform.localScale = Mathf.Sign(angle) == 1 ? Vector3.one : new Vector3(1, -1, 1);
         angle = Mathf.Abs(angle);
 
         instance.Text.text = $"{angle:F2}°";
         instance.Filler.fillAmount = angle / 360;
+    }
+
+    private int GetPreviousIndex(int index) => index == 0 ? _anglesInstances.Count - 1 : index - 1;
+    private int GetNextIndex(int index) => index == _anglesInstances.Count - 1 ? 0 : index + 1;
+
+    private float CalculateLineSize(int previousIndex, int currentIndex)
+    {
+        float previousLineSize = (_lines[previousIndex].SelfImage.rectTransform.sizeDelta.x -
+                                _lines[previousIndex].SelfImage.rectTransform.sizeDelta.y) / _defaultAnglePrefabSize;
+
+        float currentLineSize = (_lines[currentIndex].SelfImage.rectTransform.sizeDelta.x -
+                               _lines[currentIndex].SelfImage.rectTransform.sizeDelta.y) / _defaultAnglePrefabSize;
+
+        return Mathf.Min(previousLineSize, currentLineSize);
     }
     private float CalculateAngle(Vector3 a, Vector3 b, Vector3 c)
     {

@@ -28,12 +28,30 @@ MonoBehaviour:
   m_RuntimePresets: []
   m_RuntimePresetsV2:
   - {fileID: 11400000, guid: 48c95faa938165a498a770760da95b44, type: 2}
-  m_UseHDRColorPicker: 1
+  m_UseHDRColorPicker: 0
   m_ShaderVariantCollection: {fileID: 0}
   m_ShaderVariantRegistry:
     m_OptionalShaders:
     - key: Hidden/UI/Default (SoftMaskable)
       value: Hidden/UI/Default (UIEffect)
+    - key: Hidden/TextMeshPro/Bitmap (SoftMaskable)
+      value: Hidden/TextMeshPro/Bitmap (UIEffect)
+    - key: Hidden/TextMeshPro/Distance Field (SoftMaskable)
+      value: Hidden/TextMeshPro/Distance Field (UIEffect)
+    - key: Hidden/TextMeshPro/Distance Field Overlay (SoftMaskable)
+      value: Hidden/TextMeshPro/Distance Field Overlay (UIEffect)
+    - key: Hidden/TextMeshPro/Distance Field SSD (SoftMaskable)
+      value: Hidden/TextMeshPro/Distance Field SSD (UIEffect)
+    - key: Hidden/TextMeshPro/Mobile/Bitmap (SoftMaskable)
+      value: Hidden/TextMeshPro/Mobile/Bitmap (UIEffect)
+    - key: Hidden/TextMeshPro/Mobile/Distance Field (SoftMaskable)
+      value: Hidden/TextMeshPro/Mobile/Distance Field (UIEffect)
+    - key: Hidden/TextMeshPro/Mobile/Distance Field Overlay (SoftMaskable)
+      value: Hidden/TextMeshPro/Mobile/Distance Field Overlay (UIEffect)
+    - key: Hidden/TextMeshPro/Mobile/Distance Field SSD (SoftMaskable)
+      value: Hidden/TextMeshPro/Mobile/Distance Field SSD (UIEffect)
     m_Asset: {fileID: -4265458424788727188}
     m_ErrorOnUnregisteredVariant: 1
-    m_UnregisteredVariants: []
+    m_UnregisteredVariants:
+    - key: Hidden/TextMeshPro/Distance Field (UIEffect)
+      value: COLOR_FILTER

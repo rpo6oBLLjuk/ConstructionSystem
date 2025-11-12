@@ -19,6 +19,8 @@ public class BlueprintManager : MonoBehaviour
     [SerializeField] float _pointMoveDuration = 0.25f; //Нужно вынести в конфиг
     [SerializeField] float _pointDestroyDuration = 0.1f;
 
+    [SerializeField] float _defaultBlueprintScaleFactor = 2f; // Config!!!!!!!!!!!
+
     // События
     public Action<int, Vector2> OnPointAdded;
     public Action<int, Vector2> OnPointRemoved;
@@ -43,13 +45,11 @@ public class BlueprintManager : MonoBehaviour
     void Awake()
     {
         Canvas ??= transform.root.GetComponent<Canvas>();
-        BlueprintScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
 
         LinesController.Awake(this);
         PointsController.Awake(this);
 
         HistoryController.Awake(this);
-
 
         Debug.Log("Blueprint PointsEnabled");
     }
@@ -58,6 +58,9 @@ public class BlueprintManager : MonoBehaviour
     {
         ResetBlueprint();
         HistoryController.AddListeners();
+
+        BlueprintScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
+        SetBlueprintScaleFactor(_defaultBlueprintScaleFactor);
     }
 
     void Update()
