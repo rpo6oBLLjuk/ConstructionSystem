@@ -33,13 +33,15 @@ public class BlueprintManagerView : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Input.mouseScrollDelta.y != 0)
+            _blueprintManager.SetBlueprintScaleFactor(_blueprintManager.BlueprintScaleFactor + Input.mouseScrollDelta.y);
+
+        return;
+
         ActualizeLinesCount();
         AutoScaleTexts();
         //AutoRotateTexts();
         SetLinesSizeTexts();
-
-        if (Input.mouseScrollDelta.y != 0)
-            _blueprintManager.SetBlueprintScaleFactor(_blueprintManager.BlueprintScaleFactor + Input.mouseScrollDelta.y);
     }
 
     private void ActualizeLinesCount()
@@ -76,7 +78,7 @@ public class BlueprintManagerView : MonoBehaviour
     {
         for (int i = 0; i < _blueprintLineHandlers.Length; i++)
         {
-            _lineTexts[i].text = ((_blueprintLineHandlers[i].SelfImage.rectTransform.sizeDelta.x - _blueprintLineHandlers[i].SelfImage.rectTransform.sizeDelta.y) / 96).ToString("F3");
+            _lineTexts[i].text = ((_blueprintLineHandlers[i].SelfImage.rectTransform.sizeDelta.x - _blueprintLineHandlers[i].SelfImage.rectTransform.sizeDelta.y) / 100).ToString("F3");
         }
     }
 

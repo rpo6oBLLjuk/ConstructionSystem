@@ -33,11 +33,6 @@ public class BlueprintManager : MonoBehaviour
     public event Action<float, float> OnBlueprintScaleFactorChanged;
 
 
-    private void OnEnable()
-    {
-        HistoryController.OnEnable();
-    }
-
     void OnDisable()
     {
         LinesController.OnDisable();
@@ -55,7 +50,14 @@ public class BlueprintManager : MonoBehaviour
 
         HistoryController.Awake(this);
 
-        ResetBlueprint(); //Почему-то вынося в Start() данный метод - History Controller захватывает создание дефолтной доски как обновление, => Undo может откатить чертёж в небытие
+
+        Debug.Log("Blueprint PointsEnabled");
+    }
+
+    private void Start()
+    {
+        ResetBlueprint();
+        HistoryController.AddListeners();
     }
 
     void Update()
@@ -102,11 +104,15 @@ public class BlueprintManager : MonoBehaviour
         if (newScaleFactor < 1)
             newScaleFactor = 1;
 
-        BlueprintScaleFactor = newScaleFactor;
+        //BlueprintScaleFactor = newScaleFactor;
 
         float duration = 0.1f;
 
-        transform.DOScale(newScaleFactor, duration); // HARDCODE tween !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (Blueprint Angles tween controller too)
+        DOVirtual.Float(BlueprintScaleFactor, newScaleFactor, duration, value => {
+            BlueprintScaleFactor = value;
+            transform.localScale = Vector3.one * BlueprintScaleFactor;
+            // Additional logic when value changes
+        });
         OnBlueprintScaleFactorChanged?.Invoke(newScaleFactor, duration);
     }
 

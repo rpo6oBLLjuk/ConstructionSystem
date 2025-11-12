@@ -110,7 +110,8 @@ public class BlueprintLinesController
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         line.rectTransform.rotation = Quaternion.Euler(0, 0, angle);
 
-        line.rectTransform.sizeDelta = new Vector2(direction.magnitude + _height, _height);
+        float height = _height / _blueprintManager.BlueprintScaleFactor;
+        line.rectTransform.sizeDelta = new Vector2(direction.magnitude + height, height);
     }
     private void OnPointerClicked(BlueprintLineHandler handler, Vector2 posistion) => _blueprintManager.AddPoint(Lines.IndexOf(handler) + 1, GetPositionForCenterAnchor(_defaultLine.transform as RectTransform, posistion));
 

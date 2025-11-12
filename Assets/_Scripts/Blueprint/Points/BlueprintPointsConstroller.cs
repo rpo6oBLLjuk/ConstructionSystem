@@ -67,7 +67,10 @@ public class BlueprintPointsConstroller
                 inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
 
             _activePoint.SelfImage.rectTransform.DOAnchorPos(inputPosition, _snapDuration);
+
         }
+
+        Points.ForEach(point => point.transform.localScale = Vector3.one / _blueprintManager.BlueprintScaleFactor);
     }
 
     public void AddPoint(int index, Vector2 position)

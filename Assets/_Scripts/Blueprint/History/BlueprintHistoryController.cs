@@ -79,7 +79,7 @@ public class BlueprintHistoryController
     private bool _isPerformingDataChanging = false;
 
 
-    public void OnEnable()
+    public void AddListeners()
     {
         _blueprintManager.OnPointAdded += AddPointAction;
         _blueprintManager.OnPointRemoved += RemovePointAction;

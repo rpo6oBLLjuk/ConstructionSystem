@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -8,30 +9,41 @@ public class BlueprintAnglesController : MonoBehaviour
 {
     [SerializeField] BlueprintManager _blueprintManager;
 
-    [SerializeField] List<BlueprintPointHandler> _points => _blueprintManager.PointsController.Points;
-    [SerializeField] List<BlueprintLineHandler> _lines => _blueprintManager.LinesController.Lines;
     [SerializeField] GameObject _defaultAnglePrefab;
 
-    [SerializeField] List<AngleInstance> _anglesInstances = new();
+    List<BlueprintPointHandler> _points => _blueprintManager.PointsController.Points;
+    List<BlueprintLineHandler> _lines => _blueprintManager.LinesController.Lines;
+    List<AngleInstance> _anglesInstances = new();
+
+    [SerializeField] AnimationCurve _anglesTextDistanceInterpolation = AnimationCurve.EaseInOut(1, 0, 180, 0);
+    
+    private float _defaultTextDistance;
+    private float _defaultAnglePrefabSize;
 
 
     private void OnEnable()
     {
         _blueprintManager.OnPointAdded += AddAngle;
         _blueprintManager.OnPointRemoved += RemovePoint;
-
-        _blueprintManager.OnBlueprintScaleFactorChanged += TweenAnglesInstancesScale;
     }
     private void OnDisable()
     {
         _blueprintManager.OnPointAdded -= AddAngle;
         _blueprintManager.OnPointRemoved -= RemovePoint;
-
-        _blueprintManager.OnBlueprintScaleFactorChanged -= TweenAnglesInstancesScale;
     }
 
-    public void Start() => _defaultAnglePrefab.SetActive(false);
-    public void Update() => _anglesInstances.ForEach(instance => UpdateAngleInstance(instance));
+    void Start()
+    {
+        _defaultAnglePrefab.SetActive(false);
+
+        _defaultTextDistance = _defaultAnglePrefab.GetComponentInChildren<TMP_Text>().rectTransform.localPosition.magnitude;
+        _defaultAnglePrefabSize = (_defaultAnglePrefab.transform as RectTransform).sizeDelta.x;
+    }
+    void Update()
+    {
+        for (int i = 0; i < _anglesInstances.Count; i++)
+            UpdateAngleInstance(i, _anglesInstances[i]);
+    }
 
     private void AddAngle(int index, Vector2 _) => InstantiateNewAngle(index);
     private void RemovePoint(int index, Vector2 _) => RemoveAngle(index);
@@ -41,43 +53,48 @@ public class BlueprintAnglesController : MonoBehaviour
         GameObject instance = GameObject.Instantiate(_defaultAnglePrefab, _defaultAnglePrefab.transform.parent);
         instance.SetActive(true);
 
+        Debug.Log("Instance");
+
         _anglesInstances.Insert(index, new AngleInstance(
-            index,
             instance.GetComponent<RectTransform>(),
             instance.GetComponent<CanvasGroup>(),
             instance.GetComponentInChildren<Image>(),
+            instance.transform.Find("Text_Container") as RectTransform,
             instance.GetComponentInChildren<TMP_Text>())
             );
     }
     private void RemoveAngle(int index)
     {
-        GameObject.Destroy(_anglesInstances[index].Root);
+        Destroy(_anglesInstances[index].Root.gameObject);
         _anglesInstances.RemoveAt(index);
     }
 
-    private void UpdateAngleInstance(AngleInstance instance)
+    private void UpdateAngleInstance(int index, AngleInstance instance)
     {
-        instance.Root.position = _points[instance.Index].SelfImage.rectTransform.position /** instance.Root.transform.localScale.z*/;
+        instance.Root.position = _points[index].SelfImage.rectTransform.position;
 
-        int previousIndex = instance.Index == 0 ? _anglesInstances.Count - 1 : instance.Index - 1;
-        int nextIndex = instance.Index == _anglesInstances.Count - 1 ? 0 : instance.Index + 1;
+        int previousIndex = index == 0 ? _anglesInstances.Count - 1 : index - 1;
+        int nextIndex = index == _anglesInstances.Count - 1 ? 0 : index + 1;
 
         float angle = CalculateAngle(_points[previousIndex].SelfImage.rectTransform.anchoredPosition,
-            _points[instance.Index].SelfImage.rectTransform.anchoredPosition,
+            _points[index].SelfImage.rectTransform.anchoredPosition,
             _points[nextIndex].SelfImage.rectTransform.anchoredPosition
             );
 
+
         instance.Root.rotation = _lines[previousIndex].transform.rotation;
+        instance.TextContainer.localRotation = Quaternion.Euler(0, 0, -angle / 2);
+        instance.Text.transform.rotation = Quaternion.identity;
 
+        float lineSize = Mathf.Min(
+            (_lines[previousIndex].SelfImage.rectTransform.sizeDelta.x - _lines[previousIndex].SelfImage.rectTransform.sizeDelta.y) / _defaultAnglePrefabSize,
+            (_lines[index].SelfImage.rectTransform.sizeDelta.x - _lines[index].SelfImage.rectTransform.sizeDelta.y) / _defaultAnglePrefabSize);
 
-        float midAngle = angle / 2 * Mathf.Deg2Rad + instance.Root.rotation.z;
-        float radius = 40f;
-        float x = Mathf.Cos(midAngle) * radius;
-        float y = Mathf.Sin(midAngle) * radius;
+        Vector3 localScale = lineSize > 1 / _blueprintManager.BlueprintScaleFactor ? Vector3.one : Vector3.one * lineSize * _blueprintManager.BlueprintScaleFactor;
+        instance.Root.localScale = localScale / _blueprintManager.BlueprintScaleFactor;
 
-        // Устанавливаем позицию текста относительно родителя
-        instance.Text.transform.localPosition = new Vector3(x, y, 0);
-        instance.Text.rectTransform.rotation = Quaternion.identity;
+        instance.Filler.transform.localScale = Mathf.Sign(angle) == 1 ? Vector3.one : new Vector3(1, -1, 1);
+        angle = Mathf.Abs(angle);
 
         instance.Text.text = $"{angle:F2}°";
         instance.Filler.fillAmount = angle / 360;
@@ -99,17 +116,16 @@ public class BlueprintAnglesController : MonoBehaviour
 
         // Если векторное произведение смотрит "вверх" - угол положительный (0-180)
         // Если "вниз" - угол отрицательный (180-360)
-        return (cross.z > 0) ? 360 - baseAngle : baseAngle;
+        return (cross.z > 0) ? -baseAngle : baseAngle;
     }
 
-    private void TweenAnglesInstancesScale(float scale, float duration) => _anglesInstances.ForEach(instance => instance.Root.DOScale(scale, duration));
-
-    private record AngleInstance(int Index, RectTransform Root, CanvasGroup CanvasGroup, Image Filler, TMP_Text Text)
+    [Serializable]
+    private record AngleInstance(RectTransform Root, CanvasGroup CanvasGroup, Image Filler, RectTransform TextContainer, TMP_Text Text)
     {
-        public int Index { get; private set; } = Index;
         public RectTransform Root { get; private set; } = Root;
         public CanvasGroup CanvasGroup { get; private set; } = CanvasGroup;
         public Image Filler { get; private set; } = Filler;
+        public RectTransform TextContainer { get; private set; } = TextContainer;
         public TMP_Text Text { get; private set; } = Text;
     }
 }
