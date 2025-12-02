@@ -22,6 +22,8 @@ public class BlueprintManagerView : MonoBehaviour
     [Header("Points")]
     [SerializeField] ButtonSpriteSwapper pointsVisibilityButton;
 
+    private float defaultpixelsPerUnitMultiplier;
+
 
     private void Start()
     {
@@ -29,6 +31,9 @@ public class BlueprintManagerView : MonoBehaviour
         //textVisibilityButton.Button.onClick.AddListener(UpdateTextVisibility);
 
         //scaleSlider.onValueChanged.AddListener(_blueprintManager.SetBlueprintScaleFactor);
+
+        ActualizeLinesCount();
+        defaultpixelsPerUnitMultiplier = _blueprintLineHandlers[0].GetComponentInChildren<TMP_Text>(true).GetComponentInParent<Image>(true).pixelsPerUnitMultiplier;
     }
 
     private void LateUpdate()
@@ -36,7 +41,7 @@ public class BlueprintManagerView : MonoBehaviour
         if (Input.mouseScrollDelta.y != 0)
             _blueprintManager.SetBlueprintScaleFactor(_blueprintManager.BlueprintScaleFactor + Input.mouseScrollDelta.y);
 
-        return;
+        //return;
 
         ActualizeLinesCount();
         AutoScaleTexts();
@@ -57,12 +62,19 @@ public class BlueprintManagerView : MonoBehaviour
     }
     private void AutoScaleTexts()
     {
+        //return;
         for (int i = 0; i < _blueprintLineHandlers.Length; i++)
         {
             float width = _blueprintLineHandlers[i].SelfImage.rectTransform.sizeDelta.x;
             float fontSize = Mathf.Clamp(autosizeMixMax.x + (autosizeMixMax.y - autosizeMixMax.x) * autosizeMultiplier.Evaluate(width), autosizeMixMax.x, autosizeMixMax.y);
+
+            fontSize /= _blueprintManager.BlueprintScaleFactor;
             _lineTexts[i].fontSize = fontSize;
-            (_lineTexts[i].rectTransform.parent as RectTransform).sizeDelta = new Vector2(fontSize * 3, fontSize);
+
+            _lineTexts[i].GetComponentInParent<Image>().pixelsPerUnitMultiplier = defaultpixelsPerUnitMultiplier * _blueprintManager.BlueprintScaleFactor;
+            //RectTransform parent = (_lineTexts[i].rectTransform.parent as RectTransform);
+            //parent.sizeDelta = new Vector2(fontSize * 3, fontSize);
+            //parent.localScale = new Vector2(_blueprintManager.BlueprintScaleFactor,_blueprintManager.BlueprintScaleFactor);
         }
     }
     private void AutoRotateTexts()
@@ -84,9 +96,12 @@ public class BlueprintManagerView : MonoBehaviour
 
     private void UpdateTextVisibility()
     {
-        //foreach (var tmp_text in _lineTexts)
-        //{
-        //    tmp_text.GetComponentInParent<CanvasGroup>().DOFade(textVisibilityButton.IsActiveSprite ? 1 : 0, _textFadeDuration);
-        //}
+        DebugWrapper.InactiveLog(this, "Need create Action, when visible layers changed");
+        return;
+
+        foreach (var tmp_text in _lineTexts)
+        {
+            tmp_text.GetComponentInParent<CanvasGroup>().DOFade(true ? 1 : 0, _textFadeDuration);
+        }
     }
 }

@@ -73,23 +73,25 @@ public class BlueprintHistoryView : MonoBehaviour
         _undoTween = DOTween.Sequence();
 
         _undoTween.SetDelay(_holdThreshold)
-            .Append(DOVirtual.DelayedCall(_undoRedoDelay, () =>
-            {
-                _undoButton.onClick?.Invoke();
-            })
-            .SetAutoKill(false)
+                .Append(DOVirtual.DelayedCall(_undoRedoDelay, () =>
+                {
+                    _undoButton.onClick?.Invoke();
+                })
+                .SetAutoKill(false)
+            )
             .SetLoops(-1)
-        ).Pause();
+            .Pause();
 
         _redoTween = DOTween.Sequence();
         _redoTween.SetDelay(_holdThreshold)
-            .Append(DOVirtual.DelayedCall(_undoRedoDelay, () =>
-            {
-                _redoButton.onClick?.Invoke();
-            })
-            .SetAutoKill(false)
+                .Append(DOVirtual.DelayedCall(_undoRedoDelay, () =>
+                {
+                    _redoButton.onClick?.Invoke();
+                })
+                .SetAutoKill(false)
+            )
             .SetLoops(-1)
-        ).Pause();
+            .Pause();
     }
     private void AddListenerForTrigger(Button button, Tween tween)
     {

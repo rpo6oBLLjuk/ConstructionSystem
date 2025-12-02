@@ -25,6 +25,8 @@ public class BlueprintPointsConstroller
     [SerializeField] float _visibilityFadeDuration = 0.25f; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вынести в конфиг
 
     BlueprintPointHandler _activePoint;
+
+    Vector2 lastMousePosition = Vector2.zero;
     bool _isDragging = false;
     bool _isShift = false; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
 
@@ -57,18 +59,14 @@ public class BlueprintPointsConstroller
     }
     public void Update()
     {
+        _isShift = Input.GetKey(KeyCode.LeftShift); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
+
         if (_isDragging)
         {
-            _isShift = Input.GetKey(KeyCode.LeftShift); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
-
-            Vector3 inputPosition = Input.mousePosition;
-            inputPosition = (inputPosition - _activePoint.transform.parent.position) / _blueprintManager.CanvasScaleFactor / _blueprintManager.BlueprintScaleFactor;
-            if (_isShift)
-                inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
-
+            Vector3 inputPosition = CalculateInputPosition(Input.mousePosition);
             _activePoint.SelfImage.rectTransform.DOAnchorPos(inputPosition, _snapDuration);
-
         }
+            
 
         Points.ForEach(point => point.transform.localScale = Vector3.one / _blueprintManager.BlueprintScaleFactor);
     }
@@ -122,6 +120,15 @@ public class BlueprintPointsConstroller
         return coordinate - remainder + (remainder >= snapValue / 2 ? snapValue : 0);
     }
 
+    private Vector2 CalculateInputPosition(Vector3 mousePosition)
+    {
+        Vector2 inputPosition = (mousePosition - _activePoint.transform.parent.position) / _blueprintManager.CanvasScaleFactor / _blueprintManager.BlueprintScaleFactor;
+        if (_isShift)
+            inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
+
+        return inputPosition;
+    }
+
     private void OnPointDown(BlueprintPointHandler blueprintPointHandler)
     {
         _isDragging = true;
@@ -132,6 +139,11 @@ public class BlueprintPointsConstroller
     private void OnPointUp(BlueprintPointHandler blueprintPointHandler)
     {
         _blueprintManager.MovePoint(Points.IndexOf(_activePoint), _activePoint.SelfImage.rectTransform.anchoredPosition);
+
+        lastMousePosition = CalculateInputPosition(Input.mousePosition);
+
+        _activePoint.SelfImage.rectTransform.DOKill();
+        _activePoint.SelfImage.rectTransform.DOAnchorPos(lastMousePosition, _snapDuration);
 
         _isDragging = false;
         _activePoint = null;

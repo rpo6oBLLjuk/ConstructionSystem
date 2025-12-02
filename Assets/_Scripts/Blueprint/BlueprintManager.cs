@@ -20,6 +20,7 @@ public class BlueprintManager : MonoBehaviour
     [SerializeField] float _pointDestroyDuration = 0.1f;
 
     [SerializeField] float _defaultBlueprintScaleFactor = 2f; // Config!!!!!!!!!!!
+    [SerializeField] Vector2 _blueprintScaleFactorMinMax = new Vector2(1, 10); 
 
     // События
     public Action<int, Vector2> OnPointAdded;
@@ -56,11 +57,11 @@ public class BlueprintManager : MonoBehaviour
 
     private void Start()
     {
-        ResetBlueprint();
-        HistoryController.AddListeners();
-
         BlueprintScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
         SetBlueprintScaleFactor(_defaultBlueprintScaleFactor);
+
+        ResetBlueprint();
+        HistoryController.AddListeners();
     }
 
     void Update()
@@ -104,8 +105,8 @@ public class BlueprintManager : MonoBehaviour
 
     public void SetBlueprintScaleFactor(float newScaleFactor)
     {
-        if (newScaleFactor < 1)
-            newScaleFactor = 1;
+        newScaleFactor = Mathf.Clamp(newScaleFactor, _blueprintScaleFactorMinMax.x, _blueprintScaleFactorMinMax.y);
+        newScaleFactor = Mathf.Floor(newScaleFactor * 10) / 10;
 
         //BlueprintScaleFactor = newScaleFactor;
 
@@ -114,7 +115,6 @@ public class BlueprintManager : MonoBehaviour
         DOVirtual.Float(BlueprintScaleFactor, newScaleFactor, duration, value => {
             BlueprintScaleFactor = value;
             transform.localScale = Vector3.one * BlueprintScaleFactor;
-            // Additional logic when value changes
         });
         OnBlueprintScaleFactorChanged?.Invoke(newScaleFactor, duration);
     }
