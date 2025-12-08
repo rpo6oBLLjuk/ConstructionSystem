@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
-public class BlueprintAnglesController : MonoBehaviour
+public class BlueprintAnglesController : MonoBehaviour, IBlueprintView
 {
-    [SerializeField] BlueprintManager _blueprintManager;
+    [Inject] BlueprintManager _blueprintManager;
 
+    public IViewController ViewController { get; set; }
     [SerializeField] GameObject _defaultAnglePrefab;
 
     List<BlueprintPointHandler> _points => _blueprintManager.PointsController.Points;
     List<BlueprintLineHandler> _lines => _blueprintManager.LinesController.Lines;
     List<AngleInstance> _anglesInstances = new();
 
-    [SerializeField] AnimationCurve _anglesTextDistanceInterpolation = AnimationCurve.EaseInOut(1, 0, 180, 0);
-
-    private float _defaultTextDistance;
     private float _defaultAnglePrefabSize;
 
 
@@ -31,18 +30,18 @@ public class BlueprintAnglesController : MonoBehaviour
         _blueprintManager.OnPointRemoved -= RemovePoint;
     }
 
-    void Start()
+    public void Start()
     {
         _defaultAnglePrefab.SetActive(false);
-
-        _defaultTextDistance = _defaultAnglePrefab.GetComponentInChildren<TMP_Text>().rectTransform.localPosition.magnitude;
         _defaultAnglePrefabSize = (_defaultAnglePrefab.transform as RectTransform).sizeDelta.x;
     }
-    void Update()
+    public void Update()
     {
         for (int i = 0; i < _anglesInstances.Count; i++)
             UpdateAngleInstance(i, _anglesInstances[i]);
     }
+
+    public void OnViewLayerValueChanged(BlueprintViewLayers blueprintViewLayers) => ViewController.SetActive(blueprintViewLayers.HasLayer(BlueprintViewLayers.Angles));
 
     private void AddAngle(int index, Vector2 _) => InstantiateNewAngle(index);
     private void RemovePoint(int index, Vector2 _) => RemoveAngle(index);
@@ -59,7 +58,8 @@ public class BlueprintAnglesController : MonoBehaviour
             instance.GetComponent<CanvasGroup>(),
             instance.GetComponentInChildren<Image>(),
             instance.transform.Find("Text_Container") as RectTransform,
-            instance.GetComponentInChildren<TMP_Text>())
+            instance.GetComponentInChildren<TMP_Text>(),
+            instance.GetComponentInChildren<HorizontalLayoutGroup>())
             );
     }
     private void RemoveAngle(int index)
@@ -157,12 +157,13 @@ public class BlueprintAnglesController : MonoBehaviour
     }
 
     [Serializable]
-    private record AngleInstance(RectTransform Root, CanvasGroup CanvasGroup, Image Filler, RectTransform TextContainer, TMP_Text Text)
+    private record AngleInstance(RectTransform Root, CanvasGroup CanvasGroup, Image Filler, RectTransform TextContainer, TMP_Text Text, HorizontalLayoutGroup HorizontalLayoutGroup)
     {
         public RectTransform Root { get; private set; } = Root;
         public CanvasGroup CanvasGroup { get; private set; } = CanvasGroup;
         public Image Filler { get; private set; } = Filler;
         public RectTransform TextContainer { get; private set; } = TextContainer;
         public TMP_Text Text { get; private set; } = Text;
+        public HorizontalLayoutGroup HorizontalLayoutGroup { get; private set; } = HorizontalLayoutGroup; //TextGameObject
     }
 }

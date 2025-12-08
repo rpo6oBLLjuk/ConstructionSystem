@@ -5,7 +5,7 @@ using UnityEngine;
 
 //Изменение цвета прописано костыльно, если !isVisible, то DOFade. Перенести всё в 1-2 метода.
 [Serializable]
-public class BlueprintPointsConstroller
+public class BlueprintPointsConstroller  
 {
     BlueprintManager _blueprintManager;
 
@@ -33,14 +33,6 @@ public class BlueprintPointsConstroller
     bool _isVisible = true;
 
 
-    //public void OnEnable()
-    //{
-    //    foreach (var point in Points)
-    //    {
-    //        point.PointerDown += OnPointDown;
-    //        point.PointerUp += OnPointUp;
-    //    }
-    //}
     public void OnDisable()
     {
         foreach (var point in Points)

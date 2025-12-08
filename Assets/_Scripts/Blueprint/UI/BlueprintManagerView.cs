@@ -1,13 +1,15 @@
+using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class BlueprintManagerView : MonoBehaviour
 {
-    [SerializeField] BlueprintManager _blueprintManager;
+    [Inject] BlueprintManager _blueprintManager;
+    GameObjectViewController _blueprintTextsController = new();
 
     [Header("Text")]
     [SerializeField] ButtonSpriteSwapper textVisibilityButton;
@@ -27,11 +29,6 @@ public class BlueprintManagerView : MonoBehaviour
 
     private void Start()
     {
-        //pointsVisibilityButton.Button.onClick.AddListener(() => _blueprintManager.PointsController.SetPointsVisible(pointsVisibilityButton.IsActiveSprite));
-        //textVisibilityButton.Button.onClick.AddListener(UpdateTextVisibility);
-
-        //scaleSlider.onValueChanged.AddListener(_blueprintManager.SetBlueprintScaleFactor);
-
         ActualizeLinesCount();
         defaultpixelsPerUnitMultiplier = _blueprintLineHandlers[0].GetComponentInChildren<TMP_Text>(true).GetComponentInParent<Image>(true).pixelsPerUnitMultiplier;
     }
