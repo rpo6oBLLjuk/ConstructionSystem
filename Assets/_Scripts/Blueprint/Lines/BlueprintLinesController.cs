@@ -1,23 +1,19 @@
-using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 [Serializable]
-public class BlueprintLinesController
+public class BlueprintLinesController : MonoBehaviour
 {
-    BlueprintManager _blueprintManager;
+    [Inject] BlueprintManager _blueprintManager;
+    [Inject] BlueprintVisualConfig _visualConfig;
 
+    public List<LineData> _Lines = new();
     public List<BlueprintLineHandler> Lines { get; private set; } = new();
 
     [SerializeField] BlueprintLineHandler _defaultLine;
-
-    [SerializeField] float _height = 5f;
-    [SerializeField] bool _looped = true;
-
-    [SerializeField] Color _correctLineColor = Color.green;
-    [SerializeField] Color _intersectionLineColor = Color.red; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ¬ынести в конфиг
 
     //public void OnEnable()
     //{
@@ -30,11 +26,7 @@ public class BlueprintLinesController
             line.PointerClicked -= OnPointerClicked;
     }
 
-    public void Awake(BlueprintManager blueprintManager)
-    {
-        _blueprintManager = blueprintManager;
-        _defaultLine.gameObject.SetActive(false);
-    }
+    public void Awake() => _defaultLine.gameObject.SetActive(false);
     public void Update()
     {
         SetLinesPosition();
@@ -43,6 +35,8 @@ public class BlueprintLinesController
 
     public void AddLine(int index)
     {
+        _Lines.Insert(index, new LineData());
+
         GameObject lineInstance = GameObject.Instantiate(_defaultLine.gameObject, _defaultLine.transform.parent);
         lineInstance.SetActive(true);
 
@@ -53,9 +47,10 @@ public class BlueprintLinesController
 
         SetLinesPosition();
     }
-    public void RemoveLine(int index, float durationTime)
+    public void RemoveLine(int index)
     {
         GameObject.Destroy(Lines[index].gameObject);
+        _Lines.RemoveAt(index);
         Lines.RemoveAt(index);
     }
 
@@ -63,7 +58,7 @@ public class BlueprintLinesController
     {
         for (int i = 0; i < _blueprintManager.PointsController.Points.Count - 1; i++)
             ConfigurateLine(Lines[i].SelfImage, _blueprintManager.PointsController.Points[i].SelfImage.rectTransform.anchoredPosition, _blueprintManager.PointsController.Points[i + 1].SelfImage.rectTransform.anchoredPosition);
-        if (_looped & _blueprintManager.PointsController.Points.Count > 2)
+        if (_visualConfig.LinesData.Looped & _blueprintManager.PointsController.Points.Count > 2)
             ConfigurateLine(Lines[^1].SelfImage, _blueprintManager.PointsController.Points[^1].SelfImage.rectTransform.anchoredPosition, _blueprintManager.PointsController.Points[0].SelfImage.rectTransform.anchoredPosition);
     }
     private void CheckIntersections()
@@ -96,9 +91,9 @@ public class BlueprintLinesController
             }
 
             if (notIntersecting)
-                Lines[i].SelfImage.color = _correctLineColor;
+                Lines[i].SelfImage.color = _visualConfig.LinesData.CorrectLineColor;
             else
-                Lines[i].SelfImage.color = _intersectionLineColor;
+                Lines[i].SelfImage.color = _visualConfig.LinesData.IntersectionLineColor;
         }
     }
 
@@ -110,8 +105,9 @@ public class BlueprintLinesController
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         line.rectTransform.rotation = Quaternion.Euler(0, 0, angle);
 
-        float height = _height / _blueprintManager.BlueprintScaleFactor;
+        float height = _visualConfig.LinesData.Height / _blueprintManager.BlueprintScaleFactor;
         line.rectTransform.sizeDelta = new Vector2(direction.magnitude + height, height);
+        line.raycastPadding = new Vector4(0, -_visualConfig.LinesData.Padding / _blueprintManager.BlueprintScaleFactor, 0, -_visualConfig.LinesData.Padding / _blueprintManager.BlueprintScaleFactor);
     }
     private void OnPointerClicked(BlueprintLineHandler handler, Vector2 posistion) => _blueprintManager.AddPoint(Lines.IndexOf(handler) + 1, GetPositionForCenterAnchor(_defaultLine.transform as RectTransform, posistion));
 
@@ -130,18 +126,18 @@ public class BlueprintLinesController
 
     private bool AreSegmentsIntersecting(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4)
     {
-        // ѕровер€ем взаимное расположение отрезков с помощью векторных произведений
+        //ѕровер€ем взаимное расположение отрезков с помощью векторных произведений
         float d1 = Direction(p3, p4, p1);
         float d2 = Direction(p3, p4, p2);
         float d3 = Direction(p1, p2, p3);
         float d4 = Direction(p1, p2, p4);
 
-        // ќтрезки пересекаютс€ если точки наход€тс€ по разные стороны друг от друга
+        //ќтрезки пересекаютс€ если точки наход€тс€ по разные стороны друг от друга
         if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
             ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0)))
             return true;
 
-        // ѕроверка особых случаев (отрезки коллинеарны или endpoints совпадают)
+        //ѕроверка особых случаев (отрезки коллинеарны или endpoints совпадают)
         if (Mathf.Approximately(d1, 0) && OnSegment(p3, p4, p1))
             return true;
         if (Mathf.Approximately(d2, 0) && OnSegment(p3, p4, p2))
@@ -153,15 +149,23 @@ public class BlueprintLinesController
 
         return false;
     }
-    // ¬екторное произведение (определ€ет ориентацию тройки точек)
+    //¬екторное произведение (определ€ет ориентацию тройки точек)
     private static float Direction(Vector2 pi, Vector2 pj, Vector2 pk)
     {
         return (pk.x - pi.x) * (pj.y - pi.y) - (pj.x - pi.x) * (pk.y - pi.y);
     }
-    // ѕровер€ет, лежит ли точка pk на отрезке pi-pj
+    //ѕровер€ет, лежит ли точка pk на отрезке pi-pj
     private static bool OnSegment(Vector2 pi, Vector2 pj, Vector2 pk)
     {
         return Mathf.Min(pi.x, pj.x) <= pk.x && pk.x <= Mathf.Max(pi.x, pj.x) &&
                Mathf.Min(pi.y, pj.y) <= pk.y && pk.y <= Mathf.Max(pi.y, pj.y);
     }
+}
+
+public class LineData
+{
+    public Vector2 StartPoint;
+    public Vector2 EndPoint;
+
+    public bool Intersecting = false;
 }

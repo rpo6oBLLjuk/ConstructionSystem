@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
-public class BlueprintAnglesController : MonoBehaviour, IBlueprintView
+public class BlueprintAnglesController : BlueprintView
 {
-    [Inject] BlueprintManager _blueprintManager;
-
-    public IViewController ViewController { get; set; }
     [SerializeField] GameObject _defaultAnglePrefab;
 
     List<BlueprintPointHandler> _points => _blueprintManager.PointsController.Points;
@@ -19,8 +15,9 @@ public class BlueprintAnglesController : MonoBehaviour, IBlueprintView
     private float _defaultAnglePrefabSize;
 
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         _blueprintManager.OnPointAdded += AddAngle;
         _blueprintManager.OnPointRemoved += RemovePoint;
     }
@@ -41,8 +38,6 @@ public class BlueprintAnglesController : MonoBehaviour, IBlueprintView
             UpdateAngleInstance(i, _anglesInstances[i]);
     }
 
-    public void OnViewLayerValueChanged(BlueprintViewLayers blueprintViewLayers) => ViewController.SetActive(blueprintViewLayers.HasLayer(BlueprintViewLayers.Angles));
-
     private void AddAngle(int index, Vector2 _) => InstantiateNewAngle(index);
     private void RemovePoint(int index, Vector2 _) => RemoveAngle(index);
 
@@ -50,8 +45,6 @@ public class BlueprintAnglesController : MonoBehaviour, IBlueprintView
     {
         GameObject instance = GameObject.Instantiate(_defaultAnglePrefab, _defaultAnglePrefab.transform.parent);
         instance.SetActive(true);
-
-        Debug.Log("Instance");
 
         _anglesInstances.Insert(index, new AngleInstance(
             instance.GetComponent<RectTransform>(),

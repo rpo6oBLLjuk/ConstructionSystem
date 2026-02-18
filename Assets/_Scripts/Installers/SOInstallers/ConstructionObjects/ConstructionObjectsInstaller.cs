@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ConstructionObjectsDataContainerInstaller", menuName = "Installers/SO/ConstructionObjectsDataContainer")]
+[CreateAssetMenu(fileName = "ConstructionObjectsDataContainerInstaller", menuName = "Installers/SO/Construction/ConstructionObjectsDataContainerInstaller")]
 public class ConstructionObjectsDataContainerInstaller : AbstractSOInstaller<ConstructionObjectsDataContainer>
 {
 }

@@ -1,4 +1,3 @@
-using CustomInspector;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ public class ConstructionObjectData : ScriptableObject
 {
     [field: SerializeField] public int Id {  get; private set; }
     [field: SerializeField] public GameObject Prefab { get; private set; }
-    [field: SerializeField, Preview(Size.medium)] public Texture2D Image { get; private set; }
+    [field: SerializeField] public Texture2D Image { get; private set; }
     [field: SerializeField] public string Name { get; private set; }
 
     public static bool operator !(ConstructionObjectData obj) => obj == null;

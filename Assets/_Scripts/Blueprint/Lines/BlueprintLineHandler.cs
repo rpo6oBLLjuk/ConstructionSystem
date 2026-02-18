@@ -10,5 +10,9 @@ public class BlueprintLineHandler : MonoBehaviour, IPointerClickHandler
 
     private void Awake() => SelfImage ??= GetComponent<Image>();
 
-    public void OnPointerClick(PointerEventData eventData) => PointerClicked?.Invoke(this, eventData.position);
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+            PointerClicked?.Invoke(this, eventData.position);
+    }
 }

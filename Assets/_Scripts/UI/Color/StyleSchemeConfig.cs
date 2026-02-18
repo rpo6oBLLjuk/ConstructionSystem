@@ -1,7 +1,6 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 [CreateAssetMenu(fileName = "StyleSchemeConfig", menuName = "Scriptable Objects/UI/StyleSchemeConfig")]
 public class StyleSchemeConfig : ScriptableObject

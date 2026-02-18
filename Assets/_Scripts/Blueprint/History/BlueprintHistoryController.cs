@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 [Serializable]
-public class BlueprintHistoryController
+public class BlueprintHistoryController : MonoBehaviour
 {
-    BlueprintManager _blueprintManager;
+    [Inject] BlueprintManager _blueprintManager;
 
     public abstract class HistoryActionData
     {
@@ -79,7 +80,7 @@ public class BlueprintHistoryController
     private bool _isPerformingDataChanging = false;
 
 
-    public void AddListeners()
+    public void OnEnable()
     {
         _blueprintManager.OnPointAdded += AddPointAction;
         _blueprintManager.OnPointRemoved += RemovePointAction;
@@ -97,8 +98,6 @@ public class BlueprintHistoryController
         _blueprintManager.OnBlueprintDataChanging -= BlueprintDataChangingAction;
         _blueprintManager.OnBlueprintDataChanged -= BlueprintDataChangeAction;
     }
-
-    public void Awake(BlueprintManager blueprintManager) => _blueprintManager = blueprintManager;
 
     public void AddPointAction(int index, Vector2 position)
     {

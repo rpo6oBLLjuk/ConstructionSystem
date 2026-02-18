@@ -1,5 +1,5 @@
 [System.Flags]
-public enum BlueprintViewLayers
+public enum BlueprintViewLayers //Согласно правилам именования Microsoft, enum с флагами именуются во множественном числе: https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/names-of-classes-structs-and-interfaces#naming-enumerations
 {
     Nothing = 0,
     Everything = 1 << 0,      // 1
@@ -13,15 +13,18 @@ public enum BlueprintViewLayers
 
 public static class BlueprintViewLayersHelper
 {
-    // Проверка наличия флага
+    //Проверка наличия флага
     public static bool HasLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer) => (layers & layer) == layer;
 
-    // Добавление слоя
+    //Включение слоя
     public static BlueprintViewLayers EnableLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer) => layers | layer;
 
-    // Удаление слоя
+    //Отключение слоя
     public static BlueprintViewLayers DisableLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer) => layers & ~layer;
 
-    // Переключение слоя
+    //Изменение значения слоя
+    public static BlueprintViewLayers SetLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer, bool isActive) => isActive ? layers.EnableLayer(layer) : layers.DisableLayer(layer);
+
+    //Переключение слоя
     public static BlueprintViewLayers ToggleLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer) => layers ^ layer;
 }

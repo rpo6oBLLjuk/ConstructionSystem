@@ -32,7 +32,7 @@ public class CameraRotator : MonoBehaviour
 
     private void RotateCamera()
     {
-        Vector3 _smoothedVelocity = Vector3.SmoothDamp(previousVelocity, inputVelocity, ref refVector, _moveDamping);
+        Vector3 _smoothedVelocity = Vector3.SmoothDamp(previousVelocity, inputVelocity, ref refVector, _moveDamping * Application.targetFrameRate * Time.deltaTime);
         previousVelocity = _smoothedVelocity;
 
         Vector3 currentEuler = transform.localEulerAngles;

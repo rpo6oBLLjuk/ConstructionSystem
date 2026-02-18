@@ -37,7 +37,7 @@ public class CameraMover : MonoBehaviour
 
     private Vector3 CalculateLinearVelocity()
     {
-        Vector3 returnValue = Vector3.SmoothDamp(_previousVelocity, _inputVelocity, ref refVector, _moveDamping);
+        Vector3 returnValue = Vector3.SmoothDamp(_previousVelocity, _inputVelocity, ref refVector, _moveDamping * Application.targetFrameRate * Time.deltaTime);
         _previousVelocity = returnValue;
         return returnValue;
     }

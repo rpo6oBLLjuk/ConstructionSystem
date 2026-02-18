@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class BlueprintManager : MonoBehaviour
 {
@@ -9,19 +10,12 @@ public class BlueprintManager : MonoBehaviour
 
     [field: SerializeField] public BlueprintLinesController LinesController { get; private set; }
     [field: SerializeField] public BlueprintPointsConstroller PointsController { get; private set; }
-    [field: SerializeField] public BlueprintHistoryController HistoryController { get; private set; } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ∆Єстка€ зависимость и лишний код, need execution
 
     public float CanvasScaleFactor => Canvas.scaleFactor;
     public float BlueprintScaleFactor { get; private set; }
 
     public Canvas Canvas;
     [SerializeField] List<Vector2> _defaultPoints;
-    [SerializeField] float _pointMoveDuration = 0.25f; //Ќужно вынести в конфиг
-    [SerializeField] float _pointDestroyDuration = 0.1f;
-
-    [SerializeField] float _defaultBlueprintScaleFactor = 2f; // Config!!!!!!!!!!!
-    [SerializeField] Vector2 _blueprintScaleFactorMinMax = new Vector2(1, 10); 
-
     // —обыти€
     public Action<int, Vector2> OnPointAdded;
     public Action<int, Vector2> OnPointRemoved;
@@ -35,33 +29,22 @@ public class BlueprintManager : MonoBehaviour
     /// </summary>
     public event Action<float, float> OnBlueprintScaleFactorChanged;
 
+    [Inject] BlueprintVisualConfig _visualConfig;
 
-    void OnDisable()
-    {
-        LinesController.OnDisable();
-        PointsController.OnDisable();
-        HistoryController.OnDisable();
-    }
 
+    
     void Awake()
     {
         Canvas ??= transform.root.GetComponent<Canvas>();
-
-        LinesController.Awake(this);
-        PointsController.Awake(this);
-
-        HistoryController.Awake(this);
-
         Debug.Log("Blueprint PointsEnabled");
     }
 
     private void Start()
     {
         BlueprintScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
-        SetBlueprintScaleFactor(_defaultBlueprintScaleFactor);
+        SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
         ResetBlueprint();
-        HistoryController.AddListeners();
     }
 
     void Update()
@@ -75,7 +58,7 @@ public class BlueprintManager : MonoBehaviour
         OnPointMoved?.Invoke(index, BlueprintPoints[index], newPosition);
 
         BlueprintPoints[index] = newPosition;
-        PointsController.Points[index].SelfImage.rectTransform.DOAnchorPos(newPosition, _pointMoveDuration);
+        PointsController.MovePoint(index, newPosition);
     }
 
     public void AddPoint(int index, Vector2 position)
@@ -93,19 +76,22 @@ public class BlueprintManager : MonoBehaviour
     {
         if (!forceDelete)
             if (BlueprintPoints.Count <= 3)
+            {
+                DebugWrapper.LogWarning(this, "Need info '„ертЄж не может содержать меньше 3х точек'");
                 return;
+            }
 
         OnPointRemoved?.Invoke(index, BlueprintPoints[index]);
 
         BlueprintPoints.RemoveAt(index);
 
-        LinesController.RemoveLine(index, _pointDestroyDuration); //LineController обновл€етс€ первым, чтобы запомнить точку, к которой будет прив€зана лини€ (таким образом обоих можно вывести из ротации индексов)
-        PointsController.RemovePoint(index, _pointDestroyDuration);
+        LinesController.RemoveLine(index); //LineController обновл€етс€ первым, чтобы запомнить точку, к которой будет прив€зана лини€ (таким образом обоих можно вывести из ротации индексов)
+        PointsController.RemovePoint(index);
     }
 
     public void SetBlueprintScaleFactor(float newScaleFactor)
     {
-        newScaleFactor = Mathf.Clamp(newScaleFactor, _blueprintScaleFactorMinMax.x, _blueprintScaleFactorMinMax.y);
+        newScaleFactor = Mathf.Clamp(newScaleFactor, _visualConfig.BlueprintScaleFactorMinMax.x, _visualConfig.BlueprintScaleFactorMinMax.y);
         newScaleFactor = Mathf.Floor(newScaleFactor * 10) / 10;
 
         //BlueprintScaleFactor = newScaleFactor;

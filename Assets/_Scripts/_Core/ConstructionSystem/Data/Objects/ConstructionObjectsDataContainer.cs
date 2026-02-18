@@ -1,4 +1,3 @@
-using CustomInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ public class ConstructionObjectsDataContainer : ScriptableObject
     [SerializeField] private List<ConstructionObjectData> _builtInObjects = new();
     private List<ConstructionObjectData> _importedObjects = new();
 
-    [SerializeField] private ReorderableDictionary<int, Mesh> _meshCombines = new();
+    [SerializeField] private Dictionary<int, Mesh> _meshCombines = new();
 
 
     public void Initialize()
