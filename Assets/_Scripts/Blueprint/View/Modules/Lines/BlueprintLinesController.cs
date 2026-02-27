@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
 [Serializable]
-public class BlueprintLinesController : MonoBehaviour
+public class BlueprintLinesController : BlueprintView<CanvasGroup>
 {
-    [Inject] BlueprintManager _blueprintManager;
-    [Inject] BlueprintVisualConfig _visualConfig;
+    protected override IEnumerable<CanvasGroup> ViewList => Lines.Select(BlueprintLineHandler => BlueprintLineHandler.CanvasGroup);
+    protected override BlueprintViewLayers ViewLayer => BlueprintViewLayers.Lines;
 
     public List<LineData> _Lines = new();
     public List<BlueprintLineHandler> Lines { get; private set; } = new();
@@ -20,8 +20,9 @@ public class BlueprintLinesController : MonoBehaviour
     //    foreach (var line in _lines)
     //        line.PointerClicked += OnPointerClicked;
     //}
-    public void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         foreach (var line in Lines)
             line.PointerClicked -= OnPointerClicked;
     }
@@ -41,6 +42,9 @@ public class BlueprintLinesController : MonoBehaviour
         lineInstance.SetActive(true);
 
         BlueprintLineHandler blh = lineInstance.GetComponent<BlueprintLineHandler>();
+        SetCanvasGroupVisible(blh.CanvasGroup);
+        SetGraphicVisible(blh.Text, blh.Text.color);
+
         blh.PointerClicked += OnPointerClicked;
 
         Lines.Insert(index, blh);
@@ -58,7 +62,7 @@ public class BlueprintLinesController : MonoBehaviour
     {
         for (int i = 0; i < _blueprintManager.PointsController.Points.Count - 1; i++)
             ConfigurateLine(Lines[i].SelfImage, _blueprintManager.PointsController.Points[i].SelfImage.rectTransform.anchoredPosition, _blueprintManager.PointsController.Points[i + 1].SelfImage.rectTransform.anchoredPosition);
-        if (_visualConfig.LinesData.Looped & _blueprintManager.PointsController.Points.Count > 2)
+        if (_blueprintVisualConfig.LinesData.Looped & _blueprintManager.PointsController.Points.Count > 2)
             ConfigurateLine(Lines[^1].SelfImage, _blueprintManager.PointsController.Points[^1].SelfImage.rectTransform.anchoredPosition, _blueprintManager.PointsController.Points[0].SelfImage.rectTransform.anchoredPosition);
     }
     private void CheckIntersections()
@@ -90,10 +94,11 @@ public class BlueprintLinesController : MonoBehaviour
                 }
             }
 
+            _Lines[i].Intersecting = !notIntersecting;
             if (notIntersecting)
-                Lines[i].SelfImage.color = _visualConfig.LinesData.CorrectLineColor;
+                Lines[i].SelfImage.color = _blueprintVisualConfig.LinesData.CorrectLineColor;
             else
-                Lines[i].SelfImage.color = _visualConfig.LinesData.IntersectionLineColor;
+                Lines[i].SelfImage.color = _blueprintVisualConfig.LinesData.IntersectionLineColor;
         }
     }
 
@@ -105,9 +110,9 @@ public class BlueprintLinesController : MonoBehaviour
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         line.rectTransform.rotation = Quaternion.Euler(0, 0, angle);
 
-        float height = _visualConfig.LinesData.Height / _blueprintManager.BlueprintScaleFactor;
+        float height = _blueprintVisualConfig.LinesData.Height / _blueprintManager.ScaleFactor;
         line.rectTransform.sizeDelta = new Vector2(direction.magnitude + height, height);
-        line.raycastPadding = new Vector4(0, -_visualConfig.LinesData.Padding / _blueprintManager.BlueprintScaleFactor, 0, -_visualConfig.LinesData.Padding / _blueprintManager.BlueprintScaleFactor);
+        line.raycastPadding = new Vector4(0, -_blueprintVisualConfig.LinesData.Padding / _blueprintManager.ScaleFactor, 0, -_blueprintVisualConfig.LinesData.Padding / _blueprintManager.ScaleFactor);
     }
     private void OnPointerClicked(BlueprintLineHandler handler, Vector2 posistion) => _blueprintManager.AddPoint(Lines.IndexOf(handler) + 1, GetPositionForCenterAnchor(_defaultLine.transform as RectTransform, posistion));
 

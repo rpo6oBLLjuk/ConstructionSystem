@@ -12,7 +12,7 @@ public class BlueprintManager : MonoBehaviour
     [field: SerializeField] public BlueprintPointsConstroller PointsController { get; private set; }
 
     public float CanvasScaleFactor => Canvas.scaleFactor;
-    public float BlueprintScaleFactor { get; private set; }
+    public float ScaleFactor { get; private set; }
 
     public Canvas Canvas;
     [SerializeField] List<Vector2> _defaultPoints;
@@ -30,6 +30,7 @@ public class BlueprintManager : MonoBehaviour
     public event Action<float, float> OnBlueprintScaleFactorChanged;
 
     [Inject] BlueprintVisualConfig _visualConfig;
+    private float _targetScaleFactor;
 
 
     
@@ -41,7 +42,7 @@ public class BlueprintManager : MonoBehaviour
 
     private void Start()
     {
-        BlueprintScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
+        ScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
         ResetBlueprint();
@@ -63,12 +64,12 @@ public class BlueprintManager : MonoBehaviour
 
     public void AddPoint(int index, Vector2 position)
     {
-        OnPointAdded?.Invoke(index, position);
-
         BlueprintPoints.Insert(index, position);
 
         PointsController.AddPoint(index, position);
         LinesController.AddLine(index);
+
+        OnPointAdded?.Invoke(index, position);
 
         Debug.Log($"Point added by position: {position}");
     }
@@ -94,15 +95,26 @@ public class BlueprintManager : MonoBehaviour
         newScaleFactor = Mathf.Clamp(newScaleFactor, _visualConfig.BlueprintScaleFactorMinMax.x, _visualConfig.BlueprintScaleFactorMinMax.y);
         newScaleFactor = Mathf.Floor(newScaleFactor * 10) / 10;
 
+        _targetScaleFactor = newScaleFactor;
+
         //BlueprintScaleFactor = newScaleFactor;
 
         float duration = 0.1f;
 
-        DOVirtual.Float(BlueprintScaleFactor, newScaleFactor, duration, value => {
-            BlueprintScaleFactor = value;
-            transform.localScale = Vector3.one * BlueprintScaleFactor;
-        });
+       DOVirtual.Float(ScaleFactor, newScaleFactor, duration, value => {
+                ScaleFactor = value;
+                transform.localScale = Vector3.one * ScaleFactor;
+            });
+
+        
         OnBlueprintScaleFactorChanged?.Invoke(newScaleFactor, duration);
+    }
+    public float AddBlueprintScaleFactor(float addedScaleFactor)
+    {
+        float result = _targetScaleFactor + addedScaleFactor;
+        SetBlueprintScaleFactor(_targetScaleFactor + addedScaleFactor);
+
+        return result;
     }
 
     public void ResetBlueprint() => SetBlueprintData(_defaultPoints);

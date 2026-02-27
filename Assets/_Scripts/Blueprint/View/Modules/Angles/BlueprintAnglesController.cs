@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BlueprintAnglesController : BlueprintView
+public class BlueprintAnglesController : BlueprintView<CanvasGroup>
 {
+    protected override IEnumerable<CanvasGroup> ViewList => _anglesInstances.Select(AngleInstance => AngleInstance.CanvasGroup);
+    protected override BlueprintViewLayers ViewLayer => BlueprintViewLayers.Angles;
+
     [SerializeField] GameObject _defaultAnglePrefab;
 
     List<BlueprintPointHandler> _points => _blueprintManager.PointsController.Points;
@@ -21,8 +25,9 @@ public class BlueprintAnglesController : BlueprintView
         _blueprintManager.OnPointAdded += AddAngle;
         _blueprintManager.OnPointRemoved += RemovePoint;
     }
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         _blueprintManager.OnPointAdded -= AddAngle;
         _blueprintManager.OnPointRemoved -= RemovePoint;
     }
@@ -54,6 +59,8 @@ public class BlueprintAnglesController : BlueprintView
             instance.GetComponentInChildren<TMP_Text>(),
             instance.GetComponentInChildren<HorizontalLayoutGroup>())
             );
+
+        SetCanvasGroupVisible(_anglesInstances[index].CanvasGroup);
     }
     private void RemoveAngle(int index)
     {
@@ -91,11 +98,11 @@ public class BlueprintAnglesController : BlueprintView
         int previousIndex = GetPreviousIndex(index);
         float lineSize = CalculateLineSize(previousIndex, index);
 
-        Vector3 localScale = lineSize > 1 / _blueprintManager.BlueprintScaleFactor
+        Vector3 localScale = lineSize > 1 / _blueprintManager.ScaleFactor
             ? Vector3.one
-            : Vector3.one * lineSize * _blueprintManager.BlueprintScaleFactor;
+            : Vector3.one * lineSize * _blueprintManager.ScaleFactor;
 
-        instance.Root.localScale = localScale / _blueprintManager.BlueprintScaleFactor;
+        instance.Root.localScale = localScale / _blueprintManager.ScaleFactor;
     }
 
     private void UpdateVisuals(int index, AngleInstance instance)

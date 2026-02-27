@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b632500a6aead9b4f9a86b985927bb89, type: 3}
   m_Name: BlueprintVisualData
   m_EditorClassIdentifier: Assembly-CSharp::BlueprintVisualData
-  BlueprintViewLayers: -1
+  <BlueprintViewLayers>k__BackingField: -1
   <DefaultBlueprintScaleFactor>k__BackingField: 2
   <BlueprintScaleFactorMinMax>k__BackingField: {x: 1, y: 10}
+  <DefaultBordersSize>k__BackingField: 3
   <PointsData>k__BackingField:
     <MoveDuration>k__BackingField: 0.25
     <DestroyDuration>k__BackingField: 0.1
@@ -25,7 +26,6 @@ MonoBehaviour:
     <TextureTileMultiplyer>k__BackingField: 2
     <InactivePointColor>k__BackingField: {r: 0.93333334, g: 0.5176471, b: 0, a: 1}
     <DragPointColor>k__BackingField: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-    <IsVisible>k__BackingField: 1
   <LinesData>k__BackingField:
     <Height>k__BackingField: 5
     <Padding>k__BackingField: 2
@@ -35,3 +35,48 @@ MonoBehaviour:
   <HistoryData>k__BackingField:
     <UndoRedoDelay>k__BackingField: 0.25
     <HoldThreshold>k__BackingField: 0.5
+  <TextData>k__BackingField:
+    <FontSize>k__BackingField: 18
+    <ClippingCurve>k__BackingField:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.8
+        inSlope: -9.5
+        outSlope: -3
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.1
+        value: 0.5
+        inSlope: -3
+        outSlope: -0.50000006
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.9
+        value: 0.1
+        inSlope: -0.50000006
+        outSlope: -0.99999976
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -0.99999976
+        outSlope: -0.99999976
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    <TextFadeDuration>k__BackingField: 0.25

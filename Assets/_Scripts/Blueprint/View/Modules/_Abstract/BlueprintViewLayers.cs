@@ -13,6 +13,9 @@ public enum BlueprintViewLayers //Согласно правилам именования Microsoft, enum с
 
 public static class BlueprintViewLayersHelper
 {
+    //Проверка эквивалентности флага
+    public static bool IsEqualLayer(this BlueprintViewLayers layers, BlueprintViewLayers compareLayers, BlueprintViewLayers layer) => layers.HasLayer(layer) == compareLayers.HasLayer(layer);
+
     //Проверка наличия флага
     public static bool HasLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer) => (layers & layer) == layer;
 
@@ -27,4 +30,5 @@ public static class BlueprintViewLayersHelper
 
     //Переключение слоя
     public static BlueprintViewLayers ToggleLayer(this BlueprintViewLayers layers, BlueprintViewLayers layer) => layers ^ layer;
+
 }

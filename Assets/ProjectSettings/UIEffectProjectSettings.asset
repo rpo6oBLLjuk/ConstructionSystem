@@ -11,6 +11,8 @@ ShaderVariantCollection:
   - first: {fileID: 4800000, guid: 96246b1ead49a4c5a996fd477bc5a117, type: 3}
     second:
       variants:
+      - keywords: COLOR_FILTER
+        passType: 0
       - keywords: DETAIL_MASKING EDGE_PLAIN
         passType: 0
 --- !u!114 &11400000
@@ -52,6 +54,4 @@ MonoBehaviour:
       value: Hidden/TextMeshPro/Mobile/Distance Field SSD (UIEffect)
     m_Asset: {fileID: -4265458424788727188}
     m_ErrorOnUnregisteredVariant: 1
-    m_UnregisteredVariants:
-    - key: Hidden/TextMeshPro/Distance Field (UIEffect)
-      value: COLOR_FILTER
+    m_UnregisteredVariants: []
