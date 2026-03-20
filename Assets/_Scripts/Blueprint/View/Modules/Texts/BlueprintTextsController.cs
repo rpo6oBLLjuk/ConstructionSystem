@@ -40,6 +40,16 @@ public class BlueprintTextsController : BlueprintView<CanvasGroup>
         SetLinesSizeTexts();
     }
 
+    protected override void OnLayerChanged(bool isActive)
+    {
+        base.OnLayerChanged(isActive);
+        Debug.Log("Text: " + isActive);
+        foreach (CanvasGroup cg in ViewList)
+        {
+            Debug.Log(cg.gameObject.name);
+        }
+    }
+
     private void AutoScaleTexts()
     {
         for (int i = 0; i < BlueprintLineHandlers.Count; i++)
@@ -52,23 +62,21 @@ public class BlueprintTextsController : BlueprintView<CanvasGroup>
                     (_blueprintManager.ScaleFactor - _blueprintVisualConfig.BlueprintScaleFactorMinMax.x) / _blueprintVisualConfig.BlueprintScaleFactorMinMax.y))
                 fontSize = 0;
 
-            if(fontSize == 0)
+            if (fontSize == 0)
             {
                 BlueprintLineHandlers[i].Text.GetComponentInParent<CanvasGroup>().alpha = 0;
-                return;
+                continue;
             }
             else
-                BlueprintLineHandlers[i].Text.GetComponentInParent<CanvasGroup>().alpha = 1;
+                BlueprintLineHandlers[i].Text.GetComponentInParent<CanvasGroup>().alpha = IsVisible ? 1 : 0;
 
             BlueprintLineHandlers[i].Text.fontSize = fontSize / _blueprintManager.ScaleFactor;
 
-            Image img = BlueprintLineHandlers[i].Text.GetComponentInParent<Image>();
+            Image img = BlueprintLineHandlers[i].Text.transform.parent.GetComponentInChildren<Image>();
             img.pixelsPerUnitMultiplier = _defaultpixelsPerUnitMultiplier * _blueprintManager.ScaleFactor;
             img.GetComponent<Outline>().effectDistance = _defaultEffectDistance / _blueprintManager.ScaleFactor;
-            
-            BlueprintLineHandlers[i].Text.margin = _defaultMargin / _blueprintManager.ScaleFactor;
 
-            Debug.Log(fontSize);
+            BlueprintLineHandlers[i].Text.margin = _defaultMargin / _blueprintManager.ScaleFactor;
             //RectTransform parent = (_lineTexts[i].rectTransform.parent as RectTransform);
             //parent.sizeDelta = new Vector2(fontSize * 3, fontSize);
             //parent.localScale = new Vector2(_blueprintManager.BlueprintScaleFactor,_blueprintManager.BlueprintScaleFactor);

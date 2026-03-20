@@ -27,7 +27,8 @@ public abstract class BlueprintView<T> : MonoBehaviour
                     maskableGraphic.DOFade(isVisible ? 1 : 0, fadeDuration);
                     break;
                 case CanvasGroup canvasGroup:
-                    canvasGroup.DOFade(isVisible ? 1 : 0, fadeDuration);
+                    canvasGroup.alpha = isVisible ? 1 : 0;
+                    Debug.Log($"After set {canvasGroup.name} alpha = {canvasGroup.alpha}", canvasGroup);
                     break;
                 default:
                     throw new System.Exception("Incorrect ViewType, add or check");
@@ -43,7 +44,7 @@ public abstract class BlueprintView<T> : MonoBehaviour
 
     protected void SetGraphicVisible(Graphic graphic, Color color = default)
     {
-        if(color == default)
+        if (color == default)
             color = graphic.color;
 
         if (!IsVisible)

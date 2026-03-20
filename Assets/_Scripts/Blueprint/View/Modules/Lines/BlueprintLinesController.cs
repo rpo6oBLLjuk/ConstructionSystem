@@ -14,6 +14,7 @@ public class BlueprintLinesController : BlueprintView<CanvasGroup>
     public List<BlueprintLineHandler> Lines { get; private set; } = new();
 
     [SerializeField] BlueprintLineHandler _defaultLine;
+    private float _defaultpixelsPerUnitMultiplier;
 
     //public void OnEnable()
     //{
@@ -27,8 +28,13 @@ public class BlueprintLinesController : BlueprintView<CanvasGroup>
             line.PointerClicked -= OnPointerClicked;
     }
 
-    public void Awake() => _defaultLine.gameObject.SetActive(false);
-    public void Update()
+    private void Awake()
+    {
+        _defaultpixelsPerUnitMultiplier = _defaultLine.GetComponent<Image>().pixelsPerUnitMultiplier;
+        _defaultLine.gameObject.SetActive(false);
+    }
+
+    private void Update()
     {
         SetLinesPosition();
         CheckIntersections();
@@ -109,6 +115,8 @@ public class BlueprintLinesController : BlueprintView<CanvasGroup>
         Vector2 direction = endPosition - startPosition;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         line.rectTransform.rotation = Quaternion.Euler(0, 0, angle);
+
+        line.pixelsPerUnitMultiplier = _defaultpixelsPerUnitMultiplier * _blueprintManager.ScaleFactor;
 
         float height = _blueprintVisualConfig.LinesData.Height / _blueprintManager.ScaleFactor;
         line.rectTransform.sizeDelta = new Vector2(direction.magnitude + height, height);

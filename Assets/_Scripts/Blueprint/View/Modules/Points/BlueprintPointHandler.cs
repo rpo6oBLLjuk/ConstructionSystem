@@ -2,10 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Zenject;
 
 [RequireComponent(typeof(Image))]
 public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
+    [Inject] CursorController _cursorController;
+
     public Action<BlueprintPointHandler> PointerDown;
     public Action<BlueprintPointHandler> PointerUp;
 
@@ -20,11 +23,15 @@ public class BlueprintPointHandler : MonoBehaviour, IPointerDownHandler, IPointe
     {
         if (eventData.button == PointerEventData.InputButton.Left)
             PointerDown?.Invoke(this);
+
+        _cursorController.ChangeLockState(CursorLockMode.Confined);
     }
     public void OnPointerUp(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
             PointerUp?.Invoke(this);
+
+        _cursorController.ChangeLockState(CursorLockMode.None);
     }
 
     public void OnPointerClick(PointerEventData eventData)

@@ -1,15 +1,40 @@
-using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TopBarDefaultUI : MonoBehaviour
 {
-    void OnEnable()
-    {
-        Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+#if UNITY_STANDALONE_WIN
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(System.IntPtr hWnd, int nCmdShow);
 
-#if !UNITY_EDITOR
-        Cursor.lockState = CursorLockMode.Confined;
+    [DllImport("user32.dll")]
+    private static extern System.IntPtr GetActiveWindow();
+
+    private const int SW_MINIMIZE = 6;
+#endif
+
+    [SerializeField] Button _minimizeButton;
+    [SerializeField] Button _closeButton;
+
+    private void OnEnable()
+    {
+        _minimizeButton.onClick.AddListener(MinimizeButtonClick);
+        _closeButton.onClick.AddListener(CloseButtonClick);
+    }
+
+    private void OnDisable()
+    {
+        _minimizeButton.onClick.RemoveListener(MinimizeButtonClick);
+        _closeButton.onClick.RemoveListener(CloseButtonClick);
+    }
+
+    public void MinimizeButtonClick()
+    {
+#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+        ShowWindow(GetActiveWindow(), SW_MINIMIZE);
+#else
+        DebugWrapper.InactiveLog(this, "Minimize work only in build");
 #endif
     }
     private void CloseButtonClick()

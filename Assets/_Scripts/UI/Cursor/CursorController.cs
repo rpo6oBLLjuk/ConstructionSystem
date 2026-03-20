@@ -3,14 +3,14 @@ using Zenject;
 
 public class CursorController : MonoBehaviour
 {
-    [Inject] InputSystem _inputSystem;
+    InputSystem _inputSystem;
 
     public bool IsVisible => _isVisible;
-
-    [SerializeField] private bool _hideOnStart = true;
     private bool _isVisible;
 
-    void Start() => ChangeCurcorState(!_hideOnStart);
+
+    private void Start() => ChangeLockState(CursorLockMode.None);
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -19,16 +19,24 @@ public class CursorController : MonoBehaviour
 
     public void ChangeCurcorState(bool isVisible)
     {
-        this._isVisible = isVisible;
+        _isVisible = isVisible;
         Cursor.visible = isVisible;
 
+        ChangeLockState(_isVisible ? CursorLockMode.None : CursorLockMode.Locked);
 
-        if (isVisible)
-            _inputSystem.InputActionAsset.Player.Disable();
-        else
-            _inputSystem.InputActionAsset.Player.Enable();
-
-        Cursor.lockState = (isVisible ? CursorLockMode.None : CursorLockMode.Locked);
-
+        try
+        {
+            if (isVisible)
+                _inputSystem.InputActionAsset.Player.Disable();
+            else
+                _inputSystem.InputActionAsset.Player.Enable();
+        }
+        catch
+        {
+            Debug.LogWarning("Input system not injected in CursorController");
+        }
+        
     }
+
+    public void ChangeLockState(CursorLockMode cursorLockMode) => Cursor.lockState = cursorLockMode;
 }

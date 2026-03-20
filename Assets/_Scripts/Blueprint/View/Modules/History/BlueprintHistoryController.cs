@@ -64,7 +64,7 @@ public class BlueprintHistoryController : MonoBehaviour
     private class BlueprintChangeActionData : HistoryActionData
     {
         public Vector2[] _previousPoints;
-        public Vector2[]? _nextPoints;
+        public Vector2[] _nextPoints;
 
         public BlueprintChangeActionData(Vector2[] points) => _previousPoints = points;
         public void AddNextPoints(Vector2[] nextPoints) => _nextPoints ??= nextPoints;
@@ -80,7 +80,7 @@ public class BlueprintHistoryController : MonoBehaviour
     private bool _isPerformingDataChanging = false;
 
 
-    public void OnEnable()
+    public void Start()
     {
         _blueprintManager.OnPointAdded += AddPointAction;
         _blueprintManager.OnPointRemoved += RemovePointAction;

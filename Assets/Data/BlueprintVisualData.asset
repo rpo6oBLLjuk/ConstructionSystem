@@ -15,7 +15,7 @@ MonoBehaviour:
   <BlueprintViewLayers>k__BackingField: -1
   <DefaultBlueprintScaleFactor>k__BackingField: 2
   <BlueprintScaleFactorMinMax>k__BackingField: {x: 1, y: 10}
-  <DefaultBordersSize>k__BackingField: 3
+  <DefaultBordersSize>k__BackingField: 2
   <PointsData>k__BackingField:
     <MoveDuration>k__BackingField: 0.25
     <DestroyDuration>k__BackingField: 0.1

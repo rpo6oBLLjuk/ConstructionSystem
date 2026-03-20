@@ -33,7 +33,6 @@ public class BlueprintManager : MonoBehaviour
     private float _targetScaleFactor;
 
 
-    
     void Awake()
     {
         Canvas ??= transform.root.GetComponent<Canvas>();
@@ -46,12 +45,6 @@ public class BlueprintManager : MonoBehaviour
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
         ResetBlueprint();
-    }
-
-    void Update()
-    {
-        PointsController.Update();
-        LinesController.Update();
     }
 
     public void MovePoint(int index, Vector2 newPosition)

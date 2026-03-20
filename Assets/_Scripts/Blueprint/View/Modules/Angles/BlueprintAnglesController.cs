@@ -37,7 +37,7 @@ public class BlueprintAnglesController : BlueprintView<CanvasGroup>
         _defaultAnglePrefab.SetActive(false);
         _defaultAnglePrefabSize = (_defaultAnglePrefab.transform as RectTransform).sizeDelta.x;
     }
-    public void Update()
+    public void LateUpdate()
     {
         for (int i = 0; i < _anglesInstances.Count; i++)
             UpdateAngleInstance(i, _anglesInstances[i]);
@@ -70,9 +70,11 @@ public class BlueprintAnglesController : BlueprintView<CanvasGroup>
 
     private void UpdateAngleInstance(int index, AngleInstance instance)
     {
+        UpdateScale(index, instance);
+
         UpdatePosition(index, instance);
         UpdateRotation(index, instance);
-        UpdateScale(index, instance);
+
         UpdateVisuals(index, instance);
     }
 

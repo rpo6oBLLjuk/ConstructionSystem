@@ -4,11 +4,14 @@ using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
- 
+
 [Serializable]
 public class BlueprintPointsConstroller : BlueprintView<Image>
 {
+    [Inject] DiContainer _container;
+
     protected override IEnumerable<Image> ViewList => Points.Select(point => point.SelfImage);
     protected override BlueprintViewLayers ViewLayer => BlueprintViewLayers.Points;
 
@@ -19,7 +22,7 @@ public class BlueprintPointsConstroller : BlueprintView<Image>
     Vector2 lastMousePosition = Vector2.zero;
 
     bool _isDragging = false;
-    bool _isShift = false;
+    bool _snapping = false;
 
 
     protected override void OnDisable()
@@ -29,17 +32,14 @@ public class BlueprintPointsConstroller : BlueprintView<Image>
             RemoveListenersToPoint(point);
     }
 
-    public void Awake() => _defaultPoint.gameObject.SetActive(false);
-    public void Update()
+    private void Awake() => _defaultPoint.gameObject.SetActive(false);
+    private void Update()
     {
-        _isShift = Input.GetKey(KeyCode.LeftShift); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! New Input System
-
         if (_isDragging)
         {
             Vector3 inputPosition = CalculateInputPosition(Input.mousePosition);
             MovePoint(_activePoint, inputPosition);
         }
-
 
         Points.ForEach(point => point.transform.localScale = Vector3.one / _blueprintManager.ScaleFactor);
     }
@@ -53,6 +53,7 @@ public class BlueprintPointsConstroller : BlueprintView<Image>
         pointInstance.SetActive(true);
 
         BlueprintPointHandler bph = pointInstance.GetComponent<BlueprintPointHandler>();
+        _container.Inject(bph);
         SetGraphicVisible(bph.SelfImage, _blueprintVisualConfig.PointsData.InactivePointColor);
 
         Points.Insert(index, bph);
@@ -76,6 +77,9 @@ public class BlueprintPointsConstroller : BlueprintView<Image>
             }));
     }
 
+    public void EnableSnapping() => _snapping = true;
+    public void DisableSnapping() => _snapping = false;
+
     private float CalculateSnappedCoordinate(float coordinate)
     {
         float snapValue = _blueprintVisualConfig.PointsData.SnapDistance / _blueprintVisualConfig.PointsData.SnapSmooth / _blueprintVisualConfig.PointsData.TextureTileMultiplyer;
@@ -87,7 +91,7 @@ public class BlueprintPointsConstroller : BlueprintView<Image>
     private Vector2 CalculateInputPosition(Vector3 mousePosition)
     {
         Vector2 inputPosition = (mousePosition - _activePoint.transform.parent.position) / _blueprintManager.CanvasScaleFactor / _blueprintManager.ScaleFactor;
-        if (_isShift)
+        if (_snapping)
             inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
 
         return inputPosition;
