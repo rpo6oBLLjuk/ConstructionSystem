@@ -26,13 +26,14 @@ public class PopupFactory
 
         ApplyImage(popup.transform, notificationType);
 
-        if (popup.TryGetComponent(out CanvasGroup canvasGroup))
+        if (!popup.TryGetComponent(out CanvasGroup canvasGroup))
         {
             DebugWrapper.LogError(this, "Can't find 'CanvasGroup' in _defaultPopup");
             return null;
         }
 
         AnimatePopup(canvasGroup);
+
         return popup.GetComponent<CanvasGroup>();
     }
 
@@ -46,7 +47,7 @@ public class PopupFactory
     private void ApplyImage(Transform transform, NotificationType notificationType)
     {
         if (!transform.Find("IconImage").TryGetComponent(out Image pulledImage))
-            DebugWrapper.LogError(this, "Can't find 'TitleText' in _defaultPopup children");
+            DebugWrapper.LogError(this, "Can't find 'IconImage' in _defaultPopup children");
         else
             pulledImage.sprite = notificationType switch
             {
@@ -59,5 +60,6 @@ public class PopupFactory
     private Tween AnimatePopup(CanvasGroup canvasGroup) => DOTween.Sequence(canvasGroup)
         .Append(canvasGroup.DOFade(1, _notificationConfig.PopupShowDuration).From(0))
         .AppendInterval(_notificationConfig.PopupAliveDuration)
-        .Append(canvasGroup.DOFade(0, _notificationConfig.PopupHideDuration));
+        .Append(canvasGroup.DOFade(0, _notificationConfig.PopupHideDuration))
+        .OnComplete(() => GameObject.Destroy(canvasGroup.gameObject));
 }

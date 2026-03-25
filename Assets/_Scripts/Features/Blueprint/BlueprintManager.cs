@@ -29,15 +29,12 @@ public class BlueprintManager : MonoBehaviour
     /// </summary>
     public event Action<float, float> OnBlueprintScaleFactorChanged;
 
+    [Inject] NotificationService _notificationService;
     [Inject] BlueprintVisualConfig _visualConfig;
     private float _targetScaleFactor;
 
 
-    void Awake()
-    {
-        Canvas ??= transform.root.GetComponent<Canvas>();
-        Debug.Log("Blueprint PointsEnabled");
-    }
+    void Awake() => Canvas ??= transform.root.GetComponent<Canvas>();
 
     private void Start()
     {
@@ -64,14 +61,14 @@ public class BlueprintManager : MonoBehaviour
 
         OnPointAdded?.Invoke(index, position);
 
-        Debug.Log($"Point added by position: {position}");
+        DebugWrapper.InactiveLog(this,$"Point added by position: {position}");
     }
     public void RemovePoint(int index, bool forceDelete = false)
     {
         if (!forceDelete)
             if (BlueprintPoints.Count <= 3)
             {
-                DebugWrapper.LogWarning(this, "Need info 'Чертёж не может содержать меньше 3х точек'");
+                _notificationService.ShowPopup("A blueprint cannot contain less than 3 points", "Delete point error", NotificationType.Info);
                 return;
             }
 

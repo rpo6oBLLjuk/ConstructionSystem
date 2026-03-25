@@ -2396,6 +2396,7 @@ MonoBehaviour:
   _monoInstallers:
   - {fileID: 9137894784395095994}
   - {fileID: 2652441569130493271}
+  - {fileID: 1243166488867599731}
   _installerPrefabs: []
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
@@ -3415,6 +3416,7 @@ GameObject:
   - component: {fileID: 2754882581364752878}
   - component: {fileID: 114276016123002561}
   - component: {fileID: 4822571115178983435}
+  - component: {fileID: 5921565362930067352}
   m_Layer: 0
   m_Name: DefaultPopup
   m_TagString: Untagged
@@ -3495,6 +3497,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StyleSchemeConfigHandler
   _colorShemeType: 2
+--- !u!225 &5921565362930067352
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6120806186447344534}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6336777213231636378
 GameObject:
   m_ObjectHideFlags: 0
@@ -3711,7 +3725,7 @@ GameObject:
   - component: {fileID: 4094653160302247060}
   - component: {fileID: 7642267442645040272}
   m_Layer: 0
-  m_Name: Icon
+  m_Name: IconImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4820,7 +4834,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: 0
+  m_Spacing: 5
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1

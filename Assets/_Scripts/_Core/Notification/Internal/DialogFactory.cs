@@ -14,6 +14,7 @@ public class DialogFactory
 
     CanvasGroup _dialogCanvasGroup;
     List<Button> _currentDialogButtons = new();
+    Tween _previousTween;
 
     public void Start()
     {
@@ -25,6 +26,9 @@ public class DialogFactory
 
     public void ShowDialog(string message, string title, List<(string, Action)> buttons)
     {
+        _previousTween.Kill();
+        RemoveAllButtons();
+
         _dialogWindow.SetActive(true);
 
         ApplyText(title, "TitleText", _dialogWindow.transform.GetChild(0));
@@ -54,7 +58,7 @@ public class DialogFactory
             var capturedAction = action; //ѕредотвращение замыкани€, т.к. реф в action будет посто€нно перезаписыватьс€ на следующий по списку
 
             btn.onClick.AddListener(() => capturedAction?.Invoke());
-            btn.onClick.AddListener(CloseDialog);
+            btn.onClick.AddListener(() => CloseDialog(name));
 
             _currentDialogButtons.Add(btn);
         }
@@ -62,17 +66,25 @@ public class DialogFactory
     private Tween AnimateDialog(bool show) => DOTween.Sequence(_dialogCanvasGroup)
         .Append(_dialogCanvasGroup.DOFade(show ? 1 : 0, show ? _notificationConfig.DialogShowDuration : _notificationConfig.DialogHideDuration));
 
-    private void CloseDialog()
+    private void CloseDialog(string btnName = null)
     {
+        if (btnName != null)
+            DebugWrapper.InactiveLog(this, $"Dialog answer: {btnName}");
+
         _currentDialogButtons.ForEach(btn => btn.onClick.RemoveAllListeners());
 
-        AnimateDialog(false)
+        _previousTween = AnimateDialog(false)
             .OnComplete(() =>
             {
-                _currentDialogButtons.ForEach(btn => GameObject.Destroy(btn.gameObject));
-                _currentDialogButtons.Clear();
+                RemoveAllButtons();
 
                 _dialogWindow.SetActive(false);
             });
+    }
+
+    private void RemoveAllButtons()
+    {
+        _currentDialogButtons.ForEach(btn => GameObject.Destroy(btn.gameObject));
+        _currentDialogButtons.Clear();
     }
 }
