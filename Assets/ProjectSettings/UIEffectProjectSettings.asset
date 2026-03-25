@@ -8,12 +8,17 @@ ShaderVariantCollection:
   m_PrefabAsset: {fileID: 0}
   m_Name: ShaderVariants
   m_Shaders:
+  - first: {fileID: 10512, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants: []
   - first: {fileID: 4800000, guid: 96246b1ead49a4c5a996fd477bc5a117, type: 3}
     second:
       variants:
       - keywords: COLOR_FILTER
         passType: 0
       - keywords: DETAIL_MASKING EDGE_PLAIN
+        passType: 0
+      - keywords: EDGE_PLAIN
         passType: 0
 --- !u!114 &11400000
 MonoBehaviour:

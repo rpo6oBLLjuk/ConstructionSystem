@@ -41,7 +41,9 @@ public class StyleSchemeConfig : ScriptableObject
         };
     }
 
+#if UNITY_EDITOR
     private void OnValidate() => OnColorChanged?.Invoke();
+#endif
 }
 
 

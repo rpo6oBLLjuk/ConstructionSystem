@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TopBarDefaultUI : MonoBehaviour
+public class TitleBarView : MonoBehaviour
 {
 #if UNITY_STANDALONE_WIN
     [DllImport("user32.dll")]

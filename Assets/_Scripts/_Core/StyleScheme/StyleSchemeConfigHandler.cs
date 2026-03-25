@@ -48,13 +48,17 @@ public class StyleSchemeConfigHandler : MonoBehaviour
 
     private void Start() => ApplyColor();
 
+#if UNITY_EDITOR
     private void Reset()
     {
         GetGhaphicsComponent();
         ApplyColor();
     }
-    private void OnValidate() => ApplyColor();
-
+    private void OnValidate()
+    {
+        EditorApplication.delayCall += ApplyColor;
+    }
+#endif
     private void ApplyColor()
     {
         GetGhaphicsComponent();
