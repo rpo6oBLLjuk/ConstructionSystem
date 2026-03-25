@@ -62,10 +62,18 @@ public class StyleSchemeConfigHandler : MonoBehaviour
     private void ApplyColor()
     {
         GetGhaphicsComponent();
-        Color color = ColorSchemeCfg.GetColorByType(_colorShemeType);
+        try
+        {
+            Color color = ColorSchemeCfg.GetColorByType(_colorShemeType);
+            if (_graphicSource != null)
+                _graphicSource.color = color;
+        }
+        catch
+        {
+            Debug.Log("Error");
+        }
 
-        if (_graphicSource != null)
-            _graphicSource.color = color;
+        
     }
     private void GetGhaphicsComponent()
     {
