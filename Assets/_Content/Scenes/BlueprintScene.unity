@@ -1068,6 +1068,7 @@ GameObject:
   - component: {fileID: 710701357}
   - component: {fileID: 710701359}
   - component: {fileID: 710701358}
+  - component: {fileID: 710701360}
   m_Layer: 5
   m_Name: Stats text
   m_TagString: Untagged
@@ -1114,8 +1115,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Vertex count: 4, Lines count: 4; Total Perimeter: 10m, Total Square: 33.6
-    m2'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}
   m_sharedMaterial: {fileID: -8255998507834641429, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}
@@ -1195,6 +1195,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 710701356}
   m_CullTransparentMesh: 1
+--- !u!114 &710701360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710701356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5686ae89e75bc7d4fbd019c28a8b7352, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlueprintMetricsDisplay
+  _metricsText: {fileID: 710701358}
 --- !u!1 &764835564
 GameObject:
   m_ObjectHideFlags: 0

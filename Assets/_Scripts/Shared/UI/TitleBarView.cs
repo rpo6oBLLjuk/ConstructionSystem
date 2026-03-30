@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class TitleBarView : MonoBehaviour
 {
@@ -13,6 +16,7 @@ public class TitleBarView : MonoBehaviour
 
     private const int SW_MINIMIZE = 6;
 #endif
+    [Inject] NotificationService _notificationService;
 
     [SerializeField] Button _minimizeButton;
     [SerializeField] Button _closeButton;
@@ -37,7 +41,16 @@ public class TitleBarView : MonoBehaviour
         DebugWrapper.InactiveLog(this, "Minimize work only in build");
 #endif
     }
-    private void CloseButtonClick()
+    private void CloseButtonClick() => _notificationService.ShowDialog(
+        "Log out to the desktop?",
+        "Quit",
+        new List<(string, Action)>() 
+        {
+            ("Cancel", null),
+            ("Ok", CloseApplication)
+        });
+
+    private void CloseApplication()
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
