@@ -1,3 +1,4 @@
+using Coffee.UIEffects;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Unity.Cinemachine;
@@ -14,6 +15,9 @@ public class CameraSplineController : MonoBehaviour
 
     [SerializeField] Camera _firstCamera;
     [SerializeField] Camera _secondCamera;
+
+    [SerializeField] UIEffectTweener effectTweener;
+
 
     bool _isFirst = true;
 
@@ -52,6 +56,9 @@ public class CameraSplineController : MonoBehaviour
             {
                 SetActiveCamera(forward ? _secondCamera : _firstCamera);
                 _cinemachineSplineDolly.CameraPosition = forward ? 1 : 0;
+
+                if(forward)
+                    effectTweener.PlayForward(true);
             });
     }
 
