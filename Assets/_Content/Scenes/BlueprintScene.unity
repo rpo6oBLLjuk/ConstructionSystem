@@ -769,7 +769,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5866,7 +5866,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 2
+  m_PixelsPerUnitMultiplier: 2.5
 --- !u!1 &7417123287788004693
 GameObject:
   m_ObjectHideFlags: 0
@@ -6269,6 +6269,7 @@ GameObject:
   - component: {fileID: 8405125980716934695}
   - component: {fileID: 8405125980716934694}
   - component: {fileID: 8405125980716934697}
+  - component: {fileID: 8405125980716934699}
   - component: {fileID: 8405125980716934698}
   m_Layer: 5
   m_Name: BlueprintRenderField
@@ -6359,6 +6360,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ViewLayersController
   _dropdown: {fileID: 1325569416784280339}
+--- !u!114 &8405125980716934699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8405125980716934692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b674766e6ba0c47921d0e8d24fffa4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlueprintFieldView
+  _blueprint: {fileID: 7399437550841335973}
+  _blueprintColor: {r: 0.21176472, g: 0.21176472, b: 0.21176472, a: 1}
 --- !u!222 &8422398540311719654
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -48,7 +48,9 @@ public class PointsVisualConfig : VisualConfigBase
     [field: SerializeField] public float SnapDuration { get; private set; } = 0.05f;
     [field: SerializeField] public float SnapDistance { get; private set; } = 10;
     [field: SerializeField] public float SnapSmooth { get; private set; } = 5;
+
     [field: SerializeField] public float TextureTileMultiplyer { get; private set; } = 1;
+    [field: SerializeField] public Vector2 TextureOffset { get; private set; } = Vector2.zero;
 
     [field: Header("<u>Color</u>")]
     [field: SerializeField] public Color InactivePointColor { get; private set; } = Color.white;
@@ -86,33 +88,12 @@ public class TextVisualConfig : VisualConfigBase
     [field: SerializeField] public AnimationCurve ClippingCurve { get; private set; }
 
     [field: Header("<u>Animation</u>")]
-    [field: SerializeField, Space] public float TextFadeDuration { get; private set; } = 0.25f;
+    [field: SerializeField] public float TextFadeDuration { get; private set; } = 0.25f;
+
+    [field: Header("Metric")]
+    [field: SerializeField] public float TextMetricPerPixel = 80; //1920/48 = 40 пикселей на "большую клетку" (по 8 на маленькие)
 }
 
 public abstract class VisualConfigBase
 {
-    //public event Action<bool> VisibilityChanged;
-
-    //public bool IsVisible
-    //{
-    //    get => _isVisible;
-    //    set
-    //    {
-    //        if (_isVisible != value)
-    //            VisibilityChanged?.Invoke(_isVisible);
-
-    //        _isVisible = value;
-    //    }
-    //}
-    //[Header("<u>VisualConfig</u>")]
-    //[SerializeField] private bool _isVisible = true;
-
-    /*
-    Нужно переписать логику. Либо открыть свойства (bad move), либо как-то усложнить количество кода, дабы получать данные об обновлении. Возможно стоит создавать новые экземпляры VisualConfigBase-наследников, однако
-    тогда надо атомаризировать данные и классы с ивентами (новый экземпляр удалит подписки на ивенты). А возможно, стоит просто сделать глобальный ивент изменения данных, т.к. многие классы берут данные сразу из конфига.
-    Но, такие как HistoryView - создают твин в начале.
-
-    public event Action ConfigChanged;
-    public void ApplyChanges() => ConfigChanged?.Invoke();
-    */
 }

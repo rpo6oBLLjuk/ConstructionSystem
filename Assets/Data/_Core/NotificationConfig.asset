@@ -15,6 +15,9 @@ MonoBehaviour:
   <InfoSprite>k__BackingField: {fileID: 21300000, guid: e697d962fe64f4786bc0197fe54a830b, type: 3}
   <WarningSprite>k__BackingField: {fileID: 21300000, guid: 203ed99c5a855469ca0d90764b39c0eb, type: 3}
   <ErrorSprite>k__BackingField: {fileID: 21300000, guid: 4b29f2e5b4d074e9aad3fc9aaf8c4d02, type: 3}
+  <InfoColor>k__BackingField: {r: 0.79607844, g: 0.79607844, b: 0.79607844, a: 1}
+  <WarningColor>k__BackingField: {r: 0.8490566, g: 0.7814027, b: 0, a: 1}
+  <ErrorColor>k__BackingField: {r: 0.82641506, g: 0, b: 0, a: 1}
   <PopupShowDuration>k__BackingField: 0.25
   <PopupAliveDuration>k__BackingField: 3
   <PopupHideDuration>k__BackingField: 0.25

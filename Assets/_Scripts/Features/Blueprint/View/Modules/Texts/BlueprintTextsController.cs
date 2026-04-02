@@ -43,11 +43,6 @@ public class BlueprintTextsController : BlueprintView<CanvasGroup>
     protected override void OnLayerChanged(bool isActive)
     {
         base.OnLayerChanged(isActive);
-        Debug.Log("Text: " + isActive);
-        foreach (CanvasGroup cg in ViewList)
-        {
-            Debug.Log(cg.gameObject.name);
-        }
     }
 
     private void AutoScaleTexts()
@@ -82,7 +77,7 @@ public class BlueprintTextsController : BlueprintView<CanvasGroup>
             //parent.localScale = new Vector2(_blueprintManager.BlueprintScaleFactor,_blueprintManager.BlueprintScaleFactor);
         }
     }
-    private void SetLinesSizeTexts() => BlueprintLineHandlers.ForEach(handler => handler.Text.text = ((handler.SelfImage.rectTransform.sizeDelta.x - handler.SelfImage.rectTransform.sizeDelta.y) / 100).ToString("F3"));
+    private void SetLinesSizeTexts() => BlueprintLineHandlers.ForEach(handler => handler.Text.text = ((handler.SelfImage.rectTransform.sizeDelta.x - handler.SelfImage.rectTransform.sizeDelta.y) / _blueprintVisualConfig.TextData.TextMetricPerPixel).ToString("F3"));
 
     private void SetTextsVisible(int index, Vector2 _) => SetCanvasGroupVisible(BlueprintLineHandlers[index].Text.GetComponentInParent<CanvasGroup>());
 }

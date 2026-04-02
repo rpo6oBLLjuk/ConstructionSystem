@@ -23,7 +23,8 @@ MonoBehaviour:
     <SnapDuration>k__BackingField: 0.1
     <SnapDistance>k__BackingField: 100
     <SnapSmooth>k__BackingField: 5
-    <TextureTileMultiplyer>k__BackingField: 2
+    <TextureTileMultiplyer>k__BackingField: 2.5
+    <TextureOffset>k__BackingField: {x: 0, y: 4}
     <InactivePointColor>k__BackingField: {r: 0.93333334, g: 0.5176471, b: 0, a: 1}
     <DragPointColor>k__BackingField: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   <LinesData>k__BackingField:
@@ -80,3 +81,4 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     <TextFadeDuration>k__BackingField: 0.25
+    TextMetricPerPixel: 80

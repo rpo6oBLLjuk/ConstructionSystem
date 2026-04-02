@@ -21,19 +21,19 @@ public class TitleBarView : MonoBehaviour
     [SerializeField] Button _minimizeButton;
     [SerializeField] Button _closeButton;
 
+
     private void OnEnable()
     {
         _minimizeButton.onClick.AddListener(MinimizeButtonClick);
         _closeButton.onClick.AddListener(CloseButtonClick);
     }
-
     private void OnDisable()
     {
         _minimizeButton.onClick.RemoveListener(MinimizeButtonClick);
         _closeButton.onClick.RemoveListener(CloseButtonClick);
     }
 
-    public void MinimizeButtonClick()
+    private void MinimizeButtonClick()
     {
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
         ShowWindow(GetActiveWindow(), SW_MINIMIZE);

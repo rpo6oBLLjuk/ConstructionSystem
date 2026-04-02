@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -8,13 +8,9 @@ using UnityEngine.SceneManagement;
 public class SceneTransitionController : MonoBehaviour
 {
     public bool IsInTransition { get; private set; }
-
+    
+    [SerializeField] SceneTransitionConfig _config;
     [SerializeField] CanvasGroup _loadScreen;
-    [SerializeField] List<SceneItem> scenes;
-
-    [SerializeField] float _duration = 0.5f;
-    [SerializeField] Ease _hideEaseType = Ease.InOutQuad;
-    [SerializeField] Ease _showEaseType = Ease.OutQuint;
 
     [Header("test only")]
     [SerializeField] float _delayBeforeTransition = 0f;
@@ -23,16 +19,14 @@ public class SceneTransitionController : MonoBehaviour
 
     private void Start()
     {
-        ValidateScenes();
-
         if (_sceneLoadOnStart)
             LoadScene(AppScene.Construction);
     }
 
     public void LoadScene(AppScene scene)
     {
-        LoadAdditiveSceneAsync(scenes
-            .Find(sceneItem => sceneItem.AppScene == scene).Index)
+        LoadAdditiveSceneAsync(_config.Scenes
+            .Find(data => data.AppScene == scene).Index)
         .Forget();
     }
 
@@ -59,57 +53,16 @@ public class SceneTransitionController : MonoBehaviour
         SetLoadscreenState(false, out _);
     }
 
-    //лернд ме днохяюм
     private void SetLoadscreenState(bool show, out Tween fadeTween)
     {
         _loadScreen.blocksRaycasts = show;
-
         fadeTween = _loadScreen
-            .DOFade(show ? 1 : 0, _duration)
+            .DOFade(show ? 1 : 0, _config.Duration)
             .From(!show ? 1 : 0)
-            .SetEase(show ? _showEaseType : _hideEaseType);
+            .SetEase(show ? _config.ShowEaseType : _config.HideEaseType);
     }
 
-    //Editor only
-    private void Reset()
-    {
-        scenes = new();
-        foreach (AppScene appScene in Enum.GetValues(typeof(AppScene)))
-        {
-            scenes.Add(new SceneItem()
-            {
-                AppScene = appScene,
-                Index = -1
-            });
-        }
-    }
-    private void OnValidate()
-    {
-        scenes.ForEach(sceneItem =>
-        {
-            if (sceneItem.Index != -1)
-                sceneItem.Name = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(sceneItem.Index));
-            else
-                sceneItem.Name = "";
-        });
-    }
-
-    private void ValidateScenes()
-    {
-        OnValidate();
-
-        foreach (var item in scenes)
-            if (item.Name == "")
-                DebugWrapper.LogError(this, $"SceneTransitionList contains unsigned SceneIndex: {item.Index}");
-    }
-
-    [Serializable]
-    private class SceneItem
-    {
-        public AppScene AppScene;
-        public int Index;
-        public string Name;
-    }
+    
 }
 
 public enum AppScene

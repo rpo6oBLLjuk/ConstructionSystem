@@ -46,12 +46,10 @@ public class BlueprintManager : MonoBehaviour
 
     public void MovePoint(int index, Vector2 newPosition)
     {
+        OnPointMoved?.Invoke(index, BlueprintPoints[index], newPosition);
 
         BlueprintPoints[index] = newPosition;
         PointsController.MovePoint(index, newPosition);
-
-        OnPointMoved?.Invoke(index, BlueprintPoints[index], newPosition);
-
     }
 
     public void AddPoint(int index, Vector2 position)

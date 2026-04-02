@@ -57,8 +57,17 @@ public class BlueprintHistoryController : MonoBehaviour
             _nextPosition = nextPosition;
         }
 
-        public override void Execute(BlueprintManager blueprintManager) => blueprintManager.MovePoint(_index, _nextPosition);
-        public override void Undo(BlueprintManager blueprintManager) => blueprintManager.MovePoint(_index, _previousPosition);
+        public override void Execute(BlueprintManager blueprintManager)
+        {
+            blueprintManager.MovePoint(_index, _nextPosition);
+            DebugWrapper.FastLog(this, $"Redo: MoveToPos {_nextPosition}");
+        }
+
+        public override void Undo(BlueprintManager blueprintManager)
+        {
+            blueprintManager.MovePoint(_index, _previousPosition);
+            DebugWrapper.FastLog(this, $"Undo: MoveToPos {_nextPosition}");
+        }
     }
 
     private class BlueprintChangeActionData : HistoryActionData

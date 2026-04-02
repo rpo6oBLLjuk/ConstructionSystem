@@ -92,7 +92,7 @@ public class BlueprintPointsConstroller : BlueprintView<Image>
     {
         Vector2 inputPosition = (mousePosition - _activePoint.transform.parent.position) / _blueprintManager.CanvasScaleFactor / _blueprintManager.ScaleFactor;
         if (_snapping)
-            inputPosition = new Vector3(CalculateSnappedCoordinate(inputPosition.x), CalculateSnappedCoordinate(inputPosition.y), 0);
+            inputPosition = new Vector2(CalculateSnappedCoordinate(inputPosition.x - _blueprintVisualConfig.PointsData.TextureOffset.x), CalculateSnappedCoordinate(inputPosition.y - _blueprintVisualConfig.PointsData.TextureOffset.y)) + _blueprintVisualConfig.PointsData.TextureOffset;
 
         return inputPosition;
     }
