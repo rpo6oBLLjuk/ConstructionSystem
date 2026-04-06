@@ -1523,8 +1523,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4291546059
-  m_fontColor: {r: 0.79607844, g: 0.79607844, b: 0.79607844, a: 1}
+    rgba: 4293980400
+  m_fontColor: {r: 0.9411765, g: 0.9411765, b: 0.9411765, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1598,7 +1598,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3a43764395082941a4ae382079324e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StyleSchemeConfigHandler
-  _colorShemeType: 5
+  _colorShemeType: 7
 --- !u!1 &3845976989114907818
 GameObject:
   m_ObjectHideFlags: 0
@@ -2491,9 +2491,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7580155584230676987}
   - component: {fileID: 7542529859907890948}
-  - component: {fileID: 1529026673365798045}
   - component: {fileID: 7944197878904093637}
-  - component: {fileID: 4756857965613775628}
+  - component: {fileID: 1529026673365798045}
   - component: {fileID: 1297030998274402963}
   m_Layer: 5
   m_Name: Quit_Button
@@ -2530,6 +2529,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5917353010424238275}
   m_CullTransparentMesh: 0
+--- !u!114 &7944197878904093637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5917353010424238275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.21568628, g: 0.21568628, b: 0.21568628, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: ad4148593b05d0f47980774815c325fe, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &1529026673365798045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2541,7 +2570,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -2574,49 +2603,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &7944197878904093637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5917353010424238275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.21568628, g: 0.21568628, b: 0.21568628, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ad4148593b05d0f47980774815c325fe, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &4756857965613775628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5917353010424238275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3a43764395082941a4ae382079324e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _colorShemeType: 3
 --- !u!114 &1297030998274402963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3309,7 +3295,6 @@ GameObject:
   - component: {fileID: 8647901780826152818}
   - component: {fileID: 5020845444788561148}
   - component: {fileID: 2277887787479459705}
-  - component: {fileID: 8174367430677324448}
   m_Layer: 5
   m_Name: Minimize_Button
   m_TagString: Untagged
@@ -3386,7 +3371,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -3439,19 +3424,6 @@ MonoBehaviour:
   m_FlexibleWidth: 30
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &8174367430677324448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7703852385714553145}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3a43764395082941a4ae382079324e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _colorShemeType: 3
 --- !u!1 &7731631081918669688
 GameObject:
   m_ObjectHideFlags: 0
@@ -3814,7 +3786,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &116596513743934840
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4769,10 +4741,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_NormalColor: {r: 0.8862745, g: 0.6, b: 0, a: 1}
+    m_HighlightedColor: {r: 0.6666667, g: 0.5058824, b: 0.16470589, a: 1}
+    m_PressedColor: {r: 0.5764706, g: 0.39215687, b: 0, a: 1}
+    m_SelectedColor: {r: 0.8862745, g: 0.6, b: 0, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -4804,4 +4776,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3a43764395082941a4ae382079324e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StyleSchemeConfigHandler
-  _colorShemeType: 3
+  _colorShemeType: 6

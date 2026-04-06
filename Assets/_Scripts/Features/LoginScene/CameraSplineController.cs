@@ -18,7 +18,6 @@ public class CameraSplineController : MonoBehaviour
 
     [SerializeField] UIEffectTweener effectTweener;
 
-
     bool _isFirst = true;
 
 
@@ -26,7 +25,9 @@ public class CameraSplineController : MonoBehaviour
     {
         SetActiveCamera(_firstCamera);
 
+#if UNITY_EDITOR
         //TestMethod().Forget();
+#endif
     }
 
 #if UNITY_EDITOR

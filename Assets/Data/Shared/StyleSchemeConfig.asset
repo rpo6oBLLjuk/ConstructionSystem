@@ -18,6 +18,10 @@ MonoBehaviour:
   <InteractableColor>k__BackingField: {r: 0.21568628, g: 0.21568628, b: 0.21568628, a: 1}
   <IconColor>k__BackingField: {r: 0.79607844, g: 0.79607844, b: 0.79607844, a: 1}
   <TextColor>k__BackingField: {r: 0.79607844, g: 0.79607844, b: 0.79607844, a: 1}
+  <ButtonBackgroundColor>k__BackingField: {r: 0.8862745, g: 0.6, b: 0, a: 1}
+  <ButtonHighlightColor>k__BackingField: {r: 0.6666667, g: 0.5058824, b: 0.16470589, a: 1}
+  <ButtonPressColor>k__BackingField: {r: 0.5764706, g: 0.39215687, b: 0, a: 1}
+  <ButtonTextColor>k__BackingField: {r: 0.9411765, g: 0.9411765, b: 0.9411765, a: 1}
   <TitleFontSize>k__BackingField: 30
   <DefaultFontSize>k__BackingField: 14
   <DefaultFontStyle>k__BackingField: {fileID: 11400000, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}

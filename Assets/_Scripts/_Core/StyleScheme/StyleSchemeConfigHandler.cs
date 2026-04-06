@@ -14,7 +14,7 @@ public class StyleSchemeConfigHandler : MonoBehaviour
         get
         {
 #if UNITY_EDITOR
-#region Hand-made inject config from project files for editor use
+            #region Hand-made inject config from project files for editor use
             if (_colorSchemeCfg == null)
             {
                 if (!Application.isPlaying)
@@ -33,7 +33,7 @@ public class StyleSchemeConfigHandler : MonoBehaviour
                     ProjectContext.Instance.Container.Inject(this);
                 }
             }
-#endregion
+            #endregion
 #endif
             return _colorSchemeCfg;
         }
@@ -62,30 +62,47 @@ public class StyleSchemeConfigHandler : MonoBehaviour
     private void ApplyColor()
     {
         GetGhaphicsComponent();
-        try
+
+        if (_graphicSource.TryGetComponent(out Button btn))
+        {
+            ColorBlock colorBlock = btn.colors;
+
+            colorBlock.normalColor = ColorSchemeCfg.ButtonBackgroundColor;
+            colorBlock.selectedColor = ColorSchemeCfg.ButtonBackgroundColor;
+
+            colorBlock.highlightedColor = ColorSchemeCfg.ButtonHighlightColor;
+            colorBlock.pressedColor = ColorSchemeCfg.ButtonPressColor;
+
+            btn.colors = colorBlock;
+
+            _colorShemeType = ColorShemeType.Button;
+        }
+        else
         {
             Color color = ColorSchemeCfg.GetColorByType(_colorShemeType);
             if (_graphicSource != null)
                 _graphicSource.color = color;
         }
-        catch
-        {
-            Debug.Log("Error");
-        }
-
-        
     }
     private void GetGhaphicsComponent()
     {
         if (_graphicSource)
             return;
 
-        if (TryGetComponent(out Image image))
-            _graphicSource = image;
+        if (TryGetComponent(out Button btn))
+        {
+            _graphicSource = GetComponent<Image>();
+            _colorShemeType = ColorShemeType.Button;
+        }
         else if (TryGetComponent(out TMP_Text text))
         {
             _graphicSource = text;
-            _colorShemeType = ColorShemeType.Text;
+
+            if (GetComponentInParent<Button>())
+                _colorShemeType = ColorShemeType.ButtonText;
         }
+        else if (TryGetComponent(out Image image))
+            _graphicSource = image;
+
     }
 }
