@@ -4350,7 +4350,6 @@ MonoBehaviour:
   _swapButton: {fileID: 746204605}
   _loginInputField: {fileID: 1497827775}
   _passwordInputField: {fileID: 601681702}
-  _secondPasswordInputField: {fileID: 0}
   _signInData:
     <Title>k__BackingField: SIGN IN
     <SignButton>k__BackingField: Sign In
@@ -5033,8 +5032,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraSplineController
   _cinemachineSplineDolly: {fileID: 228870314}
+  Duration: 1
+  IsForward: 1
   _splineStartEndValue: {x: 0, y: 0.97}
-  duration: 1
   _forwardEase: 7
   _backwardEase: 21
   _firstCamera: {fileID: 228870312}

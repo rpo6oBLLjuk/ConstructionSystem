@@ -7,9 +7,12 @@ using UnityEngine;
 public class CameraSplineController : MonoBehaviour
 {
     [SerializeField] CinemachineSplineDolly _cinemachineSplineDolly;
+
+    [SerializeField] public float Duration = 1.0f;
+    [HideInInspector] public bool IsForward = true;
+
     [SerializeField] Vector2 _splineStartEndValue = new Vector2(0, 0.97f);
 
-    [SerializeField] float duration = 1.0f;
     [SerializeField] Ease _forwardEase = Ease.InOutQuad;
     [SerializeField] Ease _backwardEase = Ease.OutBounce;
 
@@ -17,8 +20,6 @@ public class CameraSplineController : MonoBehaviour
     [SerializeField] Camera _secondCamera;
 
     [SerializeField] UIEffectTweener effectTweener;
-
-    bool _isFirst = true;
 
 
     private void Start()
@@ -37,28 +38,31 @@ public class CameraSplineController : MonoBehaviour
         {
             await UniTask.WaitForSeconds(1);
             AnimateCameraSpline(true);
-            await UniTask.WaitForSeconds(duration);
+            await UniTask.WaitForSeconds(Duration);
 
             await UniTask.WaitForSeconds(1);
             AnimateCameraSpline(false);
-            await UniTask.WaitForSeconds(duration);
+            await UniTask.WaitForSeconds(Duration);
         }
     }
 #endif
 
-    private void AnimateCameraSpline(bool forward)
+    //Move camera between SignIn & Project windows
+    public void AnimateCameraSpline(bool forward)
     {
+        IsForward = forward;
+
         SetActiveCamera(_firstCamera);
 
         _cinemachineSplineDolly.CameraPosition = forward ? _splineStartEndValue.x : _splineStartEndValue.y;
-        DOTween.To(() => _cinemachineSplineDolly.CameraPosition, x => _cinemachineSplineDolly.CameraPosition = x, forward ? _splineStartEndValue.y : _splineStartEndValue.x, duration)
+        DOTween.To(() => _cinemachineSplineDolly.CameraPosition, x => _cinemachineSplineDolly.CameraPosition = x, forward ? _splineStartEndValue.y : _splineStartEndValue.x, Duration)
             .SetEase(forward ? _forwardEase : _backwardEase)
             .OnComplete(() =>
             {
                 SetActiveCamera(forward ? _secondCamera : _firstCamera);
                 _cinemachineSplineDolly.CameraPosition = forward ? 1 : 0;
 
-                if(forward)
+                if (forward)
                     effectTweener.PlayForward(true);
             });
     }
@@ -68,5 +72,4 @@ public class CameraSplineController : MonoBehaviour
         localCamera.enabled = true;
         (localCamera == _firstCamera ? _secondCamera : _firstCamera).enabled = false;
     }
-
 }

@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LogInController : MonoBehaviour
+public class SignPanelView : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] TMP_Text _titleText;
@@ -17,7 +17,7 @@ public class LogInController : MonoBehaviour
     [Space]
     [SerializeField] TMP_InputField _loginInputField;
     [SerializeField] TMP_InputField _passwordInputField;
-    [SerializeField] TMP_InputField _secondPasswordInputField;
+    TMP_InputField _secondPasswordInputField;
 
     [Header("Texts")]
     [SerializeField] AuthModeData _signInData;
@@ -38,13 +38,12 @@ public class LogInController : MonoBehaviour
     private void OnEnable()
     {
         _swapButton.onClick.AddListener(InvertMode);
-        //_signButton.onClick.AddListener(InvertMode);
+        _signButton.onClick.AddListener(SignButtonClick);
     }
-
     private void OnDisable()
     {
         _swapButton.onClick.RemoveListener(InvertMode);
-        //_signButton.onClick.RemoveListener(InvertMode);
+        _signButton.onClick.RemoveListener(SignButtonClick);
     }
 
     private void Start()
@@ -52,6 +51,11 @@ public class LogInController : MonoBehaviour
         InitSecondPasswordInputField();
 
         SwapMode(_isSignInMode, false);
+    }
+
+    private void SignButtonClick()
+    {
+        DebugWrapper.InactiveLog(this, $"IsSignIn: {_isSignInMode}");
     }
 
     private void InvertMode() => SwapMode(!_isSignInMode);
@@ -106,7 +110,7 @@ public class LogInController : MonoBehaviour
     {
         _secondPasswordInputField = Instantiate(_passwordInputField, _passwordInputField.transform.parent);
         _secondPasswordInputField.transform.SetSiblingIndex(2);
-        _secondPasswordInputField.enabled = false;
+        _secondPasswordInputField.gameObject.SetActive(false);
     }
 }
 
