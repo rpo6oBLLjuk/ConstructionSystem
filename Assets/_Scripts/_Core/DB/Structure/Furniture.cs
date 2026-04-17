@@ -14,7 +14,7 @@ public class Furniture
     public string FilePath { get; set; }          //Путь к файлу модели
 
     public string ThumbnailPath { get; set; }     //Путь к превью
-    public decimal Price { get; set; }            //Цена товара
+    public double Price { get; set; }            //Цена товара
     public DateTime CreatedAt { get; set; }       //Дата создания
     public bool IsAvailable { get; set; } = true; // Доступность покупки
 }

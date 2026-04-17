@@ -15,7 +15,7 @@ public class Order
 
     public OrderStatus Status { get; set; }  // Статус заказа 
 
-    public decimal TotalAmount { get; set; } // Сумма заказа (по списку OrderItem'ов)
+    public double TotalAmount { get; set; } // Сумма заказа (по списку OrderItem'ов)
     public string Comment { get; set; }      // Комментарии к заказу
 }
 

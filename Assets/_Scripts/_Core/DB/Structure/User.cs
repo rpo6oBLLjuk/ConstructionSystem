@@ -17,6 +17,8 @@ public class User
     public string Login { get; set; }            // Логин
     public string Password { get; set; }         // Пароль (hash)
 
+    public bool OrderingEnabled { get; set; } = true;
+
     public DateTime CreatedAt { get; set; }  // Дата создания аккаунта
     public DateTime LastLoginAt { get; set; } // Дата последнего входа
 }

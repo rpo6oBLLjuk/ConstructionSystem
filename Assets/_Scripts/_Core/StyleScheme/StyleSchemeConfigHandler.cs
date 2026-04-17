@@ -89,6 +89,9 @@ public class StyleSchemeConfigHandler : MonoBehaviour
         if (_graphicSource)
             return;
 
+        if(enabled == false)
+            return;
+
         if (TryGetComponent(out Button btn))
         {
             _graphicSource = GetComponent<Image>();
