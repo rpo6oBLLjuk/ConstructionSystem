@@ -1,3 +1,3 @@
-public class ConstructionSystemInstaller : AbstractMonoInstaller<ConstructionSystem>
+public class ConstructionSystemInstaller : AbstractInstanceInstaller<ConstructionSystem>
 {
 }

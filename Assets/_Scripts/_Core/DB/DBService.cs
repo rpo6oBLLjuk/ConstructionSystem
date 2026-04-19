@@ -30,6 +30,7 @@ public class DBService : IInitializable, IDisposable
 
     // Простой доступ к соединению для модулей
     public SQLiteAsyncConnection GetConnection() => _db;
+    public void GetConnection(out SQLiteAsyncConnection asyncConnection) => asyncConnection = _db;
 
     public void Dispose()
     {

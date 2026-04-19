@@ -1,16 +1,16 @@
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 
 public class SnappingTool : ButtonSpriteSwapper
 {
     [Inject] BlueprintManager _blueprintManager;
 
-    private void Start() => SetActive(false);
+
+    protected override void Start() => SetActive(false);
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
             SetActive(true);
         else if (Input.GetKeyUp(KeyCode.LeftShift))
             SetActive(false);

@@ -2,9 +2,12 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class SignPanelView : MonoBehaviour
 {
+    [Inject] UserModule userModule;
+
     [Header("References")]
     [SerializeField] TMP_Text _titleText;
     [SerializeField] TMP_Text _swapText;

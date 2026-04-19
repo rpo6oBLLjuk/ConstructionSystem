@@ -3,7 +3,7 @@ using UnityEngine;
 using Zenject;
 
 [Serializable]
-public abstract class AbstractMonoInstaller<T> : MonoInstaller where T : MonoBehaviour
+public abstract class AbstractInstanceInstaller<T> : MonoInstaller where T : MonoBehaviour
 {
     [SerializeField] private T service;
 

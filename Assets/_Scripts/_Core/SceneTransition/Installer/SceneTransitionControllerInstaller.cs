@@ -1,3 +1,3 @@
-public class SceneTransitionControllerInstaller : AbstractMonoInstaller<SceneTransitionController>
+public class SceneTransitionControllerInstaller : AbstractInstanceInstaller<SceneTransitionController>
 {
 }

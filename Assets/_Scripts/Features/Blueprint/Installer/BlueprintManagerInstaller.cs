@@ -1,3 +1,3 @@
-public class BlueprintManagerInstaller : AbstractMonoInstaller<BlueprintManager>
+public class BlueprintManagerInstaller : AbstractInstanceInstaller<BlueprintManager>
 {
 }

@@ -1,3 +1,3 @@
-public class InputSystemInstaller : AbstractMonoInstaller<InputSystem>
+public class InputSystemInstaller : AbstractInstanceInstaller<InputSystem>
 {
 }

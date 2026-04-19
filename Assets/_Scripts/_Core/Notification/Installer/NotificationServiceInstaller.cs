@@ -1,3 +1,3 @@
-public class NotificationServiceInstaller : AbstractMonoInstaller<NotificationService>
+public class NotificationServiceInstaller : AbstractInstanceInstaller<NotificationService>
 {
 }

@@ -1,3 +1,3 @@
-public class CursorControllerInstaller : AbstractMonoInstaller<CursorController>
+public class CursorControllerInstaller : AbstractInstanceInstaller<CursorController>
 {
 }
