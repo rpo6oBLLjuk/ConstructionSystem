@@ -51,7 +51,6 @@ public class StyleSchemeConfigHandler : MonoBehaviour
 #if UNITY_EDITOR
     private void Reset()
     {
-        GetGhaphicsComponent();
         ApplyColor();
     }
     private void OnValidate()
@@ -61,7 +60,8 @@ public class StyleSchemeConfigHandler : MonoBehaviour
 #endif
     private void ApplyColor()
     {
-        GetGhaphicsComponent();
+        if (!GetGhaphicsComponent())
+            return;
 
         if (_graphicSource.TryGetComponent(out Button btn))
         {
@@ -84,18 +84,20 @@ public class StyleSchemeConfigHandler : MonoBehaviour
                 _graphicSource.color = color;
         }
     }
-    private void GetGhaphicsComponent()
+    private bool GetGhaphicsComponent()
     {
         if (_graphicSource)
-            return;
+            return true;
 
         if(enabled == false)
-            return;
+            return false;
 
         if (TryGetComponent(out Button btn))
         {
             _graphicSource = GetComponent<Image>();
             _colorShemeType = ColorShemeType.Button;
+
+            return true;
         }
         else if (TryGetComponent(out TMP_Text text))
         {
@@ -103,9 +105,17 @@ public class StyleSchemeConfigHandler : MonoBehaviour
 
             if (GetComponentInParent<Button>())
                 _colorShemeType = ColorShemeType.ButtonText;
+
+
+            return true;
         }
         else if (TryGetComponent(out Image image))
+        {
             _graphicSource = image;
+            return true;
+        }
+        else
+            return false;
 
     }
 }

@@ -1785,8 +1785,7 @@ MonoBehaviour:
   - {fileID: 9137894784395095994}
   - {fileID: 2652441569130493271}
   - {fileID: 1243166488867599731}
-  - {fileID: 7140760203470604811}
-  - {fileID: 459850650963373494}
+  - {fileID: 1068646563726053237}
   _installerPrefabs: []
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
@@ -4028,7 +4027,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9184631352078976083}
-  - component: {fileID: 459850650963373494}
   m_Layer: 0
   m_Name: UserModule
   m_TagString: Untagged
@@ -4051,18 +4049,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2375383106685827321}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &459850650963373494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8327962511194337571}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df0a9b10723616429b2c10d9cd24961, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UserModuleInstaller
 --- !u!1 &8487287163218376290
 GameObject:
   m_ObjectHideFlags: 0
@@ -4441,7 +4427,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2375383106685827321}
-  - component: {fileID: 7140760203470604811}
+  - component: {fileID: 1068646563726053237}
   m_Layer: 0
   m_Name: DBService
   m_TagString: Untagged
@@ -4465,7 +4451,7 @@ Transform:
   - {fileID: 9184631352078976083}
   m_Father: {fileID: 3244164397243316079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7140760203470604811
+--- !u!114 &1068646563726053237
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4474,9 +4460,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8755140984255266839}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fe0bb151da2bd04fa57a83c47e643da, type: 3}
+  m_Script: {fileID: 11500000, guid: f4d3cf409b3e2f14b93317bee03105a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DBServiceInstaller
+  m_EditorClassIdentifier: Assembly-CSharp::DBInstallers
 --- !u!1 &8798371989136375443
 GameObject:
   m_ObjectHideFlags: 0

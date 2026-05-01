@@ -10,19 +10,38 @@ public class UserModule
     public User CurrentUser { get; private set; }
 
     private string _incorrectPassword = "Incorrect password";
-    private string _userNotFound = "User {0} not found";
+    private string _userNotFound = "User '{0}' not found";
 
 
     public UserModule(UserRepository userRepository) => _userRepository = userRepository;
 
-    public async UniTask<bool> AddUser(User user, string rawPassword)
+    public async UniTask<bool> CreateUser(User user)
     {
-        user.Password = HashPassword(rawPassword);
+        user.Password = HashPassword(user.Password);
         user.CreatedAt = DateTime.Now;
 
-        await _userRepository.Insert(user);
-        await SetCurrentSession(user);
-        return true;
+        try
+        {
+            await _userRepository.Insert(user);
+            await SetCurrentSession(user);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            DebugWrapper.LogError(this, ex.Message);
+            return false;
+        }
+    }
+    public async UniTask<bool> CreateUser(string login, string password)
+    {
+        User user = new()
+        {
+            Login = login,
+            Password = password
+        };
+
+        return await CreateUser(user);
     }
 
     public async UniTask LogIn(string login, string password, Action<User> onLoginSuccess, Action<string> onLoginFailed)

@@ -1013,8 +1013,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 228870309}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.057248406, y: 0.8231843, z: -0.057370454, w: 0.56195986}
-  m_LocalPosition: {x: -5.453002, y: 2.472, z: 2.7240007}
+  m_LocalRotation: {x: -0.15868364, y: -0.97110957, z: 0.15909886, w: -0.080332436}
+  m_LocalPosition: {x: -11.055239, y: -15.298561, z: 23.872103}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1400,7 +1400,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Don't Have an account? Get started!
+  m_text: Don't have an account? Get started!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}
   m_sharedMaterial: {fileID: -8255998507834641429, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}
@@ -1572,7 +1572,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Login or prone number
+  m_text: Login or phone number
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}
   m_sharedMaterial: {fileID: -8255998507834641429, guid: 137baf7ac5caa2e479f1bf0e46ebae2c, type: 2}
@@ -4309,8 +4309,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1632936947}
   - component: {fileID: 1632936948}
+  - component: {fileID: 1632936949}
   m_Layer: 0
-  m_Name: LogInController
+  m_Name: SignPanelController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4352,17 +4353,32 @@ MonoBehaviour:
   _passwordInputField: {fileID: 601681702}
   _signInData:
     <Title>k__BackingField: SIGN IN
-    <SignButton>k__BackingField: Sign In
-    <SwapButton>k__BackingField: Don't Have an account? Get started!
+    <SignButton>k__BackingField: Sign in
+    <SwapButton>k__BackingField: Don't have an account? Get started!
   _signUpData:
     <Title>k__BackingField: SIGN UP
-    <SignButton>k__BackingField: Sign Up
-    <SwapButton>k__BackingField: Already Have an account? Let's log in!
+    <SignButton>k__BackingField: Sign up
+    <SwapButton>k__BackingField: Already have an account? Let's log in!
   _duration: 0.4
   _angle: 90
   _forwardEaseType: 15
   _backwardEaseType: 30
   _isSignInMode: 1
+--- !u!114 &1632936949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632936946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cbdadbd3d6743f478495bbd65f5b7e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SignPanelPresenter
+  _signPanelView: {fileID: 1632936948}
+  minmaxLoginLength: {x: 5, y: 20}
+  minmaxPasswordLength: {x: 4, y: 20}
 --- !u!1 &1656847064
 GameObject:
   m_ObjectHideFlags: 0
@@ -4979,8 +4995,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1739923424}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0140681565, y: 0.7069669, z: -0.014068276, w: 0.7069669}
-  m_LocalPosition: {x: -0.26995537, y: 1.6365691, z: 0.010517389}
+  m_LocalRotation: {x: -0.15868363, y: -0.9711095, z: 0.15909885, w: -0.08033243}
+  m_LocalPosition: {x: -11.055239, y: -15.298561, z: 23.872103}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
