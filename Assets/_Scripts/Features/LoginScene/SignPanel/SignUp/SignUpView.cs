@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class SignUpView : MonoBehaviour
 {
+    [Inject] NotificationService _notificationService;
+    
     public event Action<User> OnSubmit;
 
     [Header("Control buttons")]
@@ -14,7 +17,7 @@ public class SignUpView : MonoBehaviour
     [SerializeField] Button _backButton;
     [SerializeField] Button _sumbitButton;
 
-    [Header("Phase Slider view")]
+    [Header("Phase view")]
     [SerializeField] Slider _phaseSlider;
     [SerializeField] TMP_Text _phaseText;
 
@@ -59,22 +62,20 @@ public class SignUpView : MonoBehaviour
         UpdatePhaseUI(index);
     }
 
-    private void HandleNext()
-    {
-        ShowPhase(_currentPhase + 1);
-        UpdateButtons();
-    }
-    private void HandleBack()
-    {
-        if (_currentPhase == 0)
-            return;
-
-        ShowPhase(_currentPhase - 1);
-        UpdateButtons();
-    }
+    private void HandleNext() => ShowPhase(_currentPhase + 1);
+    private void HandleBack() => ShowPhase(_currentPhase - 1);
 
     private void HandleSumbit()
     {
+        if (GetValidValue() != 1f)
+        {
+            _notificationService.ShowPopup(
+                "Please fill in all required fields.",
+                "Incomplete Form", 
+                NotificationType.Warning);
+            return;
+        }
+
         User user = new()
         {
             FirstName = _userData.FirstName.text,
@@ -97,13 +98,28 @@ public class SignUpView : MonoBehaviour
         bool isLast = _currentPhase == _phases.Count - 1;
 
         _backButton.interactable = !isFirst;
-        _nextButton.interactable = !isLast && _phases[_currentPhase].IsValid();
+        _nextButton.interactable = !isLast && _phases[_currentPhase].IsValid() == 1f;
+
+        float currentValidFields = GetValidValue();
+        if (_phaseSlider.value != currentValidFields && !DOTween.IsTweening(_phaseSlider))
+            _phaseSlider.DOValue(currentValidFields, 0.25f);
+
         //_sumbinButton.gameObject.SetActive(isLast);
     }
 
     private void UpdatePhaseUI(int index)
     {
         _phaseText.text = $"Stage {index + 1}: {_phases[index].PhaseName}";
-        _phaseSlider.DOValue(index, 0.25f);
+    }
+
+    private float GetValidValue()
+    {
+        float currentValidFields = 0;
+
+        currentValidFields += _userData.IsValid();
+        currentValidFields += _contactsData.IsValid();
+        currentValidFields += _signUpData.IsValid();
+
+        return currentValidFields / 3f;
     }
 }

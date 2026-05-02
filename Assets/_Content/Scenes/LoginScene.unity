@@ -1616,7 +1616,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 794024225}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 2
+  m_MaxValue: 1
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -1791,8 +1791,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 228870309}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.057248406, y: 0.8231843, z: -0.057370454, w: 0.56195986}
-  m_LocalPosition: {x: -5.453002, y: 2.472, z: 2.7240007}
+  m_LocalRotation: {x: -0.14972763, y: 0.017778134, z: 0.15017511, w: 0.9770942}
+  m_LocalPosition: {x: 18.77175, y: 0.26646757, z: 11.257035}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11139,8 +11139,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1632936947}
-  - component: {fileID: 1632936948}
-  - component: {fileID: 1632936949}
+  - component: {fileID: 1632936952}
   - component: {fileID: 1632936951}
   - component: {fileID: 1632936950}
   m_Layer: 0
@@ -11165,53 +11164,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1588524139}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1632936948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1632936946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53882533ac85eb248a684fb7fc7314ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LogInController
-  _titleText: {fileID: 723269087}
-  _swapText: {fileID: 370452916}
-  _signText: {fileID: 130139716}
-  _signButton: {fileID: 1524008564}
-  _swapButton: {fileID: 746204605}
-  _loginInputField: {fileID: 1497827775}
-  _passwordInputField: {fileID: 601681702}
-  _signInData:
-    <Title>k__BackingField: SIGN IN
-    <SignButton>k__BackingField: Sign in
-    <SwapButton>k__BackingField: Don't have an account? Get started!
-  _signUpData:
-    <Title>k__BackingField: SIGN UP
-    <SignButton>k__BackingField: Sign up
-    <SwapButton>k__BackingField: Already have an account? Let's log in!
-  _duration: 0.4
-  _angle: 90
-  _forwardEaseType: 15
-  _backwardEaseType: 30
-  _isSignInMode: 1
---- !u!114 &1632936949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1632936946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2cbdadbd3d6743f478495bbd65f5b7e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SignPanelPresenter
-  _signPanelView: {fileID: 1632936948}
-  minmaxLoginLength: {x: 5, y: 20}
-  minmaxPasswordLength: {x: 4, y: 20}
 --- !u!114 &1632936950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11271,9 +11223,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93c3ad6d93077e947991071ddb883a29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SignInView
-  _loginField: {fileID: 1497827775}
-  _passwordField: {fileID: 601681702}
+  _loginField:
+    <MinMax>k__BackingField: {x: 4, y: 20}
+    <InputField>k__BackingField: {fileID: 0}
+  _passwordField:
+    <MinMax>k__BackingField: {x: 4, y: 20}
+    <InputField>k__BackingField: {fileID: 0}
   _submitButton: {fileID: 1524008564}
+--- !u!114 &1632936952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632936946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6ed6c52a0a05e4bb29d93d8b098fe6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SignWindowPresenter
+  _signInView: {fileID: 1632936951}
+  _signUpView: {fileID: 1632936950}
+  _cameraSplineController: {fileID: 1739923427}
 --- !u!1 &1656847064
 GameObject:
   m_ObjectHideFlags: 0
@@ -12106,8 +12077,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1739923424}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0140681565, y: 0.7069669, z: -0.014068276, w: 0.7069669}
-  m_LocalPosition: {x: -0.26995537, y: 1.6365691, z: 0.010517389}
+  m_LocalRotation: {x: -0.14972763, y: 0.017778134, z: 0.15017511, w: 0.9770942}
+  m_LocalPosition: {x: 18.77175, y: 0.26646757, z: 11.257035}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
