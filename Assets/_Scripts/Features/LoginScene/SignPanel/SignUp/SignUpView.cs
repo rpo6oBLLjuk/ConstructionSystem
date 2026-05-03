@@ -9,13 +9,18 @@ using Zenject;
 public class SignUpView : MonoBehaviour
 {
     [Inject] NotificationService _notificationService;
-    
+
     public event Action<User> OnSubmit;
+    public event Action OnSwitch;
+
+    [SerializeField] CanvasGroup _canvasGroup;
 
     [Header("Control buttons")]
     [SerializeField] Button _nextButton;
     [SerializeField] Button _backButton;
     [SerializeField] Button _sumbitButton;
+
+    [SerializeField] Button _switchButton;
 
     [Header("Phase view")]
     [SerializeField] Slider _phaseSlider;
@@ -25,6 +30,13 @@ public class SignUpView : MonoBehaviour
     [SerializeField] UserDataPhase _userData;
     [SerializeField] ContactsDataPhase _contactsData;
     [SerializeField] SignUpDataPhase _signUpData;
+
+    [Header("Animation")]
+    [SerializeField] float _angle = 90;
+
+    [Space]
+    [SerializeField] Ease _forwardEaseType;
+    [SerializeField] Ease _backwardEaseType;
 
     private List<SignUpPhase> _phases;
     private int _currentPhase = 0;
@@ -44,6 +56,8 @@ public class SignUpView : MonoBehaviour
         _backButton.onClick.AddListener(HandleBack);
 
         _sumbitButton.onClick.AddListener(HandleSumbit);
+
+        _switchButton.onClick.AddListener(HandleSwitch);
     }
     private void OnDisable()
     {
@@ -51,6 +65,8 @@ public class SignUpView : MonoBehaviour
         _backButton.onClick.RemoveListener(HandleBack);
 
         _sumbitButton.onClick.RemoveListener(HandleSumbit);
+
+        _switchButton.onClick.RemoveListener(HandleSwitch);
     }
 
     public void ShowPhase(int index)
@@ -62,6 +78,9 @@ public class SignUpView : MonoBehaviour
         UpdatePhaseUI(index);
     }
 
+    public void Show(float duration) => AnimateUI(true, duration);
+    public void Hide(float duration) => AnimateUI(false, duration);
+
     private void HandleNext() => ShowPhase(_currentPhase + 1);
     private void HandleBack() => ShowPhase(_currentPhase - 1);
 
@@ -71,7 +90,7 @@ public class SignUpView : MonoBehaviour
         {
             _notificationService.ShowPopup(
                 "Please fill in all required fields.",
-                "Incomplete Form", 
+                "Incomplete Form",
                 NotificationType.Warning);
             return;
         }
@@ -92,6 +111,8 @@ public class SignUpView : MonoBehaviour
         OnSubmit?.Invoke(user);
     }
 
+    private void HandleSwitch() => OnSwitch?.Invoke();
+
     private void UpdateButtons()
     {
         bool isFirst = _currentPhase == 0;
@@ -106,11 +127,7 @@ public class SignUpView : MonoBehaviour
 
         //_sumbinButton.gameObject.SetActive(isLast);
     }
-
-    private void UpdatePhaseUI(int index)
-    {
-        _phaseText.text = $"Stage {index + 1}: {_phases[index].PhaseName}";
-    }
+    private void UpdatePhaseUI(int index) => _phaseText.text = $"Stage {index + 1}: {_phases[index].PhaseName}";
 
     private float GetValidValue()
     {
@@ -122,4 +139,29 @@ public class SignUpView : MonoBehaviour
 
         return currentValidFields / 3f;
     }
+
+    private void AnimateUI(bool show, float duration) => SwapAnim(_canvasGroup.transform, show, duration);
+    private Tween SwapAnim(Transform graphic, bool show, float duration) =>
+        graphic.DORotate(show ? Vector3.zero : Vector3.up * _angle, duration)
+            .From(show ? Vector3.up * _angle : Vector3.zero)
+            .SetDelay(show ? duration : 0)
+            .SetEase(show ? _forwardEaseType : _backwardEaseType)
+            .OnStart(() =>
+            {
+                if (show)
+                {
+                    _canvasGroup.alpha = 1;
+                    _canvasGroup.interactable = true;
+                    _canvasGroup.blocksRaycasts = true;
+                }
+            })
+            .OnComplete(() =>
+            {
+                if (!show)
+                {
+                    _canvasGroup.alpha = 0;
+                    _canvasGroup.interactable = false;
+                    _canvasGroup.blocksRaycasts = false;
+                }
+            });
 }

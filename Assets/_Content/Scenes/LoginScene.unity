@@ -1622,6 +1622,43 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &207740339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 207740340}
+  m_Layer: 5
+  m_Name: SignPanelContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &207740340
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 207740339}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1129867211}
+  - {fileID: 1618612512}
+  m_Father: {fileID: 916604996}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &215484438
 GameObject:
   m_ObjectHideFlags: 0
@@ -1791,8 +1828,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 228870309}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.14972763, y: 0.017778134, z: 0.15017511, w: 0.9770942}
-  m_LocalPosition: {x: 18.77175, y: 0.26646757, z: 11.257035}
+  m_LocalRotation: {x: 0.057248406, y: 0.8231843, z: -0.057370454, w: 0.56195986}
+  m_LocalPosition: {x: -5.453002, y: 2.472, z: 2.7240007}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6407,8 +6444,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1661526977}
-  - {fileID: 1129867211}
-  - {fileID: 1618612512}
+  - {fileID: 207740340}
   - {fileID: 1425472188}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7184,6 +7220,7 @@ GameObject:
   - component: {fileID: 1129867212}
   - component: {fileID: 1129867214}
   - component: {fileID: 1129867215}
+  - component: {fileID: 1129867216}
   m_Layer: 5
   m_Name: SignInPanel
   m_TagString: Untagged
@@ -7198,7 +7235,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1129867210}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -7209,7 +7246,7 @@ RectTransform:
   - {fileID: 469361938}
   - {fileID: 1536633012}
   - {fileID: 746204604}
-  m_Father: {fileID: 916604996}
+  m_Father: {fileID: 207740340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -7280,6 +7317,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &1129867216
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1129867210}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1183352380
 GameObject:
   m_ObjectHideFlags: 0
@@ -9730,7 +9779,7 @@ GameObject:
   - component: {fileID: 1524008564}
   - component: {fileID: 1524008563}
   m_Layer: 5
-  m_Name: SignButton
+  m_Name: SignInButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10806,6 +10855,7 @@ GameObject:
   - component: {fileID: 1618612515}
   - component: {fileID: 1618612514}
   - component: {fileID: 1618612513}
+  - component: {fileID: 1618612517}
   m_Layer: 5
   m_Name: SignUpPanel
   m_TagString: Untagged
@@ -10820,7 +10870,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1618612511}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -10835,7 +10885,7 @@ RectTransform:
   - {fileID: 1482118295}
   - {fileID: 1379202192}
   - {fileID: 1290212985}
-  m_Father: {fileID: 916604996}
+  m_Father: {fileID: 207740340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -10906,6 +10956,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1618612511}
   m_CullTransparentMesh: 1
+--- !u!225 &1618612517
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618612511}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1628684649
 GameObject:
   m_ObjectHideFlags: 0
@@ -11176,9 +11238,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dd0fa080a4a99c4d8248a02a9c8c7a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SignUpView
+  _canvasGroup: {fileID: 1618612517}
   _nextButton: {fileID: 683548124}
   _backButton: {fileID: 550963667}
   _sumbitButton: {fileID: 1730455216}
+  _switchButton: {fileID: 1290212986}
   _phaseSlider: {fileID: 156268546}
   _phaseText: {fileID: 1923691833}
   _userData:
@@ -11211,6 +11275,9 @@ MonoBehaviour:
     <Confirm>k__BackingField:
       <MinMax>k__BackingField: {x: 4, y: 20}
       <InputField>k__BackingField: {fileID: 604647538}
+  _angle: 90
+  _forwardEaseType: 2
+  _backwardEaseType: 3
 --- !u!114 &1632936951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11223,13 +11290,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93c3ad6d93077e947991071ddb883a29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SignInView
+  _canvasGroup: {fileID: 1129867216}
   _loginField:
     <MinMax>k__BackingField: {x: 4, y: 20}
-    <InputField>k__BackingField: {fileID: 0}
+    <InputField>k__BackingField: {fileID: 1497827775}
   _passwordField:
     <MinMax>k__BackingField: {x: 4, y: 20}
-    <InputField>k__BackingField: {fileID: 0}
+    <InputField>k__BackingField: {fileID: 601681702}
   _submitButton: {fileID: 1524008564}
+  _switchButton: {fileID: 746204605}
+  _angle: 90
+  _forwardEaseType: 2
+  _backwardEaseType: 3
 --- !u!114 &1632936952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11245,6 +11317,9 @@ MonoBehaviour:
   _signInView: {fileID: 1632936951}
   _signUpView: {fileID: 1632936950}
   _cameraSplineController: {fileID: 1739923427}
+  _signPanelContainer: {fileID: 207740340}
+  _duration: 0.25
+  _panelEaseType: 26
 --- !u!1 &1656847064
 GameObject:
   m_ObjectHideFlags: 0
@@ -11930,7 +12005,7 @@ GameObject:
   - component: {fileID: 1730455216}
   - component: {fileID: 1730455215}
   m_Layer: 5
-  m_Name: SumbitButton
+  m_Name: SignUpButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12077,8 +12152,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1739923424}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.14972763, y: 0.017778134, z: 0.15017511, w: 0.9770942}
-  m_LocalPosition: {x: 18.77175, y: 0.26646757, z: 11.257035}
+  m_LocalRotation: {x: 0.0140681565, y: 0.7069669, z: -0.014068276, w: 0.7069669}
+  m_LocalPosition: {x: -0.26995537, y: 1.6365691, z: 0.010517389}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
