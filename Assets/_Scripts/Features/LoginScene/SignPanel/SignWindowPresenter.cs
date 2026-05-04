@@ -61,17 +61,13 @@ public class SignWindowPresenter : MonoBehaviour
     {
         DebugWrapper.InactiveLog(this, $"Attempting registration for: {newUser.Login}");
 
-        bool success = await _userModule.CreateUser(newUser);
+        bool success = await _userModule.CreateUser(newUser, (error) => _notificationService.ShowPopup(error, "Registration fail", NotificationType.Error));
 
         if (success)
         {
             _notificationService.ShowPopup("Account created successfully!", "Success", NotificationType.Info);
 
             Transition();
-        }
-        else
-        {
-            _notificationService.ShowPopup("Registration failed. Try again.", "Error", NotificationType.Error);
         }
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using Cysharp.Threading.Tasks;
+using SQLite;
 
 public class UserModule
 {
@@ -11,11 +12,12 @@ public class UserModule
 
     private string _incorrectPassword = "Incorrect password";
     private string _userNotFound = "User '{0}' not found";
+    private string _userAlreadyExists = "Login '{0}' already exists";
 
 
     public UserModule(UserRepository userRepository) => _userRepository = userRepository;
 
-    public async UniTask<bool> CreateUser(User user)
+    public async UniTask<bool> CreateUser(User user, Action<string> onUserAlreadyExists)
     {
         user.Password = HashPassword(user.Password);
         user.CreatedAt = DateTime.Now;
@@ -27,13 +29,17 @@ public class UserModule
 
             return true;
         }
-        catch (Exception ex)
+        catch (SQLiteException ex) when (ex.Result == SQLite3.Result.Constraint)
         {
-            DebugWrapper.LogError(this, ex.Message);
+            string error = string.Format(_userAlreadyExists, user.Login);
+            DebugWrapper.LogWarning(this, error);
+
+            onUserAlreadyExists?.Invoke(error);
+
             return false;
         }
     }
-    public async UniTask<bool> CreateUser(string login, string password)
+    public async UniTask<bool> CreateUser(string login, string password, Action<string> onUserAlreadyExists)
     {
         User user = new()
         {
@@ -41,7 +47,7 @@ public class UserModule
             Password = password
         };
 
-        return await CreateUser(user);
+        return await CreateUser(user, onUserAlreadyExists);
     }
 
     public async UniTask LogIn(string login, string password, Action<User> onLoginSuccess, Action<string> onLoginFailed)
@@ -81,6 +87,8 @@ public class UserModule
         StringBuilder builder = new StringBuilder();
         foreach (var b in bytes)
             builder.Append(b.ToString("x2"));
+
+        DebugWrapper.FastLog(this, $"Password: {password}, Hash: {builder.ToString()}");
 
         return builder.ToString();
     }

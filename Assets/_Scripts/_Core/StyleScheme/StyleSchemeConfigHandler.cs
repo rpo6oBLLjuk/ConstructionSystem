@@ -86,7 +86,7 @@ public class StyleSchemeConfigHandler : MonoBehaviour
     }
     private bool GetGhaphicsComponent()
     {
-        if (_graphicSource)
+        if (_graphicSource != null)
             return true;
 
         if(enabled == false)
