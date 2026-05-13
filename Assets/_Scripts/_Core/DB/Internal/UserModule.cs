@@ -11,8 +11,8 @@ public class UserModule
     public User CurrentUser { get; private set; }
 
     private string _incorrectPassword = "Incorrect password";
-    private string _userNotFound = "User '{0}' not found";
-    private string _userAlreadyExists = "Login '{0}' already exists";
+    private string _userNotFound = "User <b>{0}</b> not found";
+    private string _userAlreadyExists = "Login <b>{0}</b> already exists";
 
 
     public UserModule(UserRepository userRepository) => _userRepository = userRepository;
@@ -88,7 +88,7 @@ public class UserModule
         foreach (var b in bytes)
             builder.Append(b.ToString("x2"));
 
-        DebugWrapper.FastLog(this, $"Password: {password}, Hash: {builder.ToString()}");
+        //DebugWrapper.FastLog(this, $"Password: {password}, Hash: {builder.ToString()}");
 
         return builder.ToString();
     }

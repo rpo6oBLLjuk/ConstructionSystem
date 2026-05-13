@@ -1,11 +1,14 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
 public class BlueprintManager : MonoBehaviour
 {
+    [Inject] ActiveBlueprintService blueprintService;
+
     public List<Vector2> BlueprintPoints { get; private set; } = new();
 
     [field: SerializeField] public BlueprintLinesController LinesController { get; private set; }
@@ -41,7 +44,7 @@ public class BlueprintManager : MonoBehaviour
         ScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
-        ResetBlueprint();
+        SetBlueprintData(blueprintService.SelectedBlueprint.points.ToList());
     }
 
     public void MovePoint(int index, Vector2 newPosition)

@@ -25,6 +25,11 @@ public class NotificationService : MonoBehaviour
         _dialogFactory.ShowDialog(message, title, buttons);
         DebugWrapper.InactiveLog(this, $"Dialog Msg: {message}, title: {title}");
     }
+    public void ShowInputDialog(string placeholder, string title, Action<string> onSubmit)
+    {
+        _dialogFactory.ShowInputDialog(placeholder, title, onSubmit);
+        DebugWrapper.InactiveLog(this, $"InputDialog Msg: {placeholder}, title: {title}");
+    }
 
 #if UNITY_EDITOR
     private async UniTask TestPopup()

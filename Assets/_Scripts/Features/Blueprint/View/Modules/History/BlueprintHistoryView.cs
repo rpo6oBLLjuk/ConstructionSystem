@@ -48,7 +48,7 @@ public class BlueprintHistoryView : MonoBehaviour
         GetInput(KeyCode.LeftControl, KeyCode.Z, _undoButton, _undoTween);
         GetInput(KeyCode.LeftControl, KeyCode.Y, _redoButton, _redoTween);
     }
-    private void GetInput(KeyCode firstKey, KeyCode secondKey, Button button, Tween tween)
+    private void GetInput(KeyCode firstKey, KeyCode secondKey, Button button, Tween tween) //Унифицированный метод для Undo/Redo сочетаний клавиш
     {
         if (Input.GetKey(firstKey)) //Если первая кнопка (к примеру Ctrl) нажата
         {
@@ -69,7 +69,7 @@ public class BlueprintHistoryView : MonoBehaviour
         CreateSequence(ref _undoTween, _visualConfig.HistoryData.HoldThreshold, _visualConfig.HistoryData.UndoRedoDelay, _undoButton);
         CreateSequence(ref _redoTween, _visualConfig.HistoryData.HoldThreshold, _visualConfig.HistoryData.UndoRedoDelay, _redoButton);
     }
-    private void CreateSequence(ref Sequence sequence, float holdThreshold, float delay, Button button)
+    private void CreateSequence(ref Sequence sequence, float holdThreshold, float delay, Button button) //Унифицированный метод для зажатия Undo/Redo сочетания
     {
         sequence = DOTween.Sequence(); //Инициализация "последовательности"
         sequence.SetDelay(holdThreshold) //Выставление начальной задержки

@@ -1,26 +1,29 @@
-using System;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 public class SceneTransitionController : MonoBehaviour
 {
+    [Inject] private ZenjectSceneLoader _sceneLoader;
+
     public bool IsInTransition { get; private set; }
-    
+
     [SerializeField] SceneTransitionConfig _config;
     [SerializeField] CanvasGroup _loadScreen;
 
-    [Header("test only")]
+    [Header("editor only")]
     [SerializeField] float _delayBeforeTransition = 0f;
     [SerializeField] bool _sceneLoadOnStart = false;
 
 
     private void Start()
     {
+#if UNITY_EDITOR
         if (_sceneLoadOnStart)
             LoadScene(AppScene.Construction);
+#endif
     }
 
     public void LoadScene(AppScene scene)
@@ -36,7 +39,9 @@ public class SceneTransitionController : MonoBehaviour
             return;
         IsInTransition = true;
 
+#if UNITY_EDITOR
         await UniTask.WaitForSeconds(_delayBeforeTransition); //TEST ONLY
+#endif
 
         SetLoadscreenState(true, out Tween loadScreenTween);
 
@@ -62,7 +67,7 @@ public class SceneTransitionController : MonoBehaviour
             .SetEase(show ? _config.ShowEaseType : _config.HideEaseType);
     }
 
-    
+
 }
 
 public enum AppScene

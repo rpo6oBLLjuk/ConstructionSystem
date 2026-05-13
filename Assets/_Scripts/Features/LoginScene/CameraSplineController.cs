@@ -1,3 +1,4 @@
+using System;
 using Coffee.UIEffects;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -6,6 +7,9 @@ using UnityEngine;
 
 public class CameraSplineController : MonoBehaviour
 {
+    public event Action OnForwardAnimCompleted;
+    public event Action OnBackAnimCompleted;
+
     [SerializeField] CinemachineSplineDolly _cinemachineSplineDolly;
 
     [SerializeField] public float Duration = 1.0f;
@@ -63,7 +67,14 @@ public class CameraSplineController : MonoBehaviour
                 _cinemachineSplineDolly.CameraPosition = forward ? 1 : 0;
 
                 if (forward)
+                {
                     effectTweener.PlayForward(true);
+                    OnForwardAnimCompleted?.Invoke();
+                }
+                else
+                {
+                    OnBackAnimCompleted?.Invoke();
+                }
             });
     }
 

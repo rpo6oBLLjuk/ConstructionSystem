@@ -12,9 +12,16 @@ public class DialogFactory
     [SerializeField] GameObject _dialogWindow;
     [SerializeField] Button _defaultButton;
 
+    [SerializeField] TMP_Text _titleText;
+    [SerializeField] TMP_Text _messageText;
+
+    [SerializeField] TMP_Text _placeholderText;
+    [SerializeField] TMP_InputField _inputField;
+
     CanvasGroup _dialogCanvasGroup;
     List<Button> _currentDialogButtons = new();
     Tween _previousTween;
+
 
     public void Start()
     {
@@ -29,23 +36,40 @@ public class DialogFactory
         _previousTween.Kill();
         RemoveAllButtons();
 
+        _messageText.enabled = true;
+        _inputField.gameObject.SetActive(false);
+
         _dialogWindow.SetActive(true);
 
-        ApplyText(title, "TitleText", _dialogWindow.transform.GetChild(0));
-        ApplyText(message, "MessageText", _dialogWindow.transform.GetChild(0));
+        _titleText.text = title;
+        _messageText.text = message;
 
         ApplyButtons(buttons);
-
         AnimateDialog(true);
     }
 
-    private void ApplyText(string text, string objectName, Transform transform)
+    public void ShowInputDialog(string placeholder, string title, Action<string> onSubmit)
     {
-        if (!transform.Find(objectName).TryGetComponent(out TMP_Text pulledText))
-            DebugWrapper.LogError(this, "Can't find 'TitleText' in _defaultPopup children");
-        else
-            pulledText.text = text;
+        _previousTween.Kill();
+        RemoveAllButtons();
+
+        _messageText.enabled = false;
+        _inputField.gameObject.SetActive(true);
+
+        _dialogWindow.SetActive(true);
+
+        _titleText.text = title;
+        _placeholderText.text = placeholder;
+        _inputField.text = string.Empty;
+
+        ApplyButtons(new List<(string, Action)>
+        {
+            ("Cancel", null),
+            ("Ok", () => onSubmit?.Invoke(_inputField.text))
+        });
+        AnimateDialog(true);
     }
+
     private void ApplyButtons(List<(string, Action)> buttons)
     {
         Transform parent = _defaultButton.transform.parent;
@@ -57,8 +81,8 @@ public class DialogFactory
             btn.transform.GetComponentInChildren<TMP_Text>().text = name;
             var capturedAction = action; //ѕредотвращение замыкани€, т.к. реф в action будет посто€нно перезаписыватьс€ на следующий по списку
 
-            btn.onClick.AddListener(() => capturedAction?.Invoke());
             btn.onClick.AddListener(() => CloseDialog(name));
+            btn.onClick.AddListener(() => capturedAction?.Invoke());
 
             _currentDialogButtons.Add(btn);
         }

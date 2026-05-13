@@ -1,116 +1,139 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using Zenject;
 
-public abstract class AbstractSaver<T> : MonoBehaviour
+public abstract class AbstractSaver<T>
 {
-    [SerializeField] protected string _saverName = "Saver";
-    [SerializeField] protected string _baseDirectory = "Saves/";
+    public event Action<string> OnMessage;
+    public event Action<string> OnError;
 
-    [SerializeField] protected string emptySaveName = "BaseSave";
+    protected string BaseDirectory { get; private set; }
+    protected string Format { get; private set; } = "json";
 
 
-    public virtual bool Save(T obj, string saveName, bool forceOverwrite = false)
+    protected AbstractSaver(string directory) //Saves/SaveType/...
     {
-        if (!FileNameIsCorrect(saveName))
+        BaseDirectory = Path.Combine(Application.persistentDataPath, directory);
+
+        if (!Directory.Exists(BaseDirectory))
+            Directory.CreateDirectory(BaseDirectory);
+    }
+
+    public bool ExistsByPath(string fullPath) => File.Exists(fullPath);
+    public bool Exists(string saveName) => ExistsByPath(GetPath(saveName));
+
+    public virtual bool Save(T obj, string saveName)
+    {
+        if (string.IsNullOrWhiteSpace(saveName))
+        {
+            OnError?.Invoke("Save name is empty");
             return false;
-
-        GetFullPath(saveName, out string fullPath);
-        ConvertDataToJson(obj, out string json);
-
-        if (File.Exists(fullPath))
-        {
-            if (!forceOverwrite)
-            {
-                //OverwritePopup ==========================================================================================================================
-                return false;
-            }
-            else
-            {
-                OverwriteFile(true, fullPath, json);
-                return true;
-            }
         }
-        else
+
+        string path = GetPath(saveName);
+
+        try
         {
-            File.WriteAllText(fullPath, json);
+            string json = JsonUtility.ToJson(obj, false);
+            File.WriteAllText(path, json);
 
-            //FileSaved Log
-
+            OnMessage?.Invoke($"File <b>{saveName}</b> saved successfully.");
             return true;
         }
-    }
-    public virtual T Load(string saveName = default)
-    {
-        GetFullPath(saveName, out string fullPath);
-
-        if (!File.Exists(fullPath))
+        catch (Exception e)
         {
-            //SaveNotFound Log
+            OnError?.Invoke($"Save failed: <b>{e.Message}</b>");
+            return false;
+        }
+    }
+    public virtual T Load(string saveName)
+    {
+        string path = GetPath(saveName);
+
+        if (!ExistsByPath(path))
+        {
+            OnError?.Invoke($"Save not found: <b>{saveName}</b>");
             return default;
         }
-        else
+
+        try
         {
-            string json = File.ReadAllText(fullPath);
-            T data = ConvertJsonToData(json);
+            string json = File.ReadAllText(path);
+            T data = JsonUtility.FromJson<T>(json);
 
-            //SaveLoaded Log
-
+            OnMessage?.Invoke($"File <b>{saveName}</b> loaded.");
             return data;
+        }
+        catch (Exception e)
+        {
+            OnError?.Invoke($"Load failed: <b>{e.Message}</b>");
+            return default;
         }
     }
     public virtual bool DeleteSave(string saveName)
     {
-        if (!FileNameIsCorrect(saveName))
+        string path = GetPath(saveName);
+
+        if (!ExistsByPath(path))
             return false;
 
-        GetFullPath(saveName, out string fullPath);
-
-        if (!File.Exists(fullPath))
+        try
         {
-            ///SaveNotFound Log
-            return false;
-        }
-        else
-        {
-            File.Delete(fullPath);
-
-            //DeleteFile Log
-
+            File.Delete(path);
+            OnMessage?.Invoke($"File <b>{saveName}</b> deleted.");
             return true;
         }
-    }
-
-    protected void Awake()
-    {
-        string fullPath = Path.Combine(Application.persistentDataPath, _baseDirectory);
-        if (!Directory.Exists(fullPath))
-            Directory.CreateDirectory(fullPath);
-    }
-
-    protected void ConvertDataToJson(T data, out string json) => json = JsonUtility.ToJson(data, false);
-    protected T ConvertJsonToData(string json) => JsonUtility.FromJson<T>(json);
-
-    private void OverwriteFile(bool overwrite, string fullPath, string json)
-    {
-        if (overwrite)
+        catch (Exception e)
         {
-            File.WriteAllText(fullPath, json);
-            //Overwrote Log
-        }
-        else
-        {
-            //NotOverwrote Log
-        }
-    }
-
-    private bool FileNameIsCorrect(string fileName)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            //Log
+            OnError?.Invoke($"Delete failed: <b>{e.Message}</b>");
             return false;
         }
-        return true;
     }
-    private string GetFullPath(string saveName, out string fullPath) => fullPath = Path.Combine(Application.persistentDataPath, _baseDirectory, $"{saveName}.json");
+
+    public virtual bool Rename(string oldName, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName))
+            return false;
+
+        string oldPath = GetPath(oldName);
+        string newPath = GetPath(newName);
+
+        if (ExistsByPath(oldPath) && !ExistsByPath(newPath))
+        {
+            File.Move(oldPath, newPath);
+            OnMessage?.Invoke($"Renamed <b>{oldName}</b> to <b>{newName}</b>");
+            return true;
+        }
+
+        OnError?.Invoke("Rename failed: Source doesn't exist or target already exists.");
+        return false;
+    }
+
+    public List<string> GetAllSaveNames()
+    {
+        if (!Directory.Exists(BaseDirectory))
+            return new List<string>();
+
+        return Directory.GetFiles(BaseDirectory, $"*.{Format}")
+            .Select(Path.GetFileNameWithoutExtension)
+            .ToList();
+    }
+    public List<T> FindSaves(Predicate<T> match)
+    {
+        var allNames = GetAllSaveNames();
+        var results = new List<T>();
+
+        foreach (var name in allNames)
+        {
+            T data = Load(name);
+            if (data != null && match(data))
+                results.Add(data);
+        }
+        return results;
+    }
+
+    protected string GetPath(string name) => Path.Combine(BaseDirectory, $"{name}.{Format}");
 }
