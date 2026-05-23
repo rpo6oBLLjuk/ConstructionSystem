@@ -2,19 +2,34 @@ using System;
 using SQLite;
 
 [Table("Furniture")]
-public class Furniture
+public class Furniture : IDBEntity
 {
     [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }                   //Id товара
-
-    public string Name { get; set; }              //Название
-    public string Description { get; set; }       //Описание
+    public int Id { get; set; }
 
     [NotNull]
-    public string FilePath { get; set; }          //Путь к файлу модели
+    public string Name { get; set; }
+    public string Description { get; set; }
 
-    public string ThumbnailPath { get; set; }     //Путь к превью
-    public double Price { get; set; }            //Цена товара
-    public DateTime CreatedAt { get; set; }       //Дата создания
-    public bool IsAvailable { get; set; } = true; // Доступность покупки
+    [Indexed]
+    public int FurnitureTypeId { get; set; }
+    [Indexed]
+    public int ColorTypeId { get; set; }
+
+    public string Manufacturer { get; set; }
+
+    public float Width { get; set; }
+    public float Height { get; set; }
+    public float Depth { get; set; }
+
+    [NotNull]
+    public string FilePath { get; set; }          // путь к 3D-модели
+    public string ThumbnailPath { get; set; }     // путь к превью
+
+    public double Price { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public bool IsAvailable { get; set; } = true;
 }

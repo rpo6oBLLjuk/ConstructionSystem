@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,7 +20,7 @@ public abstract class BlueprintView<T> : MonoBehaviour
     //Реализация метода выполнена крайне негибко ввиду того, что CanvasGroup не наследует MaskableGraphic, и нельзя привести их к общему наследнику, поддерживающему .DOFade (а именно Graphic)
     protected virtual void SetVisible(bool isVisible, float fadeDuration)
     {
-        ViewList.ForEach(viewComponent =>
+        ViewList.ToList().ForEach(viewComponent =>
         {
             switch (viewComponent)
             {

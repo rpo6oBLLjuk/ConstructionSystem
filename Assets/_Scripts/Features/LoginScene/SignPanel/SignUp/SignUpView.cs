@@ -105,7 +105,7 @@ public class SignUpView : MonoBehaviour
 
 
             Login = _signUpData.Login.text,
-            Password = _signUpData.Pass.text,
+            PasswordHash = _signUpData.Pass.text,
         };
 
         OnSubmit?.Invoke(user);

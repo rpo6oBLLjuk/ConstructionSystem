@@ -46,7 +46,7 @@ public class BlueprintGridView : MonoBehaviour
 
     private void ClearView()
     {
-        _blueprintViewlist.Keys.ForEach((key) => RemoveGridElement(key));
+        _blueprintViewlist.Keys.ToList().ForEach((key) => RemoveGridElement(key));
         _blueprintViewlist.Clear();
     }
 

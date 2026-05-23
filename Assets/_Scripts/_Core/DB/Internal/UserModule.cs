@@ -10,16 +10,21 @@ public class UserModule
 
     public User CurrentUser { get; private set; }
 
+    public event Action<User> LoggedIn;
+    public event Action<User> LoggedOut;
+
     private string _incorrectPassword = "Incorrect password";
     private string _userNotFound = "User <b>{0}</b> not found";
     private string _userAlreadyExists = "Login <b>{0}</b> already exists";
+
+    private string _permissionDenied = "User <b>{0}</b> does not have sufficient permissions to perform this operation";
 
 
     public UserModule(UserRepository userRepository) => _userRepository = userRepository;
 
     public async UniTask<bool> CreateUser(User user, Action<string> onUserAlreadyExists)
     {
-        user.Password = HashPassword(user.Password);
+        user.PasswordHash = HashPassword(user.PasswordHash);
         user.CreatedAt = DateTime.Now;
 
         try
@@ -44,7 +49,7 @@ public class UserModule
         User user = new()
         {
             Login = login,
-            Password = password
+            PasswordHash = password
         };
 
         return await CreateUser(user, onUserAlreadyExists);
@@ -60,7 +65,7 @@ public class UserModule
             return;
         }
 
-        if (!VerifyPassword(password, user.Password))
+        if (!VerifyPassword(password, user.PasswordHash))
         {
             onLoginFailed?.Invoke(_incorrectPassword);
             return;
@@ -69,13 +74,39 @@ public class UserModule
         await SetCurrentSession(user);
         onLoginSuccess?.Invoke(user);
     }
-    public void LogOut() => CurrentUser = null;
+    public void LogOut()
+    {
+        if (CurrentUser == null)
+            return;
+
+        User loggedOutUser = CurrentUser;
+
+        CurrentUser = null;
+
+        LoggedOut?.Invoke(loggedOutUser);
+    }
+
+    public async UniTask SetUserRole(User user, int roleId, Action<User> onSuccess, Action<string> onFailed) // #1 user, #2 manager, #3 admin
+    {
+        if(CurrentUser.RoleId != 3)
+        {
+            onFailed?.Invoke(string.Format(_permissionDenied, CurrentUser.FirstName));
+            return;
+        }
+
+        user.RoleId = roleId;
+
+        await _userRepository.Update(user);
+        onSuccess?.Invoke(user);
+    }
 
     private async UniTask SetCurrentSession(User user)
     {
-        CurrentUser = user;
         user.LastLoginAt = DateTime.Now;
-
+        CurrentUser = user;
+   
+        LoggedIn?.Invoke(user);
+        
         await _userRepository.Update(user);
     }
 

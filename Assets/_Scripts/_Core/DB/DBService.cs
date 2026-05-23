@@ -7,7 +7,7 @@ using Zenject;
 public class DBService : IInitializable, IDisposable
 {
     private SQLiteAsyncConnection _db;
-    private readonly string _dbFileName = "SpaceCanvas";
+    private readonly string _dbFileName = "DB/SpaceCanvas";
     private readonly string _dbPath;
 
 
@@ -32,7 +32,9 @@ public class DBService : IInitializable, IDisposable
     public SQLiteAsyncConnection GetConnection() => _db;
     public void GetConnection(out SQLiteAsyncConnection asyncConnection) => asyncConnection = _db;
 
-    public void Dispose()
+    public void Dispose() => CloseConnection();
+
+    private void CloseConnection()
     {
         if (_db != null)
         {
@@ -43,16 +45,3 @@ public class DBService : IInitializable, IDisposable
         }
     }
 }
-
-
-/*  command.CommandText = @"
-        INSERT INTO Players (Name, Level, Experience) 
-        VALUES (@name, @level, @exp);
-                    
-        SELECT last_insert_rowid();
-    ";
-                
-    command.Parameters.AddWithValue("@name", playerName);
-    command.Parameters.AddWithValue("@level", startLevel);
-    command.Parameters.AddWithValue("@exp", 0);
-*/

@@ -40,7 +40,7 @@ public class SceneTransitionConfig : ScriptableObject
                 sceneItem.Name = "";
         });
         
-        Scenes.Where(data => data.Name == "" && data.Index != -1).ForEach(data => DebugWrapper.LogError(this, $"SceneTransitionList contains unsigned SceneIndex: {data.Index}"));
+        Scenes.Where(data => data.Name == "" && data.Index != -1).ToList().ForEach(data => DebugWrapper.LogError(this, $"SceneTransitionList contains unsigned SceneIndex: {data.Index}"));
     }
 #endif
 }

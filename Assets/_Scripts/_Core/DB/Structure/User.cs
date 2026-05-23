@@ -2,10 +2,13 @@ using System;
 using SQLite;
 
 [Table("Users")]
-public class User
+public class User : IDBEntity
 {
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }                  // Id пользователя 
+
+    [Indexed, NotNull]
+    public int RoleId { get; set; } = 1;
 
     public string FirstName { get; set; }        // Имя
     public string LastName { get; set; }         // Фамилия
@@ -15,7 +18,7 @@ public class User
 
     [Unique]
     public string Login { get; set; }            // Логин
-    public string Password { get; set; }         // Пароль (hash)
+    public string PasswordHash { get; set; }         // Пароль (hash)
 
     public bool OrderingEnabled { get; set; } = true;
 
