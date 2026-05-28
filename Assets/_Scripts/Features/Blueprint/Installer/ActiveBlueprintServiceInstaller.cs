@@ -1,3 +1,3 @@
-public class ActiveBlueprintServiceInstaller : AbstractInstaller<ActiveBlueprintService>
+public class ActiveBlueprintServiceInstaller : AbstractInstaller<ActiveProjectService>
 {
 }

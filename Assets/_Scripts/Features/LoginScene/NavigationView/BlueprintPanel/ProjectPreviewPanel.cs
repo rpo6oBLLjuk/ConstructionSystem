@@ -6,14 +6,14 @@ using UnityEngine.UI;
 using Zenject;
 
 [Serializable]
-public class BlueprintPreviewPanel : MonoBehaviour
+public class ProjectPreviewPanel : MonoBehaviour
 {
     [Inject] NotificationService _notificationService;
 
-    public event Action<BlueprintData> OnBlueprintDelete;
-    public event Action<BlueprintData> OnBlueprintOpen;
+    public event Action OnBlueprintDelete;
+    public event Action OnBlueprintOpen;
 
-    public event Action<BlueprintData, string> OnBlueprintRename;
+    public event Action<string> OnBlueprintRename;
 
     [SerializeField] Image _previewImage;
     [SerializeField] TMP_Text _previewSize;
@@ -25,8 +25,7 @@ public class BlueprintPreviewPanel : MonoBehaviour
     [SerializeField] Button _deleteButton;
     [SerializeField] Button _openButton;
 
-    private BlueprintData _currentBlueprintData;
-
+    private UserProject _currentProject;
 
     private void OnEnable()
     {
@@ -40,25 +39,25 @@ public class BlueprintPreviewPanel : MonoBehaviour
         _renameApproveButton.onClick.RemoveListener(RenameBlueprint);
     }
 
-    public void ShowBlueprintPreview(BlueprintData blueprintData)
+    public void ShowBlueprintPreview(ProjectData blueprintData, UserProject project)
     {
-        _currentBlueprintData = blueprintData;
+        _currentProject = project;
 
         _previewSize.text = $"Size\n{blueprintData.square} m²";
-        _previewEditDate.text = $"Last edit\n{blueprintData.editTime}";
+        _previewEditDate.text = $"Last edit\n{project.UpdatedAt}";
 
-        _renameField.text = blueprintData.name;
+        _renameField.text = project.ProjectName;
     }
 
-    private void RenameBlueprint() => OnBlueprintRename?.Invoke(_currentBlueprintData, _renameField.text);
+    private void RenameBlueprint() => OnBlueprintRename?.Invoke(_renameField.text);
 
     private void DeleteBlueprint()
     {
-        _notificationService.ShowDialog($"Delete blueprint <b>{_currentBlueprintData.name}</b>?", "Confirmation of deletion", new List<(string, Action)>
+        _notificationService.ShowDialog($"Delete blueprint <b>{_currentProject.ProjectName}</b>?", "Confirmation of deletion", new List<(string, Action)>
         {
             ("Cancel", null),
-            ("OK", () => OnBlueprintDelete?.Invoke(_currentBlueprintData))
+            ("OK", () => OnBlueprintDelete?.Invoke())
         });
     }
-    private void OpenBlueprint() => OnBlueprintOpen?.Invoke(_currentBlueprintData);
+    private void OpenBlueprint() => OnBlueprintOpen?.Invoke();
 }

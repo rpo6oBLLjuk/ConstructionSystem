@@ -7,7 +7,7 @@ using Zenject;
 
 public class BlueprintManager : MonoBehaviour
 {
-    [Inject] ActiveBlueprintService blueprintService;
+    [Inject] ActiveProjectService blueprintService;
 
     public List<Vector2> BlueprintPoints { get; private set; } = new();
 
@@ -44,7 +44,7 @@ public class BlueprintManager : MonoBehaviour
         ScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
-        SetBlueprintData(blueprintService.SelectedBlueprint.points.ToList());
+        SetBlueprintData(blueprintService.SelectedProject.points.ToList());
     }
 
     public void MovePoint(int index, Vector2 newPosition)
