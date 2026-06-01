@@ -1,10 +1,14 @@
 using System;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class NavigationView : BaseLayoutPresenter
 {
+    [Inject] UserModule _userModule;
+
     [Header("References")]
     [SerializeField] TMP_Text _title;
     [SerializeField] TMP_Text _description;
@@ -20,7 +24,13 @@ public class NavigationView : BaseLayoutPresenter
     [SerializeField] NavigationViewRefsContainer _items;
     [SerializeField] NavigationViewRefsContainer _users;
 
+    [Header("Anim")]
+    [SerializeField] float _duration = 0.25f;
+    [SerializeField] Ease _easeIn;
+    [SerializeField] Ease _easeOut;
+
     NavigationViewRefsContainer _currentActive;
+    private Sequence _previewSequence;
 
 
     protected override void OnEnable()
@@ -50,21 +60,53 @@ public class NavigationView : BaseLayoutPresenter
         _users.ListButton.onClick.RemoveAllListeners();
     }
 
-    private void SetActive(NavigationViewRefsContainer navigationViewRefsContainer)
+    private void SetActive(NavigationViewRefsContainer navigationViewRefsContainer, bool withoutAnim = false)
     {
+        if (_currentActive == navigationViewRefsContainer)
+            return;
+
         _currentActive = navigationViewRefsContainer;
-        _title.text = _currentActive.Data.Title;
-        _description.text = _currentActive.Data.Description;
-        _preview.sprite = _currentActive.Data.Preview;
+        DoAnimPreview(navigationViewRefsContainer, withoutAnim);
     }
 
     private void HandleEnable()
     {
+        Show();
         SetCanvasGroupState(true);
-        SetActive(_projects);
+        SetActive(_projects, true);
+    }
+    private void HandleShow() => _currentActive?.Presenter?.Show();
+
+    public override void Hide()
+    {
+        base.Hide();
+        _splineController.AnimateCameraSpline(false);
+        
+        _userModule.LogOut();
     }
 
-    private void HandleShow() => _currentActive?.Presenter?.Show();
+    private void DoAnimPreview(NavigationViewRefsContainer navigationViewRefsContainer, bool withoutAnim = false)
+    {
+        float duration = withoutAnim ? 0 : _duration;
+
+        _previewSequence?.Kill();
+        _previewSequence = DOTween.Sequence();
+
+        _previewSequence.Insert(0, _title.DOFade(0, duration).SetEase(_easeIn));
+        _previewSequence.Insert(0, _description.DOFade(0, duration).SetEase(_easeIn));
+        _previewSequence.Insert(0, _preview.DOFade(0, duration).SetEase(_easeIn));
+
+        _previewSequence.InsertCallback(duration, () =>
+        {
+            _title.text = navigationViewRefsContainer.Data.Title;
+            _description.text = navigationViewRefsContainer.Data.Description;
+            _preview.sprite = navigationViewRefsContainer.Data.Preview;
+        });
+
+        _previewSequence.Insert(duration, _title.DOFade(1, duration).SetEase(_easeOut));
+        _previewSequence.Insert(duration, _description.DOFade(1, duration).SetEase(_easeOut));
+        _previewSequence.Insert(duration, _preview.DOFade(1, duration).SetEase(_easeOut));
+    }
 
     [Serializable]
     private class NavigationViewRefsContainer

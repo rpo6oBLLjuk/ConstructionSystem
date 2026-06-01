@@ -81,6 +81,19 @@ public class SignUpView : MonoBehaviour
     public void Show(float duration) => AnimateUI(true, duration);
     public void Hide(float duration) => AnimateUI(false, duration);
 
+    public void Clear()
+    {
+        _userData.FirstName.InputField.text = string.Empty;
+        _userData.LastName.InputField.text = string.Empty;
+
+        _contactsData.Phone.InputField.text = string.Empty;
+        _contactsData.Email.InputField.text = string.Empty;
+
+        _signUpData.Login.InputField.text = string.Empty;
+        _signUpData.Pass.InputField.text = string.Empty;
+        _signUpData.Confirm.InputField.text = string.Empty;
+    }
+
     private void HandleNext() => ShowPhase(_currentPhase + 1);
     private void HandleBack() => ShowPhase(_currentPhase - 1);
 
@@ -110,7 +123,6 @@ public class SignUpView : MonoBehaviour
 
         OnSubmit?.Invoke(user);
     }
-
     private void HandleSwitch() => OnSwitch?.Invoke();
 
     private void UpdateButtons()

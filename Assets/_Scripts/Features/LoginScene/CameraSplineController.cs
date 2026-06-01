@@ -7,7 +7,9 @@ using UnityEngine;
 
 public class CameraSplineController : MonoBehaviour
 {
+    public event Action OnForwardAnimStarted;
     public event Action OnForwardAnimCompleted;
+    public event Action OnBackAnimStarted;
     public event Action OnBackAnimCompleted;
 
     [SerializeField] CinemachineSplineDolly _cinemachineSplineDolly;
@@ -58,6 +60,8 @@ public class CameraSplineController : MonoBehaviour
 
         SetActiveCamera(_firstCamera);
 
+        (forward ? OnForwardAnimStarted : OnBackAnimStarted)?.Invoke();
+
         _cinemachineSplineDolly.CameraPosition = forward ? _splineStartEndValue.x : _splineStartEndValue.y;
         DOTween.To(() => _cinemachineSplineDolly.CameraPosition, x => _cinemachineSplineDolly.CameraPosition = x, forward ? _splineStartEndValue.y : _splineStartEndValue.x, Duration)
             .SetEase(forward ? _forwardEase : _backwardEase)
@@ -66,15 +70,9 @@ public class CameraSplineController : MonoBehaviour
                 SetActiveCamera(forward ? _secondCamera : _firstCamera);
                 _cinemachineSplineDolly.CameraPosition = forward ? 1 : 0;
 
-                if (forward)
-                {
-                    effectTweener.PlayForward(true);
-                    OnForwardAnimCompleted?.Invoke();
-                }
-                else
-                {
-                    OnBackAnimCompleted?.Invoke();
-                }
+                (forward ? OnForwardAnimCompleted : OnBackAnimCompleted)?.Invoke();
+                //if (forward)
+                //    effectTweener.PlayForward(true);
             });
     }
 

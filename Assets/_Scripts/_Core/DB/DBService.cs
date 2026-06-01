@@ -19,7 +19,17 @@ public class DBService : IInitializable, IDisposable
 
         try
         {
-            await _db.CreateTablesAsync<User, Furniture, Order, OrderItem>();
+            await _db.CreateTablesAsync(CreateFlags.None, new[]
+            {
+                typeof(User),
+                typeof(UserProject),
+                typeof(Furniture),
+                typeof(Order),
+                typeof(OrderItem),
+                typeof(ColorType),
+                typeof(FurnitureType),
+                typeof(Role)
+            });
             DebugWrapper.InactiveLog(this, "Database initialized and tables created");
         }
         catch (Exception ex)

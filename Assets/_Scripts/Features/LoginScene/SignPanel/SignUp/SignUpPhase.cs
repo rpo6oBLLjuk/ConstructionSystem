@@ -37,7 +37,7 @@ public class SignUpDataPhase : SignUpPhase
 {
     [field: SerializeField] public InputFieldValidator Login { get; private set; }
     [field: SerializeField] public InputFieldValidator Pass { get; private set; }
-    [field: SerializeField] InputFieldValidator Confirm { get; set; }
+    [field: SerializeField] public InputFieldValidator Confirm { get; set; }
 
     public override float IsValid() =>
         (Login.IsValidLength() && !string.IsNullOrWhiteSpace(Login.text) ? 0.4f : 0) +

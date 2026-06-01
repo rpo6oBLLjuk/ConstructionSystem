@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Cysharp.Threading.Tasks;
 using SQLite;
@@ -33,8 +34,10 @@ public abstract class Repository<T> where T : class, IDBEntity, new()
     public virtual async UniTask InsertMany(IEnumerable<T> items) => await Db.InsertAllAsync(items);
 
     public virtual async UniTask Update(T item) => await Db.UpdateAsync(item);
+    public virtual async UniTask UpdateMany(IEnumerable<T> items) => await Db.UpdateAllAsync(items);
 
     public virtual async UniTask Delete(T item) => await Db.DeleteAsync(item);
+    public virtual async UniTask DeleteMany(IEnumerable<T> items) => await Db.RunInTransactionAsync(db => items.ToList().ForEach(item => db.Delete(item)));
     public virtual async UniTask DeleteById(int id)
     {
         T item = await GetById(id);

@@ -34,6 +34,7 @@ public class AbstractLayoutView<TData, TLayoutFactory, TEventsContext> : MonoBeh
         }
 
         GameObject instance = layoutFactory.Instantiate(_defaultObject.gameObject, _defaultObject.parent, data, EventsContext);
+        instance.SetActive(true);
         objectsList.Add(data.Id, (data, instance));
     }
     public void RefreshUIElement(TData data) => layoutFactory.FillData(objectsList[data.Id].Item2, data);

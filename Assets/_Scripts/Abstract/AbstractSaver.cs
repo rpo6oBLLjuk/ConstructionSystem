@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using Zenject;
 
 public abstract class AbstractSaver<T>
 {
-    public event Action<string> OnMessage;
-    public event Action<string> OnError;
-
     protected string BaseDirectory { get; private set; }
     protected string Format { get; private set; } = "json";
-
 
     protected AbstractSaver(string directory) //Saves/SaveType/...
     {
@@ -25,7 +20,7 @@ public abstract class AbstractSaver<T>
     public bool ExistsByPath(string fullPath) => File.Exists(fullPath);
     public bool Exists(string saveName) => ExistsByPath(GetPath(saveName));
 
-    public virtual bool Save(T obj, string saveName)
+    public virtual bool Save(T obj, string saveName, Action<string> OnMessage = null, Action<string> OnError = null)
     {
         if (string.IsNullOrWhiteSpace(saveName))
         {
@@ -49,7 +44,7 @@ public abstract class AbstractSaver<T>
             return false;
         }
     }
-    public virtual T Load(string saveName)
+    public virtual T Load(string saveName, Action<string> OnMessage = null, Action<string> OnError = null)
     {
         string path = GetPath(saveName);
 
@@ -73,7 +68,7 @@ public abstract class AbstractSaver<T>
             return default;
         }
     }
-    public virtual bool DeleteSave(string saveName)
+    public virtual bool DeleteSave(string saveName, Action<string> OnMessage = null, Action<string> OnError = null)
     {
         string path = GetPath(saveName);
 
@@ -93,7 +88,7 @@ public abstract class AbstractSaver<T>
         }
     }
 
-    public virtual bool Rename(string oldName, string newName)
+    public virtual bool Rename(string oldName, string newName, Action<string> OnMessage = null, Action<string> OnError = null)
     {
         if (string.IsNullOrWhiteSpace(newName))
             return false;

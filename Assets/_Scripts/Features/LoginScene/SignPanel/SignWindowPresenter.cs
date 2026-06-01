@@ -16,9 +16,11 @@ public class SignWindowPresenter : MonoBehaviour
     [SerializeField] RectTransform _signPanelContainer;
 
     [SerializeField] float _duration = 0.25f;
-    [SerializeField] Ease _panelEaseType;
+    [SerializeField] Ease _showEaseType;
+    [SerializeField] Ease _hideEaseType;
 
     private bool _isSignIn = false;
+    private float _defaultYPosition;
 
 
     private void OnEnable()
@@ -28,6 +30,10 @@ public class SignWindowPresenter : MonoBehaviour
 
         _signInView.OnSwitch += SwitchToSignUp;
         _signUpView.OnSwitch += SwitchToSignIn;
+
+        _cameraSplineController.OnBackAnimStarted += HandleShow;
+
+        _userModule.LoggedOut += HandleLogOut;
     }
     private void OnDisable()
     {
@@ -36,9 +42,14 @@ public class SignWindowPresenter : MonoBehaviour
 
         _signInView.OnSwitch -= SwitchToSignUp;
         _signUpView.OnSwitch -= SwitchToSignIn;
+
+        _cameraSplineController.OnBackAnimStarted -= HandleShow;
+
+        _userModule.LoggedOut -= HandleLogOut;
     }
 
     private void Awake() => SetSignIn(true, 0);
+    private void Start() => _defaultYPosition = _signPanelContainer.anchoredPosition.y;
 
     private async void HandleSignIn(string login, string password)
     {
@@ -51,7 +62,7 @@ public class SignWindowPresenter : MonoBehaviour
             },
             onLoginSuccess: (user) =>
             {
-                _notificationService.ShowPopup($"Welcome back, {user.FirstName}!", "Success", NotificationType.Info);
+                _notificationService.ShowPopup($"Welcome back, <b>{user.FirstName}<b>!", "Success", NotificationType.Info);
 
                 Transition();
             }
@@ -59,7 +70,7 @@ public class SignWindowPresenter : MonoBehaviour
     }
     private async void HandleSignUp(User newUser)
     {
-        DebugWrapper.InactiveLog(this, $"Attempting registration for: {newUser.Login}");
+        DebugWrapper.InactiveLog(this, $"Attempting registration for: <b>{newUser.Login}<b>");
 
         bool success = await _userModule.CreateUser(newUser, (error) => _notificationService.ShowPopup(error, "Registration fail", NotificationType.Error));
 
@@ -69,6 +80,15 @@ public class SignWindowPresenter : MonoBehaviour
 
             Transition();
         }
+    }
+
+    private void HandleShow() => DOVirtual.DelayedCall(0.5f, () => AnimateUI(true));
+    private void HandleLogOut(User user)
+    {
+        _signInView.Clear();
+        _signUpView.Clear();
+
+        SetSignIn(true, 0);
     }
 
     private void SwitchToSignUp() => SetSignIn(false, _duration);
@@ -92,17 +112,15 @@ public class SignWindowPresenter : MonoBehaviour
 
     private void Transition()
     {
-        AnimateUI();
+        AnimateUI(false);
         AnimateCamera();
     }
 
-    private void AnimateUI()
+    private void AnimateUI(bool show)
     {
-        _signPanelContainer.DOAnchorPosY(-1000, 0.5f)
-            .SetEase(_panelEaseType);
+        _signPanelContainer.DOAnchorPosY(show ? _defaultYPosition : -1000, 0.5f)
+            .SetEase(show? _showEaseType : _hideEaseType);
         //Ќадо оба окна анимировать так, чтобы они баунсили вверх, и уходили вниз экрана. ¬озможно стоит учесть вращение камеры, и переводить Canvas в 3d, как бы пролета€ меню.
     }
-
     private void AnimateCamera() => _cameraSplineController.AnimateCameraSpline(true);
-
 }

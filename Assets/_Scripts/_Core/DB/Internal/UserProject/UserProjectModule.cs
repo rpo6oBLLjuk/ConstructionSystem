@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using SQLite;
+using UnityEngine;
 
 public class UserProjectModule
 {
@@ -13,6 +14,7 @@ public class UserProjectModule
     public event Action<UserProject> ProjectRenamed;
 
     private string _projectNotFound = "Project not found in database";
+    private string _projectExists = "Project with name {0} already exists";
 
 
     public UserProjectModule(UserProjectRepository projectRepository)
@@ -21,13 +23,16 @@ public class UserProjectModule
     public async UniTask<List<UserProject>> GetProjectsByUserId(int userId)
         => await _projectRepository.GetProjectsByUserId(userId);
 
-    public async UniTask<UserProject> CreateProject(int userId, string projectName, string filePath)
+    public async UniTask CreateProject(int userId, string projectName, string filePath, Action<UserProject> OnComplete, Action<string> OnError = null)
     {
+        if (await _projectRepository.ExistsByProjectName(projectName))
+            OnError?.Invoke(string.Format(_projectExists, projectName));
+
         UserProject project = new()
         {
             UserId = userId,
             ProjectName = projectName,
-            FilePath = projectName,
+            FilePath = filePath,
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now
         };
@@ -37,18 +42,22 @@ public class UserProjectModule
             await _projectRepository.Insert(project);
 
             ProjectCreated?.Invoke(project);
-            return project;
+
+            OnComplete?.Invoke(project);
         }
         catch (SQLiteException ex)
         {
-            return null;
+            OnError?.Invoke(ex.ToString());
         }
     }
 
     public async UniTask RenameProject(UserProject project, string newName, string filePath)
     {
         string oldName = project.ProjectName;
+        string oldPath = project.FilePath;
+
         project.ProjectName = newName;
+        project.FilePath = filePath;
         project.UpdatedAt = DateTime.Now;
 
         try
@@ -60,6 +69,8 @@ public class UserProjectModule
         catch (SQLiteException ex)
         {
             project.ProjectName = oldName;
+            project.FilePath = oldPath;
+            Debug.LogError(ex.ToString());
         }
     }
 

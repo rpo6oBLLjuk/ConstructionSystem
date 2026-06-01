@@ -43,21 +43,16 @@ public class ProjectPreviewPanel : MonoBehaviour
     {
         _currentProject = project;
 
-        _previewSize.text = $"Size\n{blueprintData.square} m²";
-        _previewEditDate.text = $"Last edit\n{project.UpdatedAt}";
+        if(blueprintData != null)
+        {
+            _previewSize.text = $"Size\n{blueprintData.square} m²";
+            _previewEditDate.text = $"Last edit\n{project.UpdatedAt}";
+        }
 
         _renameField.text = project.ProjectName;
     }
 
     private void RenameBlueprint() => OnBlueprintRename?.Invoke(_renameField.text);
-
-    private void DeleteBlueprint()
-    {
-        _notificationService.ShowDialog($"Delete blueprint <b>{_currentProject.ProjectName}</b>?", "Confirmation of deletion", new List<(string, Action)>
-        {
-            ("Cancel", null),
-            ("OK", () => OnBlueprintDelete?.Invoke())
-        });
-    }
+    private void DeleteBlueprint() => OnBlueprintDelete?.Invoke();
     private void OpenBlueprint() => OnBlueprintOpen?.Invoke();
 }

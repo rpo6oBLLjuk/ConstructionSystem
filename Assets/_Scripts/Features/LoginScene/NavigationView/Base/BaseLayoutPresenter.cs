@@ -51,9 +51,10 @@ public class BaseLayoutPresenter : MonoBehaviour
 
     private void AnimateWindow(bool show)
     {
-        SetCanvasGroupState(show);
         if (show)
         {
+            SetCanvasGroupState(true);
+
             float startX = _container.parent is RectTransform parentRect
                 ? parentRect.rect.width
                 : Screen.width;
@@ -63,7 +64,8 @@ public class BaseLayoutPresenter : MonoBehaviour
 
             Sequence tween = DOTween.Sequence()
                 .Append(_canvasGroup.DOFade(1f, _fadeDuration))
-                .Join(_container.DOAnchorPos(_storedAnchorPosition, _moveDuration).SetEase(_showEase));
+                .Join(_container.DOAnchorPos(_storedAnchorPosition, _moveDuration)
+                    .SetEase(_showEase));
         }
         else
         {
@@ -73,8 +75,9 @@ public class BaseLayoutPresenter : MonoBehaviour
 
             Sequence tween = DOTween.Sequence()
                 .Append(_canvasGroup.DOFade(0f, _fadeDuration))
-                .Join(_container.DOAnchorPosX(endX, _moveDuration).SetEase(_hideEase))
-                .OnComplete(() => gameObject.SetActive(false));
+                .Join(_container.DOAnchorPosX(endX, _moveDuration)
+                    .SetEase(_hideEase))
+                .OnComplete(() => SetCanvasGroupState(false));
         }
     }
 

@@ -15,6 +15,7 @@ public class SceneTransitionController : MonoBehaviour
 
     [Header("editor only")]
     [SerializeField] float _delayBeforeTransition = 0f;
+    [SerializeField] float _minimalTransitionDuration = 0f;
     [SerializeField] bool _sceneLoadOnStart = false;
 
 
@@ -48,10 +49,16 @@ public class SceneTransitionController : MonoBehaviour
         AsyncOperation asyncSceneLoad = SceneManager.LoadSceneAsync(index, LoadSceneMode.Single);
         asyncSceneLoad.allowSceneActivation = false;
 
+        float time = Time.time;
         await UniTask.WaitUntil(() => asyncSceneLoad.progress >= 0.9f && !loadScreenTween.IsPlaying());
 
         DebugWrapper.Log(this, $"Loaded scene: {System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(index))}");
 
+#if UNITY_EDITOR
+        float awaitDuration = _minimalTransitionDuration - (Time.time - time);
+        if (awaitDuration > 0f)
+            await UniTask.WaitForSeconds(awaitDuration);
+#endif
         asyncSceneLoad.allowSceneActivation = true;
 
         await UniTask.WaitUntil(() => asyncSceneLoad.isDone);

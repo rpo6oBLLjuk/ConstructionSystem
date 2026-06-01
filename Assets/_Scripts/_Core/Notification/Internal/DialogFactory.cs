@@ -93,7 +93,7 @@ public class DialogFactory
     private void CloseDialog(string btnName = null)
     {
         if (btnName != null)
-            DebugWrapper.InactiveLog(this, $"Dialog answer: {btnName}");
+            DebugWrapper.InactiveLog(this, $"Dialog answer: '{btnName}', Input: '{_inputField.text}'");
 
         _currentDialogButtons.ForEach(btn => btn.onClick.RemoveAllListeners());
 
@@ -102,6 +102,7 @@ public class DialogFactory
             {
                 RemoveAllButtons();
 
+                _inputField.text = "";
                 _dialogWindow.SetActive(false);
             });
     }

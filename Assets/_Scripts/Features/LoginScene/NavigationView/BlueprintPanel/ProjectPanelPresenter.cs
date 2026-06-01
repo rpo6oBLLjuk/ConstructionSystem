@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -26,7 +28,7 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
         base.OnEnable();
 
         _projectGridView.EventsContext.OnBlueprintSelected += HandleProjectSelection;
-        _projectGridView.OnNewFileSelected += HandleNewFileRequest;
+        _projectGridView.OnNewProjectSelected += HandleNewProjectRequest;
 
         _blueprintPreviewPanel.OnBlueprintDelete += OnProjectDeleteRequested;
         _blueprintPreviewPanel.OnBlueprintOpen += OnProjectOpenRequested;
@@ -38,7 +40,7 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
         base.OnDisable();
 
         _projectGridView.EventsContext.OnBlueprintSelected -= HandleProjectSelection;
-        _projectGridView.OnNewFileSelected -= HandleNewFileRequest;
+        _projectGridView.OnNewProjectSelected -= HandleNewProjectRequest;
 
         _blueprintPreviewPanel.OnBlueprintDelete -= OnProjectDeleteRequested;
         _blueprintPreviewPanel.OnBlueprintOpen -= OnProjectOpenRequested;
@@ -54,6 +56,8 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
 
     private void HandleProjectSelection(UserProject userProject)
     {
+        var projectData = _projectSaver.Load(userProject.FilePath, OnError: (error) => _notificationService.ShowPopup(error, "Error receiving data", NotificationType.Error));
+
         _previousSelectedProject = _currentSelectedProject;
 
         if (_previousSelectedProject != null)
@@ -62,25 +66,22 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
         _currentSelectedProject = userProject;
         _projectGridView.SetProjectActive(userProject, true);
 
-        _blueprintPreviewPanel.ShowBlueprintPreview(_projectSaver.Load(userProject.FilePath), userProject);
+        _blueprintPreviewPanel.ShowBlueprintPreview(projectData, userProject);
     }
-    private void HandleNewFileRequest()
+    private void HandleNewProjectRequest()
     {
         _notificationService.ShowInputDialog("Enter blueprint name...", "Create New Blueprint", (name) =>
         {
-            if (!_projectSaver.Exists(name))
-                CreateNewFile(name).Forget();
-            else
-                _notificationService.ShowDialog($"A  file named <b>{name}</b> already exists. Do you want to replace it?", "Overwrite File", new List<(string, Action)>
-                {
-                    ("No", null),
-                    ("Yes", () => CreateNewFile(name).Forget())
-                });
+            if (CheckProjectNameExists(name))
+                CreateNewProject(name).Forget();
         });
     }
 
     private void OnProjectOpenRequested()
     {
+        if (!CheckProjectSelection())
+            return;
+
         ProjectData projectData = _projectSaver.Load(_currentSelectedProject.FilePath);
         _activeBlueprintService.SetActiveProject(projectData);
 
@@ -89,12 +90,25 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
 
     private void OnProjectDeleteRequested()
     {
-        _userProjectModule.DeleteProject(_currentSelectedProject).Forget();
+        if (!CheckProjectSelection())
+            return;
 
-        _projectSaver.DeleteSave(_currentSelectedProject.FilePath);
-        _projectGridView.RemoveUIElement(_currentSelectedProject);
+        _notificationService.ShowDialog($"Delete blueprint <b>{_currentSelectedProject.ProjectName}</b>?", "Confirmation of deletion", new List<(string, Action)>
+        {
+            ("Cancel", null),
+            ("OK", () =>
+            {
+                _userProjectModule.DeleteProject(_currentSelectedProject).Forget();
 
-        HandleProjectSelection(_previousSelectedProject);
+                _projectSaver.DeleteSave(_currentSelectedProject.FilePath);
+                _projectGridView.RemoveUIElement(_currentSelectedProject);
+
+                if (_previousSelectedProject != null)
+                    HandleProjectSelection(_previousSelectedProject);
+
+                _currentSelectedProject = null;
+            })
+        });
     }
 
     private async UniTask LoadProjects()
@@ -106,26 +120,79 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
 
     private void HandleProjectRename(string newName)
     {
+        if (!CheckProjectSelection())
+            return;
+
+        if (!CheckProjectNameExists(newName))
+            return;
+
         UserProject userProject = _currentSelectedProject;
-        string newFileName = _projectSaver.GetSaveNameByUserId(userProject.Id, newName);
+        string newFileName = _projectSaver.GetSaveNameByUserId(_userModule.CurrentUser.Id, newName);
 
-        _projectSaver.Rename(userProject.FilePath, newFileName);
-        _userProjectModule.RenameProject(userProject, newName, newFileName).Forget();
-
-        _projectGridView.RefreshUIElement(userProject);
+        _projectSaver.Rename(userProject.FilePath, newFileName, OnMessage: (msg) =>
+        {
+            _userProjectModule.RenameProject(userProject, newName, newFileName).Forget();
+            _projectGridView.RefreshUIElement(userProject);
+        }, OnError: (error) => _notificationService.ShowPopup(error, "Rename error", NotificationType.Error));
     }
 
-    private async UniTask CreateNewFile(string name)
+    private async UniTask CreateNewProject(string name)
     {
         int userId = _userModule.CurrentUser.Id;
         string fileName = _projectSaver.GetSaveNameByUserId(userId, name);
 
-        UserProject userProject = await _userProjectModule.CreateProject(userId, name, fileName);
-        ProjectData projectData = new ProjectData(userId);
+        await _userProjectModule.CreateProject(userId, name, fileName, OnComplete: (userProject) =>
+        {
+            ProjectData projectData = new(userId);
 
-        _projectSaver.Save(projectData, fileName);
-
-        _projectGridView.CreateUIElement(userProject);
-        HandleProjectSelection(userProject);
+            _projectSaver.Save(projectData, fileName, OnMessage: (msg) =>
+            {
+                _projectGridView.CreateUIElement(userProject);
+                HandleProjectSelection(userProject);
+            }, OnError: (error) => _notificationService.ShowPopup(error, "Save project error", NotificationType.Error));
+        },
+        OnError: (error) => _notificationService.ShowPopup(error, "Create project error", NotificationType.Error));
     }
+
+    private bool CheckProjectSelection()
+    {
+        if (_currentSelectedProject == null)
+        {
+            _notificationService.ShowPopup($"Select or create project", "Project is not selected", NotificationType.Warning);
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool CheckProjectNameExists(string name)
+    {
+        if (!_projectSaver.Exists(_projectSaver.GetSaveNameByUserId(_userModule.CurrentUser.Id, name)))
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                _notificationService.ShowPopup("File name cannot be empty.", "File create error", NotificationType.Error);
+                return false;
+            }
+
+            name = name.Trim();
+
+            char[] invalidChars = Path.GetInvalidFileNameChars().Append('.').ToArray();
+            if (name.Any(c => invalidChars.Contains(c)))
+            {
+                string forbiddenSymbols = $"<b>{string.Join(" ", invalidChars.Where(c => !char.IsControl(c)))}</b>";
+                _notificationService.ShowPopup($"Name contains forbidden characters. Do not use: {forbiddenSymbols}", "Invalid chars", NotificationType.Error);
+                return false;
+            }
+
+            return true;
+        }
+        else
+            _notificationService.ShowPopup("You have already created a project with an identical name", "Duplication of projects", NotificationType.Warning);
+
+        return false;
+    }
+
+    //Переименование не проверяет наличие дубликата файла, в отличие от создания.
+    //Сделать унифицированный метод проверки на манер CheckProjectSelection, подвязать в HandleRename и HandleCreate.
 }
