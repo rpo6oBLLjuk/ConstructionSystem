@@ -4,10 +4,18 @@ public class DBInstallers : MonoInstaller
 {
     public override void InstallBindings()
     {
+        //Main service install
         BaseInitializableInstaller<DBService>.Install(Container);
 
+        //User install
         InstallTypes<UserRepository, UserModule>();
+        
+        //UserProjects install
         InstallTypes<UserProjectRepository, UserProjectModule>();
+
+        //Orders install
+        InstallTypes<OrderRepository, OrderModule>();
+        BaseInstaller<OrderItemRepository>.Install(Container);
     }
 
     private void InstallTypes<TRepository, TModule>()

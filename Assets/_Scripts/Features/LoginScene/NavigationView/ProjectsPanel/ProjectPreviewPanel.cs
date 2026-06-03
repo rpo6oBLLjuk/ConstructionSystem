@@ -37,6 +37,9 @@ public class ProjectPreviewPanel : MonoBehaviour
     private void OnDisable()
     {
         _renameApproveButton.onClick.RemoveListener(RenameBlueprint);
+
+        _deleteButton.onClick.RemoveListener(DeleteBlueprint);
+        _openButton.onClick.RemoveListener(OpenBlueprint);
     }
 
     public void ShowBlueprintPreview(ProjectData blueprintData, UserProject project)

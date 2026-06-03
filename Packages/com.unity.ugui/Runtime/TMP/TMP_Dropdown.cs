@@ -1270,8 +1270,6 @@ namespace TMPro
             if (selectedIndex < 0)
                 return;
 
-            Debug.Log("SelectedIndex: " + selectedIndex);
-
             if (m_MultiSelect)
             {
                 switch (selectedIndex)

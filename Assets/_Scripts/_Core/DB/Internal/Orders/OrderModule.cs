@@ -22,15 +22,22 @@ public class OrderModule
         _orderItemRepository = orderItemRepository;
     }
 
-    public async UniTask<List<Order>> GetOrdersByUserId(int userId)
-        => await _orderRepository.GetOrdersByUserId(userId);
+#if UNITY_EDITOR
+    public async UniTask ClearOrders() => await _orderRepository.DeleteMany(await _orderRepository.GetAll());
+#endif
 
-    public async UniTask<Order> GetOrderById(int orderId)
-        => await _orderRepository.GetById(orderId);
-    public async UniTask<List<OrderItem>> GetOrderItemsByOrderId(int orderId)
-        => await _orderItemRepository.GetItemsByOrderId(orderId);
+    public async UniTask<Order> GetOrderById(int orderId) => await _orderRepository.GetById(orderId);
+    public async UniTask<List<Order>> GetOrdersByIds(List<int> ids) => await _orderRepository.GetByIds(ids);
+    public async UniTask<List<Order>> GetOrdersByOrderId(int userId) => await _orderRepository.GetOrdersByUserId(userId);
 
-    public async UniTask CreateOrder(int userId, List<(int furnitureId, int count, double unitPrice)> items, string comment, Action<Order> OnComplete, Action<string> OnError = null)
+    public async UniTask<List<OrderItem>> GetOrderItemsByOrderId(int orderId) => await _orderItemRepository.GetItemsByOrderId(orderId);
+    public async UniTask<List<OrderItem>> GetOrderItemsByOrderIds(List<int> orderIds) => await _orderItemRepository.GetOrderItemsByOrderIds(orderIds);
+
+    public async UniTask<int> GetOrdersCount() => await _orderRepository.Count();
+
+    public async UniTask<List<Order>> GetOrdersPage(int offset, int count) => await _orderRepository.Paging(offset, count);
+
+    public async UniTask CreateOrder(int userId, List<(int furnitureId, int count, double unitPrice)> items, string comment, string address, Action<Order> OnComplete = null, Action<string> OnError = null)
     {
         if (items == null || items.Count == 0)
         {
@@ -47,7 +54,9 @@ public class OrderModule
             UpdatedAt = DateTime.Now,
             Status = OrderStatus.New,
             TotalAmount = totalAmount,
-            Comment = comment
+            Comment = comment,
+            Address = address,
+            UserProjectId = userId,
         };
 
         try

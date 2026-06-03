@@ -13,6 +13,8 @@ public abstract class Repository<T> where T : class, IDBEntity, new()
     protected Repository(DBService dbService) => DBService = dbService;
 
     public virtual async UniTask<T> GetById(int id) => await Db.Table<T>().FirstOrDefaultAsync(item => item.Id == id);
+    public virtual async UniTask<List<T>> GetByIds(List<int> ids) => await Db.Table<T>().Where(item => ids.Contains(item.Id)).ToListAsync();
+
     public virtual async UniTask<List<T>> GetAll() => await Db.Table<T>().OrderBy(item => item.Id).ToListAsync();
     public virtual async UniTask<List<T>> GetRange(int startIndex, int count)
     {
@@ -50,4 +52,6 @@ public abstract class Repository<T> where T : class, IDBEntity, new()
 
     public virtual async UniTask<int> Count() => await Db.Table<T>().CountAsync();
     public virtual async UniTask<bool> Exists(int id) => await GetById(id) != null;
+
+    public virtual async UniTask<List<T>> Paging(int offset, int count) => await Db.Table<T>().OrderByDescending(item => item.Id).Skip(offset).Take(count).ToListAsync();
 }

@@ -73,8 +73,6 @@ public class SceneTransitionController : MonoBehaviour
             .From(!show ? 1 : 0)
             .SetEase(show ? _config.ShowEaseType : _config.HideEaseType);
     }
-
-
 }
 
 public enum AppScene

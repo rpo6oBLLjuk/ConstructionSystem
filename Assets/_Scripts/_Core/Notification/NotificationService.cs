@@ -15,7 +15,7 @@ public class NotificationService : MonoBehaviour
         _dialogFactory.Start();
     }
 
-    public void ShowPopup(string message, string title, NotificationType notificationType)
+    public void ShowPopup(string message, string title, NotificationType notificationType = NotificationType.Info)
     {
         _popupFactory.CreatePopupNotification(message, title, notificationType);
         DebugWrapper.InactiveLog(this, $"Popup Msg: {message}, title: {title}, type: {Enum.GetName(typeof(NotificationType), notificationType)}");

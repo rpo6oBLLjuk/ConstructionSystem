@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Cysharp.Threading.Tasks;
@@ -21,6 +22,9 @@ public class UserModule
 
 
     public UserModule(UserRepository userRepository) => _userRepository = userRepository;
+
+    public async UniTask<User> GetUserById(int id) => await _userRepository.GetById(id);
+    public async UniTask<List<User>> GetUsersByIds(List<int> ids) => await _userRepository.GetByIds(ids);
 
     public async UniTask<bool> CreateUser(User user, Action<string> onUserAlreadyExists)
     {
@@ -99,7 +103,6 @@ public class UserModule
         await _userRepository.Update(user);
         onSuccess?.Invoke(user);
     }
-
     private async UniTask SetCurrentSession(User user)
     {
         user.LastLoginAt = DateTime.Now;

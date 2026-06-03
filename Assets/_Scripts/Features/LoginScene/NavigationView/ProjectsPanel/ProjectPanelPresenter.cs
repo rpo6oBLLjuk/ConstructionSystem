@@ -103,10 +103,9 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
                 _projectSaver.DeleteSave(_currentSelectedProject.FilePath);
                 _projectGridView.RemoveUIElement(_currentSelectedProject);
 
+                _currentSelectedProject = null;
                 if (_previousSelectedProject != null)
                     HandleProjectSelection(_previousSelectedProject);
-
-                _currentSelectedProject = null;
             })
         });
     }

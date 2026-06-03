@@ -66,6 +66,7 @@ public class NavigationView : BaseLayoutPresenter
             return;
 
         _currentActive = navigationViewRefsContainer;
+        navigationViewRefsContainer.ListButton.Select();
         DoAnimPreview(navigationViewRefsContainer, withoutAnim);
     }
 

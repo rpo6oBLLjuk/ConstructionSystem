@@ -21,13 +21,13 @@ public class PopupFactory
         GameObject popup = GameObject.Instantiate(_defaultPopup, _defaultPopup.transform.parent);
         popup.SetActive(true);
 
-        ApplyText(title, "TitleText", popup.transform.GetChild(0).GetChild(0));
-        ApplyText(message, "MessageText", popup.transform.GetChild(0));
+        ApplyText(title, "TitleText", popup.transform.GetChild(0));
+        ApplyText(message, "MessageText", popup.transform);
 
-        ApplyImage(popup.transform.GetChild(0).GetChild(0), notificationType);
+        ApplyImage(popup.transform.GetChild(0), notificationType);
 
-        ApplyBackgroundColor("Outline", popup.transform.GetChild(0).GetChild(0), notificationType);
-        ApplyBackgroundColor("Divider", popup.transform.GetChild(0).GetChild(0), notificationType);
+        ApplyBackgroundColor("Outline", popup.transform.GetChild(0), notificationType);
+        ApplyBackgroundColor("Divider", popup.transform.GetChild(0), notificationType);
 
         if (!popup.TryGetComponent(out CanvasGroup canvasGroup))
         {
