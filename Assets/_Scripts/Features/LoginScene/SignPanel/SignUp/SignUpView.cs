@@ -92,6 +92,8 @@ public class SignUpView : MonoBehaviour
         _signUpData.Login.InputField.text = string.Empty;
         _signUpData.Pass.InputField.text = string.Empty;
         _signUpData.Confirm.InputField.text = string.Empty;
+
+        ShowPhase(0);
     }
 
     private void HandleNext() => ShowPhase(_currentPhase + 1);

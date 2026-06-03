@@ -26,7 +26,7 @@ public class OrderViewFactory : MonoBehaviour
 
         FillText(layout, "Group1/OrderId", $"#{order.Id}");
         FillText(layout, "Group2/Username Text (TMP)", order.CustomerFullName);
-        FillText(layout, "Group3/Date Text (TMP)", order.CreatedAt.ToString());
+        FillText(layout, "Group3/Date Text (TMP)", order.CreatedAt);
 
         TMP_Dropdown dropdown = layout.GetChild(2).GetComponentInChildren<TMP_Dropdown>();
         dropdown.onValueChanged.AddListener(index => dropdown.captionText.color = dropdown.options[index].color);

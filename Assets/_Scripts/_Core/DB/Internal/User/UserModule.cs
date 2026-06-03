@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Cysharp.Threading.Tasks;
@@ -25,6 +26,25 @@ public class UserModule
 
     public async UniTask<User> GetUserById(int id) => await _userRepository.GetById(id);
     public async UniTask<List<User>> GetUsersByIds(List<int> ids) => await _userRepository.GetByIds(ids);
+
+    public async UniTask<int> GetUsersCount() => await _userRepository.Count();
+    public async UniTask<int> GetUsersCount(int? id, string login, int? roleId)
+    {
+        List<User> users = await GetFilteredUsers(id, login, roleId);
+        return users.Count;
+    }
+
+    public async UniTask<List<User>> GetUsersPage(int offset, int count, int? id, string login, int? roleId)
+    {
+        List<User> users = await GetFilteredUsers(id, login, roleId);
+
+        return users
+            .OrderBy(user => user.RoleId)
+            .ThenBy(user => user.Id)
+            .Skip(offset)
+            .Take(count)
+            .ToList();
+    }
 
     public async UniTask<bool> CreateUser(User user, Action<string> onUserAlreadyExists)
     {
@@ -59,6 +79,8 @@ public class UserModule
         return await CreateUser(user, onUserAlreadyExists);
     }
 
+    public async UniTask UpdateUser(User user) => await _userRepository.Update(user);
+
     public async UniTask LogIn(string login, string password, Action<User> onLoginSuccess, Action<string> onLoginFailed)
     {
         User user = await _userRepository.GetByLogin(login);
@@ -90,26 +112,13 @@ public class UserModule
         LoggedOut?.Invoke(loggedOutUser);
     }
 
-    public async UniTask SetUserRole(User user, int roleId, Action<User> onSuccess, Action<string> onFailed) // #1 user, #2 manager, #3 admin
-    {
-        if(CurrentUser.RoleId != 3)
-        {
-            onFailed?.Invoke(string.Format(_permissionDenied, CurrentUser.FirstName));
-            return;
-        }
-
-        user.RoleId = roleId;
-
-        await _userRepository.Update(user);
-        onSuccess?.Invoke(user);
-    }
     private async UniTask SetCurrentSession(User user)
     {
         user.LastLoginAt = DateTime.Now;
         CurrentUser = user;
-   
+
         LoggedIn?.Invoke(user);
-        
+
         await _userRepository.Update(user);
     }
 
@@ -127,5 +136,39 @@ public class UserModule
         return builder.ToString();
     }
     private bool VerifyPassword(string password, string hash) => HashPassword(password) == hash;
+
+    private async UniTask<List<User>> GetFilteredUsers(int? id, string fullNameSearch, int? roleId)
+    {
+        List<User> users;
+
+        if (id.HasValue)
+            users = await _userRepository.GetWhere(user => user.Id == id.Value);
+        else if (roleId.HasValue)
+            users = await _userRepository.GetWhere(user => user.RoleId == roleId.Value);
+        else
+            users = await _userRepository.GetAll();
+
+        if (!string.IsNullOrWhiteSpace(fullNameSearch))
+        {
+            string search = NormalizeSearch(fullNameSearch);
+
+            users = users
+                .Where(user =>
+                    NormalizeSearch($"{user.FirstName} {user.LastName}").Contains(search) ||
+                    NormalizeSearch($"{user.LastName} {user.FirstName}").Contains(search))
+                .ToList();
+        }
+
+        if (roleId.HasValue && id.HasValue)
+        {
+            users = users
+                .Where(user => user.RoleId == roleId.Value)
+                .ToList();
+        }
+
+        return users;
+    }
+
+    private string NormalizeSearch(string value) => string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant();
 }
 

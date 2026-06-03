@@ -7,13 +7,13 @@ using Zenject;
 
 public class OrderPanelPresenter : BaseLayoutPresenter
 {
-    private const int PageSize = 20;
 
     [Inject] private OrderModule _orderModule;
     [Inject] private UserModule _userModule;
     [Inject] private NotificationService _notificationService;
 
     [SerializeField] private OrderPanelView _view;
+    [SerializeField] private int _pageSize = 10;
 
     private int _currentPage = 1;
     private int _totalPages = 1;
@@ -78,18 +78,21 @@ public class OrderPanelPresenter : BaseLayoutPresenter
 
         ChangeOrderStatus(orderViewData, newStatus).Forget();
     }
-    private void HandleStatusUpdated(Order order) => _notificationService.ShowPopup($"Order '{order.Id}' status has been updated to <b>{Enum.GetName(typeof(OrderStatus), order.Status)}</b>", "Status changed", NotificationType.Info);
+    private void HandleStatusUpdated(Order order) => _notificationService.ShowPopup($"Order '{order.Id}' status has been updated to <b>{Enum.GetName(typeof(OrderStatus), order.Status)}</b>", "Status changed", NotificationType.Success);
 
     private async UniTask LoadPage(int page)
     {
-        int totalCount = await _orderModule.GetOrdersCount();
+        bool loadOnlyCurrentUserOrders = _userModule.CurrentUser.RoleId < 2;
+        int? targetUserId = loadOnlyCurrentUserOrders ? _userModule.CurrentUser.Id : null;
 
-        _totalPages = Mathf.Max(1, Mathf.CeilToInt(totalCount / (float)PageSize));
+        int totalCount = targetUserId.HasValue ? await _orderModule.GetOrdersCountByUserId(targetUserId.Value) : await _orderModule.GetOrdersCount();
+
+        _totalPages = Mathf.Max(1, Mathf.CeilToInt(totalCount / (float)_pageSize));
         _currentPage = Mathf.Clamp(page, 1, _totalPages);
 
-        int offset = (_currentPage - 1) * PageSize;
+        int offset = (_currentPage - 1) * _pageSize;
 
-        List<Order> orders = await _orderModule.GetOrdersPage(offset, PageSize);
+        List<Order> orders = targetUserId.HasValue ? await _orderModule.GetOrdersPageByUserId(targetUserId.Value, offset, _pageSize) : await _orderModule.GetOrdersPage(offset, _pageSize);
 
         if (orders == null || orders.Count == 0)
         {
@@ -131,7 +134,7 @@ public class OrderPanelPresenter : BaseLayoutPresenter
 
             _notificationService.ShowPopup(
                 error,
-                "Ошибка изменения статуса заказа",
+                "Status change error",
                 NotificationType.Error
             );
         });
@@ -157,7 +160,7 @@ public class OrderPanelPresenter : BaseLayoutPresenter
     private List<string> ConvertItemsToDisplayString(List<OrderItem> items)
     {
         if (items == null || items.Count == 0)
-            return new List<string> { "Нет товаров" };
+            return new List<string> { "Without items" };
 
         return items.ConvertAll(item =>
             $"'{item.FurnitureId}' – {item.Count} x {item.UnitPrice} = {item.Count * item.UnitPrice}"
@@ -166,7 +169,7 @@ public class OrderPanelPresenter : BaseLayoutPresenter
     private string ConvertUsername(User user)
     {
         if (user == null)
-            return "Неизвестный пользователь";
+            return "Unknown user";
 
         return $"{user.LastName} {user.FirstName}".Trim();
     }

@@ -62,7 +62,7 @@ public class SignWindowPresenter : MonoBehaviour
             },
             onLoginSuccess: (user) =>
             {
-                _notificationService.ShowPopup($"Welcome back, <b>{user.FirstName}<b>!", "Success", NotificationType.Info);
+                _notificationService.ShowPopup($"Welcome back, <b>{user.FirstName}<b>!", "Success", NotificationType.Success);
 
                 Transition();
             }
@@ -76,7 +76,7 @@ public class SignWindowPresenter : MonoBehaviour
 
         if (success)
         {
-            _notificationService.ShowPopup("Account created successfully!", "Success", NotificationType.Info);
+            _notificationService.ShowPopup("Account created successfully!", "Success", NotificationType.Success);
 
             Transition();
         }

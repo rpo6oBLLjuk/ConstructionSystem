@@ -58,6 +58,7 @@ public class PopupFactory
                 NotificationType.Info => _notificationConfig.InfoSprite,
                 NotificationType.Warning => _notificationConfig.WarningSprite,
                 NotificationType.Error => _notificationConfig.ErrorSprite,
+                NotificationType.Success => _notificationConfig.SuccessSprite,
                 _ => (null)
             };
 
@@ -80,16 +81,17 @@ public class PopupFactory
             NotificationType.Info => _notificationConfig.InfoColor,
             NotificationType.Warning => _notificationConfig.WarningColor,
             NotificationType.Error => _notificationConfig.ErrorColor,
+            NotificationType.Success => _notificationConfig.SuccessColor,
             _ => _notificationConfig.InfoColor,
         };
     }
 
 
     //Твин анимации уведомления
-    private Tween AnimatePopup(CanvasGroup canvasGroup, Slider slider) => DOTween.Sequence(canvasGroup) //Создание последовательности с ссылкой на компонент
-        .Append(canvasGroup.DOFade(1, _notificationConfig.PopupShowDuration).From(0) //Добавление в секвенцию анимации появления альфа-канала
-            .OnComplete(() => slider.DOValue(1, _notificationConfig.PopupAliveDuration))) //По окончании появления начинается интерполяция слайдера
-        .AppendInterval(_notificationConfig.PopupAliveDuration) //К секвенции добавляется ожилание существования уведомления
-        .Append(canvasGroup.DOFade(0, _notificationConfig.PopupHideDuration)) //Анимация исчезновения альфа-канала
-        .OnComplete(() => GameObject.Destroy(canvasGroup.gameObject)); //По завершении анимации удаляется объект
+    private Tween AnimatePopup(CanvasGroup canvasGroup, Slider slider) => DOTween.Sequence(canvasGroup) // Создание последовательности с ссылкой на компонент
+        .Append(canvasGroup.DOFade(1, _notificationConfig.PopupShowDuration).From(0)                    // Добавление в секвенцию анимации появления альфа-канала
+            .OnComplete(() => slider.DOValue(1, _notificationConfig.PopupAliveDuration)))               // По окончании появления начинается интерполяция слайдера
+        .AppendInterval(_notificationConfig.PopupAliveDuration)                                         // К секвенции добавляется ожилание существования уведомления
+        .Append(canvasGroup.DOFade(0, _notificationConfig.PopupHideDuration))                           // Анимация исчезновения альфа-канала
+        .OnComplete(() => GameObject.Destroy(canvasGroup.gameObject));                                  // По завершении анимации удаляется объект
 }

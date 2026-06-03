@@ -12,9 +12,12 @@ public class NotificationConfig : ScriptableObject
     [field: SerializeField] public Sprite InfoSprite { get; private set; }
     [field: SerializeField] public Sprite WarningSprite { get; private set; }
     [field: SerializeField] public Sprite ErrorSprite { get; private set; }
+    [field: SerializeField] public Sprite SuccessSprite { get; private set; }
+
     [field: SerializeField] public Color InfoColor { get; private set; } = Color.white;
     [field: SerializeField] public Color WarningColor { get; private set; } = Color.yellow;
     [field: SerializeField] public Color ErrorColor { get; private set; } = Color.red;
+    [field: SerializeField] public Color SuccessColor { get; private set; } = Color.green;
 
     [field: Header("Animation")]
     [field: SerializeField] public float PopupShowDuration { get; private set; } = 0.25f;

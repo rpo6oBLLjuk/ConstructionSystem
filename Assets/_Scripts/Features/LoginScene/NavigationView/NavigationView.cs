@@ -60,6 +60,14 @@ public class NavigationView : BaseLayoutPresenter
         _users.ListButton.onClick.RemoveAllListeners();
     }
 
+    public override void Hide()
+    {
+        base.Hide();
+        _splineController.AnimateCameraSpline(false);
+
+        _userModule.LogOut();
+    }
+
     private void SetActive(NavigationViewRefsContainer navigationViewRefsContainer, bool withoutAnim = false)
     {
         if (_currentActive == navigationViewRefsContainer)
@@ -73,18 +81,15 @@ public class NavigationView : BaseLayoutPresenter
     private void HandleEnable()
     {
         Show();
+
+        ApplyUserAccess();
+
         SetCanvasGroupState(true);
         SetActive(_projects, true);
     }
-    private void HandleShow() => _currentActive?.Presenter?.Show();
+    private void HandleShow() => _currentActive.Presenter?.Show();
 
-    public override void Hide()
-    {
-        base.Hide();
-        _splineController.AnimateCameraSpline(false);
-        
-        _userModule.LogOut();
-    }
+    private void ApplyUserAccess() => _users.ListButton.gameObject.SetActive(_userModule.CurrentUser.RoleId == 3);
 
     private void DoAnimPreview(NavigationViewRefsContainer navigationViewRefsContainer, bool withoutAnim = false)
     {
