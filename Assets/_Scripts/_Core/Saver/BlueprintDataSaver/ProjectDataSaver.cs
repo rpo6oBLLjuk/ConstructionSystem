@@ -7,9 +7,7 @@ public class ProjectDataSaver : AbstractSaver<ProjectData>
 {
     public ProjectDataSaver() : base("S3/ProjectsData") { }
 
-    public List<ProjectData> LoadAllBlueprints() => GetAllSaveNames()
-        .Select((saveName) => Load(saveName))
-        .ToList();
+    public List<ProjectData> LoadAllBlueprints() => GetAllSaveNames().Select((saveName) => Load(saveName)).ToList();
 
     public string GetSaveNameByUserId(int id, string saveName)
     {

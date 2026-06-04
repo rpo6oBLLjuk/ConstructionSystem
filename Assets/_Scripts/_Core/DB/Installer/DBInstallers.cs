@@ -16,6 +16,9 @@ public class DBInstallers : MonoInstaller
         //Orders install
         InstallTypes<OrderRepository, OrderModule>();
         BaseInstaller<OrderItemRepository>.Install(Container);
+
+        //Furniture install
+        InstallTypes<FurnitureRepository, FurnitureModule>();
     }
 
     private void InstallTypes<TRepository, TModule>()
