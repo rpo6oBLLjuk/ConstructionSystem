@@ -13,7 +13,7 @@ public class FurnitureDataSaver
     private const string RootDirectory = "S3/FurnitureData";
 
 
-    private readonly string[] _modelExtensions = { ".glb", ".fbx" };
+    private readonly string[] _modelExtensions = { ".glb" };
     private readonly string[] _previewExtensions = { ".jpg", ".jpeg", ".png" };
 
     private string BaseDirectory => Path.Combine(Application.persistentDataPath, RootDirectory);
