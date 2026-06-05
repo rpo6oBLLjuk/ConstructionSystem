@@ -193,7 +193,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _view.RefreshFurniture(furnitureViewData);
 
         _notificationService.ShowPopup(
-            $"Furniture <b>{furnitureViewData.Id}</b>_{furnitureViewData.SourceFurniture.Id} data has been saved successfully",
+            $"Furniture <b>{furnitureViewData.Name}</b> data has been saved successfully",
             "Furniture saved",
             NotificationType.Success
         );

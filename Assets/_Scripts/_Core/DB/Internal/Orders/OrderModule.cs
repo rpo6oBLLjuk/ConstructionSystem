@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class OrderModule
 {
-    private readonly OrderRepository _orderRepository;
-    private readonly OrderItemRepository _orderItemRepository;
+    private readonly OrderRepository _orderRepository;          //Репозиторий для работы с DB, таблица Заказов
+    private readonly OrderItemRepository _orderItemRepository;  //Репозиторий для работы с DB, таблица Товаров в заказах
 
     public event Action<Order> OrderCreated;
     public event Action<Order> OrderUpdated;
