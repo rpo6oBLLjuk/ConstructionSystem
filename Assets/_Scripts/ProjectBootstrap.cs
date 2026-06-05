@@ -1,13 +1,11 @@
 using UnityEngine;
 
-public class ConstructionSceneBootstrap : MonoBehaviour
+public class ProjectBootstrap : MonoBehaviour
 {
     [SerializeField] bool _useVsync = false;
 
-    void Awake()
-    {
-        SetTargetFrameRate();
-    }
+
+    void Awake() => SetTargetFrameRate();
 
     private void SetTargetFrameRate()
     {

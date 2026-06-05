@@ -1,0 +1,3 @@
+public class ModelPreviewCameraControllerInstaller : AbstractInstanceInstaller<ModelPreviewCameraController>
+{
+}

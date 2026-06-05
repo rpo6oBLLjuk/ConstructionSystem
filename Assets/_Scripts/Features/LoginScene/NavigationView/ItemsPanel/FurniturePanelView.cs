@@ -22,6 +22,7 @@ public class FurniturePanelView : MonoBehaviour
     public event Action<FurnitureViewData> OnOpenModelRequested;
     public event Action<FurnitureViewData> OnChangeModelRequested;
     public event Action<FurnitureViewData> OnChangePreviewRequested;
+    public event Action<FurnitureViewData> OnRemoveFurnitureRequsted;
     public event Action OnAddFurnitureRequested;
 
     [Header("List")]
@@ -63,6 +64,7 @@ public class FurniturePanelView : MonoBehaviour
     [SerializeField] private Button _changePreviewButton;
     [SerializeField] private Button _openModelButton;
     [SerializeField] private Button _addFurnitureButton;
+    [SerializeField] private Button _removeFurnitureButton;
 
     [Header("View settings")]
     [SerializeField] private float _defaultEdgeWidth = 0.1f;
@@ -96,6 +98,7 @@ public class FurniturePanelView : MonoBehaviour
         _changeModelButton.onClick.AddListener(ChangeModelButtonClickHandler);
         _changePreviewButton.onClick.AddListener(ChangePreviewButtonClickHandler);
         _addFurnitureButton.onClick.AddListener(AddFurnitureButtonClickHandler);
+        _removeFurnitureButton.onClick.AddListener(RemoveFurnitureButtonClickHandler);
     }
     private void OnDisable()
     {
@@ -109,6 +112,7 @@ public class FurniturePanelView : MonoBehaviour
         _changeModelButton.onClick.RemoveListener(ChangeModelButtonClickHandler);
         _changePreviewButton.onClick.RemoveListener(ChangePreviewButtonClickHandler);
         _addFurnitureButton.onClick.RemoveListener(AddFurnitureButtonClickHandler);
+        _removeFurnitureButton.onClick.RemoveListener(RemoveFurnitureButtonClickHandler);
     }
 
     private void Start() => _defaultPreview = _preview.sprite;
@@ -139,13 +143,15 @@ public class FurniturePanelView : MonoBehaviour
         _saveButton.gameObject.SetActive(canEdit);
         _changeModelButton.gameObject.SetActive(canEdit);
         _changePreviewButton.gameObject.SetActive(canEdit);
+        _removeFurnitureButton.gameObject.SetActive(canEdit);
 
         _saveButton.interactable = _selectedFurniture != null;
         _changeModelButton.interactable = _selectedFurniture != null;
         _changePreviewButton.interactable = _selectedFurniture != null;
+        _removeFurnitureButton.interactable = _selectedFurniture != null && !_selectedFurniture.IsNew;
 
         _addFurnitureButton.gameObject.SetActive(canEdit);
-        _openModelButton.interactable = _selectedFurniture != null;
+        _openModelButton.interactable = _selectedFurniture != null && _selectedFurniture.HasModel;
     }
 
     public void SetFurniture(List<FurnitureViewData> furniture)
@@ -191,7 +197,7 @@ public class FurniturePanelView : MonoBehaviour
             return;
         }
 
-        _idInputField.SetTextWithoutNotify(furniture.IsNew ? "New" : furniture.Id.ToString());
+        _idInputField.SetTextWithoutNotify(furniture.Id.ToString());
         _nameInputField.SetTextWithoutNotify(furniture.Name);
 
         SetDropdownValueById(_typeDropdown, _typeIds, furniture.FurnitureTypeId);
@@ -289,6 +295,9 @@ public class FurniturePanelView : MonoBehaviour
         _changePreviewButton.interactable = false;
         _openModelButton.interactable = false;
 
+        _preview.sprite = _defaultPreview;
+
+        SetEditMode(_canEdit);
         DisablePreviousUIEffect(null);
     }
 
@@ -314,41 +323,8 @@ public class FurniturePanelView : MonoBehaviour
     private void OpenModelButtonClickHandler() => OnOpenModelRequested?.Invoke(_selectedFurniture);
     private void ChangeModelButtonClickHandler() => OnChangeModelRequested?.Invoke(_selectedFurniture);
     private void ChangePreviewButtonClickHandler() => OnChangePreviewRequested?.Invoke(_selectedFurniture);
-    private void AddFurnitureButtonClickHandler()
-    {
-        FurnitureViewData newFurniture = new()
-        {
-            Id = 0,
-            IsNew = true,
-
-            Name = string.Empty,
-            Description = string.Empty,
-            Manufacturer = string.Empty,
-
-            FurnitureTypeId = 1,
-            FurnitureTypeName = "",
-
-            ColorTypeId = 1,
-            ColorTypeName = "",
-
-            Width = 0,
-            Height = 0,
-            Depth = 0,
-
-            Price = 0,
-
-            FilePath = string.Empty,
-            ThumbnailPath = string.Empty,
-
-            IsAvailable = true,
-
-            CreatedAt = "-",
-            UpdatedAt = "-",
-
-            SourceFurniture = null
-        };
-        ShowSelectedFurniture(newFurniture);
-    }
+    private void AddFurnitureButtonClickHandler() => OnAddFurnitureRequested?.Invoke();
+    private void RemoveFurnitureButtonClickHandler() => OnRemoveFurnitureRequsted?.Invoke(_selectedFurniture);
 
     private void ApplyPreviewDataToSelectedFurniture()
     {

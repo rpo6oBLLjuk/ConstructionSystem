@@ -15,23 +15,24 @@ public class FurnitureModule
     public async UniTask<int> GetFurnitureCount(string search) => (await GetFilteredFurniture(search)).Count;
     public async UniTask<List<Furniture>> GetFurniturePage(int offset, int count, string search) => (await GetFilteredFurniture(search)).OrderBy(item => item.Id).Skip(offset).Take(count).ToList();
 
-    public async UniTask<int> CreateFurniture(Furniture furniture)
+    public async UniTask CreateFurnitureWithCustomId(Furniture furniture)
     {
         furniture.CreatedAt = System.DateTime.Now;
         furniture.UpdatedAt = System.DateTime.Now;
 
-        await _furnitureRepository.Insert(furniture);
-
-        return furniture.Id;
+        await _furnitureRepository.InsertOrReplaceAsync(furniture);
     }
     public async UniTask UpdateFurniture(Furniture furniture)
     {
         furniture.UpdatedAt = System.DateTime.Now;
         await _furnitureRepository.Update(furniture);
     }
+    public async UniTask DeleteFurniture(Furniture furniture) => await _furnitureRepository.Delete(furniture);
 
     public async UniTask<List<FurnitureType>> GetFurnitureTypes() => await _furnitureRepository.GetFurnitureTypes();
     public async UniTask<List<ColorType>> GetColorTypes() => await _furnitureRepository.GetColorTypes();
+
+    public async UniTask<int> GetNextId() => await _furnitureRepository.GetNextId();
 
     private async UniTask<List<Furniture>> GetFilteredFurniture(string search)
     {

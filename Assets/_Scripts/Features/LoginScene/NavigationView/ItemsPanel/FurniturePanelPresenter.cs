@@ -14,7 +14,8 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
     [Inject] private NotificationService _notificationService;
     [Inject] private FurnitureDataSaver _furnitureDataSaver;
 
-    [SerializeField] ModelPreviewCameraController _previewCameraController;
+    [Inject] ModelPreviewCameraController _previewCameraController;
+
     [SerializeField] private FurniturePanelView _view;
 
     [field: SerializeField] private int _pageSize = 6;
@@ -45,6 +46,10 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _view.OnOpenModelRequested += HandleOpenModelRequested;
         _view.OnChangeModelRequested += HandleChangeModelRequested;
         _view.OnChangePreviewRequested += HandleChangePreviewRequested;
+        _view.OnRemoveFurnitureRequsted += HandleRemoveFurniture;
+        _view.OnAddFurnitureRequested += HandleFurnitureAdd;
+
+        _previewCameraController.PreviewSaveRequested += HandlePreviewSave;
     }
     protected override void OnDisable()
     {
@@ -61,6 +66,10 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _view.OnOpenModelRequested -= HandleOpenModelRequested;
         _view.OnChangeModelRequested -= HandleChangeModelRequested;
         _view.OnChangePreviewRequested -= HandleChangePreviewRequested;
+        _view.OnRemoveFurnitureRequsted -= HandleRemoveFurniture;
+        _view.OnAddFurnitureRequested -= HandleFurnitureAdd;
+
+        _previewCameraController.PreviewSaveRequested -= HandlePreviewSave;
     }
 
     public override void Show()
@@ -77,10 +86,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _view.SetFurnitureTypes(_types);
         _view.SetColorTypes(_colors);
 
-        bool canEdit = _userModule.CurrentUser != null &&
-                       _userModule.CurrentUser.RoleId == 3;
-
-        _view.SetEditMode(canEdit);
+        _view.SetEditMode(CanEditFurniture());
 
         await LoadPage(1);
     }
@@ -138,11 +144,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         _view.SetFurniture(viewData);
         _view.SetPagination(_currentPage, _totalPages);
-
-        //if (viewData.Count > 0)
-        //    HandleFurnitureSelected(viewData[0]);
-        //else
-        //    HandleFurnitureSelected(null);
     }
     private async UniTask SaveFurnitureChanges(FurnitureViewData furnitureViewData)
     {
@@ -150,37 +151,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             return;
 
         Furniture source = furnitureViewData.IsNew ? new() : furnitureViewData.SourceFurniture;
-
-        bool changed =
-            source.Name != furnitureViewData.Name ||
-            source.Description != furnitureViewData.Description ||
-            source.FurnitureTypeId != furnitureViewData.FurnitureTypeId ||
-            source.ColorTypeId != furnitureViewData.ColorTypeId ||
-            source.Manufacturer != furnitureViewData.Manufacturer ||
-            !Mathf.Approximately(source.Width, furnitureViewData.Width) ||
-            !Mathf.Approximately(source.Height, furnitureViewData.Height) ||
-            !Mathf.Approximately(source.Depth, furnitureViewData.Depth) ||
-            source.FilePath != furnitureViewData.FilePath ||
-            source.ThumbnailPath != furnitureViewData.ThumbnailPath ||
-            !Approximately(source.Price, furnitureViewData.Price) ||
-            source.IsAvailable != furnitureViewData.IsAvailable;
-
-        if (!changed)
-        {
-            _notificationService.ShowPopup(
-                "The furniture data is identical to the current one.",
-                "Furniture save",
-                NotificationType.Info
-            );
-
-            return;
-        }
-
-        string originalModelPath = furnitureViewData.FilePath;
-        string originalPreviewPath = furnitureViewData.ThumbnailPath;
-
-        string modelFileName = _furnitureDataSaver.GetFileName(originalModelPath);
-        string previewFileName = _furnitureDataSaver.GetFileName(originalPreviewPath);
+        source.Id = furnitureViewData.Id;
 
         source.Name = furnitureViewData.Name;
         source.Description = furnitureViewData.Description;
@@ -197,60 +168,32 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         source.Price = furnitureViewData.Price;
         source.IsAvailable = furnitureViewData.IsAvailable;
 
-        source.FilePath = modelFileName;
-        source.ThumbnailPath = previewFileName;
+        source.HasModel = furnitureViewData.HasModel;
+        source.HasPreview = furnitureViewData.HasPreview;
 
         if (furnitureViewData.IsNew)
         {
-            int id = await _furnitureModule.CreateFurniture(source);
+            await _furnitureModule.CreateFurnitureWithCustomId(source);
 
-            furnitureViewData.Id = id;
             furnitureViewData.IsNew = false;
             furnitureViewData.SourceFurniture = source;
 
             furnitureViewData.CreatedAt = GetFormatDate(source.CreatedAt);
         }
         else
+        {
+            Debug.Log(source.Id);
             await _furnitureModule.UpdateFurniture(source);
+            Debug.Log(source.Id);
+        }
 
         furnitureViewData.UpdatedAt = GetFormatDate(source.UpdatedAt);
-
-        if (!string.IsNullOrWhiteSpace(originalModelPath) && File.Exists(originalModelPath))
-        {
-            string savedModelName = _furnitureDataSaver.SaveModelFile(
-                source.Id,
-                originalModelPath,
-                message => DebugWrapper.FastLog(this, message),
-                error => DebugWrapper.LogError(this, error)
-            );
-
-            if (!string.IsNullOrWhiteSpace(savedModelName))
-            {
-                source.FilePath = savedModelName;
-                furnitureViewData.FilePath = savedModelName;
-            }
-        }
-        if (!string.IsNullOrWhiteSpace(originalPreviewPath) && File.Exists(originalPreviewPath))
-        {
-            string savedPreviewName = _furnitureDataSaver.SavePreviewFile(
-                source.Id,
-                originalPreviewPath,
-                message => DebugWrapper.FastLog(this, message),
-                error => DebugWrapper.LogError(this, error)
-            );
-
-            if (!string.IsNullOrWhiteSpace(savedPreviewName))
-            {
-                source.ThumbnailPath = savedPreviewName;
-                furnitureViewData.ThumbnailPath = savedPreviewName;
-            }
-        }
 
         await LoadPage(_currentPage);
         _view.RefreshFurniture(furnitureViewData);
 
         _notificationService.ShowPopup(
-            "Furniture data has been saved successfully",
+            $"Furniture <b>{furnitureViewData.Id}</b>_{furnitureViewData.SourceFurniture.Id} data has been saved successfully",
             "Furniture saved",
             NotificationType.Success
         );
@@ -268,12 +211,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         if (furniture == null)
             return;
 
-        string fullModelPath = _furnitureDataSaver.GetModelPath(
-            furniture.Id,
-            furniture.FilePath
-        );
-
-        _furnitureDataSaver.LoadModelGameObject(furniture.Id, furniture.FilePath, _previewCameraController.ModelContainer, onComplete: _ => _previewCameraController.Show()).Forget();
+        ShowModelPreview(furniture);
     }
     private void HandleChangeModelRequested(FurnitureViewData furniture)
     {
@@ -281,13 +219,19 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             return;
 
         string selectedPath = OpenModelFileDialog();
-
         if (string.IsNullOrWhiteSpace(selectedPath))
             return;
 
-        furniture.FilePath = selectedPath;
+        _furnitureDataSaver.SaveModelFile(furniture.Id, selectedPath, onMessage: _ =>
+        {
+            furniture.HasModel = true;
 
-        _view.ShowSelectedFurniture(furniture);
+            _furnitureDataSaver.LoadModelGameObject(furniture.Id, _previewCameraController.ModelContainer, onComplete: _ =>
+            {
+                _previewCameraController.Show();
+                _view.SetEditMode(CanEditFurniture());
+            }, onError: error => this.FastLog(error)).Forget();
+        });
     }
     private void HandleChangePreviewRequested(FurnitureViewData furniture)
     {
@@ -299,10 +243,69 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         if (string.IsNullOrWhiteSpace(selectedPath))
             return;
 
-        furniture.ThumbnailPath = selectedPath;
+        _furnitureDataSaver.SavePreviewFile(furniture.Id, selectedPath, onMessage: _ =>
+        {
+            furniture.HasPreview = true;
+            _furnitureDataSaver.LoadPreviewSprite(furniture.Id, onComplete: sprite =>
+            {
+                furniture.Preview = sprite;
+            }).Forget();
+        });
+    }
+    private async void HandleRemoveFurniture(FurnitureViewData furniture)
+    {
+        await _furnitureModule.DeleteFurniture(furniture.SourceFurniture);
 
-        _view.ShowSelectedFurniture(furniture);
-        _view.RefreshFurniture(furniture);
+        _furnitureDataSaver.DeleteFurnitureData(furniture.Id);
+        _notificationService.ShowPopup("Deletion completed successfully", "Delete success", NotificationType.Success);
+
+        _selectedFurniture = null;
+        _view.ClearSelectedFurniturePanel();
+        await LoadPage(_currentPage);
+    }
+    private async void HandleFurnitureAdd()
+    {
+        int newId = await _furnitureModule.GetNextId();
+        FurnitureViewData newFurniture = new()
+        {
+            Id = newId,
+            IsNew = true,
+
+            Name = string.Empty,
+            Description = string.Empty,
+            Manufacturer = string.Empty,
+
+            FurnitureTypeId = 1,
+            FurnitureTypeName = "",
+
+            ColorTypeId = 1,
+            ColorTypeName = "",
+
+            Width = 0,
+            Height = 0,
+            Depth = 0,
+
+            Price = 0,
+
+            HasModel = false,
+            HasPreview = false,
+
+            IsAvailable = true,
+
+            CreatedAt = "-",
+            UpdatedAt = "-",
+
+            SourceFurniture = null
+        };
+
+        HandleFurnitureSelected(newFurniture);
+    }
+
+    private void HandlePreviewSave(byte[] texture, string extension, Texture2D texture2d)
+    {
+        _selectedFurniture.HasPreview = true;
+        _furnitureDataSaver.SavePreviewBytes(_selectedFurniture.Id, texture, extension);
+        _selectedFurniture.Preview = _furnitureDataSaver.ConvertTextureToSprite(texture2d);
     }
 
     private bool IsFurnitureDataValid(FurnitureViewData data)
@@ -313,9 +316,9 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(data.FilePath))
+        if (!data.HasModel)
         {
-            _notificationService.ShowPopup("Model file path cannot be empty.", "Input warning", NotificationType.Warning);
+            _notificationService.ShowPopup("Model cannot be empty.", "Input warning", NotificationType.Warning);
             return false;
         }
 
@@ -346,15 +349,13 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
     }
     private string GetFormatDate(DateTime dateTime) => $"{dateTime:dd.MM.yyyy} - {dateTime:HH:mm:ss}";
 
-    private bool Approximately(double a, double b)
-    {
-        return System.Math.Abs(a - b) < 0.001d;
-    }
+    private bool Approximately(double a, double b) => Math.Abs(a - b) < 0.001d;
     private FurnitureViewData ConvertToViewData(Furniture furniture)
     {
         return new FurnitureViewData
         {
             Id = furniture.Id,
+            IsNew = false,
 
             Name = furniture.Name,
             Description = furniture.Description,
@@ -371,8 +372,8 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             Height = furniture.Height,
             Depth = furniture.Depth,
 
-            FilePath = furniture.FilePath,
-            ThumbnailPath = furniture.ThumbnailPath,
+            HasModel = furniture.HasModel,
+            HasPreview = furniture.HasPreview,
 
             Price = furniture.Price,
 
@@ -387,4 +388,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
     private string OpenModelFileDialog() => StandaloneFileBrowser.OpenFilePanel("Select 3D model", "", new ExtensionFilter[] { new("3D model", _furnitureDataSaver.ModelExtensions) }, false).FirstOrDefault();
     private string OpenPreviewFileDialog() => StandaloneFileBrowser.OpenFilePanel("Select preview image", "", new ExtensionFilter[] { new("Image", _furnitureDataSaver.PreviewExtensions) }, false).FirstOrDefault();
+
+    private void ShowModelPreview(FurnitureViewData furniture) => _furnitureDataSaver.LoadModelGameObject(furniture.Id, _previewCameraController.ModelContainer, onComplete: _ => _previewCameraController.Show()).Forget();
 }

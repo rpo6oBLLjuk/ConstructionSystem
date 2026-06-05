@@ -110,5 +110,10 @@ public class DBService : IInitializable, IDisposable
         };
         await conn.InsertAllAsync(_defaultColorTypes);
     }
+    public async UniTask RecreateTable<T>() where T : IDBEntity, new()
+    {
+        await _db.DropTableAsync<T>();
+        await _db.CreateTableAsync<T>();
+    }
 #endif
 }

@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,12 +9,19 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
 {
     [Inject] FurnitureDataSaver _furnitureDataSaver;
 
+    /// <summary>
+    /// Save preview from render texture, byte[] is texture, string is extension
+    /// </summary>
+    public event Action<byte[], string, Texture2D> PreviewSaveRequested;
+
     [Header("RenderZone")]
     [field: SerializeField] public Transform ModelContainer { get; private set; }
+    [SerializeField] private Transform _wallsContainer;
 
     [Header("Camera")]
     [SerializeField] private Camera _previewCamera;
     [SerializeField] private Transform _cameraContainer;
+    [SerializeField] private RenderTexture _renderTexture;
 
     [Header("UI Buttons")]
     [SerializeField] private Button _rotateLeftButton;
@@ -23,6 +31,7 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
 
     [SerializeField] private Button _resetButton;
     [SerializeField] private Button _saveButton;
+    [SerializeField] private Button _wallsButton;
 
     [Header("Rotation")]
     [SerializeField] private float _mouseRotationSpeed = 12f;
@@ -39,6 +48,7 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
     [SerializeField] private float _defaultHorizontalAngle = 0f;
     [SerializeField] private float _defaultVerticalAngle = 25f;
     [SerializeField] private float _defaultDistance = 4f;
+    [SerializeField] private float _animRotateDuration = 0.1f;
 
     [Header("Control")]
     [SerializeField] Button _closeButton;
@@ -49,6 +59,9 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
     private float _horizontalAngle;
     private float _verticalAngle;
     private float _distance;
+
+    private const string _previewExtension = ".jpg";
+    private const int _previewQuality = 85;
 
 
     private void Awake()
@@ -61,6 +74,10 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
         _distance = Mathf.Clamp(_defaultDistance, _minDistance, _maxDistance);
 
         ApplyCameraTransform();
+
+        _canvasGroup.alpha = 0;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
     }
 
     private void OnEnable()
@@ -72,8 +89,9 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
 
         _resetButton.onClick.AddListener(ResetCamera);
 
-        //_saveButton.onClick.AddListener();
+        _saveButton.onClick.AddListener(SaveHandler);
         _closeButton.onClick.AddListener(Hide);
+        _wallsButton.onClick.AddListener(ToggleWalls);
     }
     private void OnDisable()
     {
@@ -84,8 +102,9 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
 
         _resetButton.onClick.RemoveListener(ResetCamera);
 
-        //_saveButton.onClick.AddListener();
+        _saveButton.onClick.AddListener(SaveHandler);
         _closeButton.onClick.RemoveListener(Hide);
+        _wallsButton.onClick.RemoveListener(ToggleWalls);
 
         _isDragging = false;
     }
@@ -145,27 +164,27 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
     {
         _horizontalAngle += _buttonRotationStep;
         SnapAnglesToStep();
-        ApplyCameraTransform();
+        ApplyCameraTransform(true);
     }
     private void RotateRight()
     {
         _horizontalAngle -= _buttonRotationStep;
         SnapAnglesToStep();
-        ApplyCameraTransform();
+        ApplyCameraTransform(true);
     }
     private void RotateUp()
     {
         _verticalAngle += _buttonRotationStep;
         SnapAnglesToStep();
         ClampVerticalAngle();
-        ApplyCameraTransform();
+        ApplyCameraTransform(true);
     }
     private void RotateDown()
     {
         _verticalAngle -= _buttonRotationStep;
         SnapAnglesToStep();
         ClampVerticalAngle();
-        ApplyCameraTransform();
+        ApplyCameraTransform(true);
     }
 
     private void ResetCamera()
@@ -174,7 +193,16 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
         _verticalAngle = Mathf.Clamp(_defaultVerticalAngle, _minVerticalAngle, _maxVerticalAngle);
         _distance = Mathf.Clamp(_defaultDistance, _minDistance, _maxDistance);
 
-        ApplyCameraTransform();
+        ApplyCameraTransform(true);
+    }
+    private void ToggleWalls() => _wallsContainer.gameObject.SetActive(!_wallsContainer.gameObject.activeSelf);
+
+    private void SaveHandler()
+    {
+        Texture2D previewTexture = BuildPreviewTexture();
+        byte[] bytes = previewTexture.EncodeToJPG(_previewQuality);
+
+        PreviewSaveRequested?.Invoke(bytes, _previewExtension, previewTexture);
     }
 
     private void SnapAnglesToStep()
@@ -186,16 +214,48 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
     {
         _verticalAngle = Mathf.Clamp(_verticalAngle, _minVerticalAngle, _maxVerticalAngle);
     }
-    private void ApplyCameraTransform()
+    private void ApplyCameraTransform(bool anim = false)
     {
         if (_cameraContainer == null || _previewCamera == null)
             return;
 
-        _cameraContainer.rotation = Quaternion.Euler(_verticalAngle, _horizontalAngle, 0f);
-
         Transform cameraTransform = _previewCamera.transform;
 
-        cameraTransform.localPosition = new Vector3(0f, 0f, -_distance);
-        cameraTransform.localRotation = Quaternion.identity;
+        if (!anim)
+        {
+            _cameraContainer.rotation = Quaternion.Euler(_verticalAngle, _horizontalAngle, 0f);
+
+            cameraTransform.localPosition = new Vector3(0f, 0f, -_distance);
+            cameraTransform.localRotation = Quaternion.identity;
+        }
+        else
+        {
+            _cameraContainer.DORotateQuaternion(Quaternion.Euler(_verticalAngle, _horizontalAngle, 0f), _animRotateDuration);
+
+            cameraTransform.DOLocalMove(new Vector3(0f, 0f, -_distance), _animRotateDuration);
+            cameraTransform.DOLocalRotateQuaternion(Quaternion.identity, _animRotateDuration);
+        }
+    }
+
+    private Texture2D BuildPreviewTexture()
+    {
+        RenderTexture previousActive = RenderTexture.active;
+
+        _previewCamera.targetTexture = _renderTexture;
+        _previewCamera.Render();
+
+        RenderTexture.active = _renderTexture;
+
+        Texture2D texture = new(_renderTexture.width, _renderTexture.height, TextureFormat.RGBA32, false, false);
+
+        texture.ReadPixels(new Rect(0, 0, _renderTexture.width, _renderTexture.height), 0, 0);
+        Color[] pixels = texture.GetPixels();
+
+        for (int i = 0; i < pixels.Length; i++)
+            pixels[i] = pixels[i].gamma;
+        texture.Apply();
+
+        RenderTexture.active = previousActive;
+        return texture;
     }
 }

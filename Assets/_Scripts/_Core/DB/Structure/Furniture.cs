@@ -4,7 +4,7 @@ using SQLite;
 [Table("Furniture")]
 public class Furniture : IDBEntity
 {
-    [PrimaryKey, AutoIncrement]
+    [PrimaryKey]
     public int Id { get; set; }
 
     [NotNull]
@@ -22,9 +22,8 @@ public class Furniture : IDBEntity
     public float Height { get; set; }
     public float Depth { get; set; }
 
-    [NotNull]
-    public string FilePath { get; set; }          // путь к 3D-модели
-    public string ThumbnailPath { get; set; }     // путь к превью
+    public bool HasModel { get; set; }
+    public bool HasPreview { get; set; }
 
     public double Price { get; set; }
 

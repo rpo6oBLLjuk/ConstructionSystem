@@ -20,8 +20,8 @@ public class FurnitureViewData
     public float Height { get; set; }
     public float Depth { get; set; }
 
-    public string FilePath { get; set; }
-    public string ThumbnailPath { get; set; }
+    public bool HasModel { get; set; } = false;
+    public bool HasPreview { get; set; } = false;
 
     public double Price { get; set; }
 
