@@ -150,6 +150,9 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         if (!IsFurnitureDataValid(furnitureViewData))
             return;
 
+        if (!IsFurnitureDataChanged(furnitureViewData))
+            return;
+
         Furniture source = furnitureViewData.IsNew ? new() : furnitureViewData.SourceFurniture;
         source.Id = furnitureViewData.Id;
 
@@ -171,6 +174,8 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         source.HasModel = furnitureViewData.HasModel;
         source.HasPreview = furnitureViewData.HasPreview;
 
+        furnitureViewData.ModelOrPreviewChanged = false;
+
         if (furnitureViewData.IsNew)
         {
             await _furnitureModule.CreateFurnitureWithCustomId(source);
@@ -182,9 +187,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         }
         else
         {
-            Debug.Log(source.Id);
             await _furnitureModule.UpdateFurniture(source);
-            Debug.Log(source.Id);
         }
 
         furnitureViewData.UpdatedAt = GetFormatDate(source.UpdatedAt);
@@ -225,6 +228,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _furnitureDataSaver.SaveModelFile(furniture.Id, selectedPath, onMessage: _ =>
         {
             furniture.HasModel = true;
+            furniture.ModelOrPreviewChanged = true;
 
             _furnitureDataSaver.LoadModelGameObject(furniture.Id, _previewCameraController.ModelContainer, onComplete: _ =>
             {
@@ -246,6 +250,8 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _furnitureDataSaver.SavePreviewFile(furniture.Id, selectedPath, onMessage: _ =>
         {
             furniture.HasPreview = true;
+            furniture.ModelOrPreviewChanged = true;
+
             _furnitureDataSaver.LoadPreviewSprite(furniture.Id, onComplete: sprite =>
             {
                 furniture.Preview = sprite;
@@ -304,6 +310,8 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
     private void HandlePreviewSave(byte[] texture, string extension, Texture2D texture2d)
     {
         _selectedFurniture.HasPreview = true;
+        _selectedFurniture.ModelOrPreviewChanged = true;
+
         _furnitureDataSaver.SavePreviewBytes(_selectedFurniture.Id, texture, extension);
         _selectedFurniture.Preview = _furnitureDataSaver.ConvertTextureToSprite(texture2d);
     }
@@ -335,6 +343,39 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         }
 
         return true;
+    }
+    private bool IsFurnitureDataChanged(FurnitureViewData data)
+    {
+        if (data.IsNew)
+            return true;
+
+        if (data.SourceFurniture == null)
+            return true;
+
+        Furniture source = data.SourceFurniture;
+
+        bool changed =
+        data.Name?.Trim() != source.Name?.Trim() ||
+        data.Description?.Trim() != source.Description?.Trim() ||
+        data.Manufacturer?.Trim() != source.Manufacturer?.Trim() ||
+
+        data.FurnitureTypeId != source.FurnitureTypeId ||
+        data.ColorTypeId != source.ColorTypeId ||
+
+        Mathf.Abs(data.Width - source.Width) > 0.001f ||
+        Mathf.Abs(data.Height - source.Height) > 0.001f ||
+        Mathf.Abs(data.Depth - source.Depth) > 0.001f ||
+
+        Math.Abs(data.Price - source.Price) > 0.001 ||
+
+        data.HasModel != source.HasModel ||
+        data.HasPreview != source.HasPreview ||
+        data.IsAvailable != source.IsAvailable || data.ModelOrPreviewChanged;
+
+        if (!changed)
+            _notificationService.ShowPopup("Furniture data has not been changed", "Saving canceled", NotificationType.Info);
+
+        return changed;
     }
 
     private string GetFurnitureTypeName(int typeId)

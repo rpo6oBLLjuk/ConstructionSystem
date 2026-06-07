@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using SQLite;
 using UnityEngine;
 using Zenject;
+using Directory = System.IO.Directory;
 
 public class DBService : IInitializable, IDisposable
 {
@@ -17,6 +18,10 @@ public class DBService : IInitializable, IDisposable
 
     public async void Initialize()
     {
+        string directory = Path.GetDirectoryName(_dbPath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
+
         _db = new SQLiteAsyncConnection(_dbPath);
 
         try
@@ -58,58 +63,6 @@ public class DBService : IInitializable, IDisposable
     }
 
 #if UNITY_EDITOR
-    private async UniTask AddRoleTypes(SQLiteAsyncConnection conn)
-    {
-        List<Role> _defaultRoleTypes = new()
-        {
-            new Role { Name = "Client" },
-            new Role { Name = "Manager" },
-            new Role { Name = "Admin" }
-        };
-        await conn.InsertAllAsync(_defaultRoleTypes);
-    }
-    private async UniTask AddFunitureTypes(SQLiteAsyncConnection conn)
-    {
-        List<FurnitureType> _defaultFurnitureTypes = new()
-        {
-            new FurnitureType { Name = "Chair" },
-            new FurnitureType { Name = "Table" },
-            new FurnitureType { Name = "Sofa" },
-            new FurnitureType { Name = "Cabinet" },
-            new FurnitureType { Name = "Shelf" },
-            new FurnitureType { Name = "Bed" },
-            new FurnitureType { Name = "Desk" },
-            new FurnitureType { Name = "Armchair" },
-            new FurnitureType { Name = "Wardrobe" },
-            new FurnitureType { Name = "Lamp" },
-            new FurnitureType { Name = "Nightstand" },
-            new FurnitureType { Name = "TV Stand" }
-        };
-        await conn.InsertAllAsync(_defaultFurnitureTypes);
-    }
-    private async UniTask AddColorTypes(SQLiteAsyncConnection conn)
-    {
-        List<ColorType> _defaultColorTypes = new()
-        {
-            new ColorType { Name = "White" },
-            new ColorType { Name = "Black" },
-            new ColorType { Name = "Gray" },
-            new ColorType { Name = "Brown" },
-            new ColorType { Name = "Beige" },
-            new ColorType { Name = "Natural Wood" },
-            new ColorType { Name = "Dark Wood" },
-            new ColorType { Name = "Oak" },
-            new ColorType { Name = "Walnut" },
-            new ColorType { Name = "Red" },
-            new ColorType { Name = "Blue" },
-            new ColorType { Name = "Green" },
-            new ColorType { Name = "Yellow" },
-            new ColorType { Name = "Orange" },
-            new ColorType { Name = "Metallic" },
-            new ColorType { Name = "Transparent" }
-        };
-        await conn.InsertAllAsync(_defaultColorTypes);
-    }
     public async UniTask RecreateTable<T>() where T : IDBEntity, new()
     {
         await _db.DropTableAsync<T>();

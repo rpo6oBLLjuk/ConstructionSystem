@@ -29,8 +29,61 @@ public class FurnitureModule
     }
     public async UniTask DeleteFurniture(Furniture furniture) => await _furnitureRepository.Delete(furniture);
 
-    public async UniTask<List<FurnitureType>> GetFurnitureTypes() => await _furnitureRepository.GetFurnitureTypes();
-    public async UniTask<List<ColorType>> GetColorTypes() => await _furnitureRepository.GetColorTypes();
+    public async UniTask<List<FurnitureType>> GetFurnitureTypes()
+    {
+        List<FurnitureType> types = await _furnitureRepository.GetFurnitureTypes();
+        if (types.Count == 0)
+        {
+            types = new()
+            {
+                new FurnitureType { Name = "Chair" },
+                new FurnitureType { Name = "Table" },
+                new FurnitureType { Name = "Sofa" },
+                new FurnitureType { Name = "Cabinet" },
+                new FurnitureType { Name = "Shelf" },
+                new FurnitureType { Name = "Bed" },
+                new FurnitureType { Name = "Desk" },
+                new FurnitureType { Name = "Armchair" },
+                new FurnitureType { Name = "Wardrobe" },
+                new FurnitureType { Name = "Lamp" },
+                new FurnitureType { Name = "Nightstand" },
+                new FurnitureType { Name = "TV Stand" }
+            };
+            await _furnitureRepository.InsertFurnitureTypes(types);
+        }
+
+        return types;
+    }
+    public async UniTask<List<ColorType>> GetColorTypes()
+    {
+        List<ColorType> types = await _furnitureRepository.GetColorTypes();
+
+        if (types.Count == 0)
+        {
+            types = new()
+            {
+                new ColorType { Name = "White" },
+                new ColorType { Name = "Black" },
+                new ColorType { Name = "Gray" },
+                new ColorType { Name = "Brown" },
+                new ColorType { Name = "Beige" },
+                new ColorType { Name = "Natural Wood" },
+                new ColorType { Name = "Dark Wood" },
+                new ColorType { Name = "Oak" },
+                new ColorType { Name = "Walnut" },
+                new ColorType { Name = "Red" },
+                new ColorType { Name = "Blue" },
+                new ColorType { Name = "Green" },
+                new ColorType { Name = "Yellow" },
+                new ColorType { Name = "Orange" },
+                new ColorType { Name = "Metallic" },
+                new ColorType { Name = "Transparent" }
+            };
+
+            await _furnitureRepository.InsertColorTypes(types);
+        }
+        return types;
+    }
 
     public async UniTask<int> GetNextId() => await _furnitureRepository.GetNextId();
 

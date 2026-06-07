@@ -83,8 +83,6 @@ public class FurniturePanelView : MonoBehaviour
     private Sprite _defaultPreview;
     private bool _canEdit;
 
-    private UIEffect _previousSelectedView;
-
 
     private void OnEnable()
     {
@@ -169,13 +167,11 @@ public class FurniturePanelView : MonoBehaviour
                 FurnitureSelectionHandler
             );
 
-            //DisablePreviousUIEffect(item);
+            SetUIEffectState(item.UIEffect, false);
 
             _createdViews.Add(view);
             _createdViewsByFurnitureId[item.Id] = view;
         }
-
-        DisablePreviousUIEffect(null);
     }
     public void SetPagination(int currentPage, int totalPages)
     {
@@ -405,14 +401,11 @@ public class FurniturePanelView : MonoBehaviour
 
     private void DisablePreviousUIEffect(FurnitureViewData newView)
     {
-        if (_previousSelectedView != null)
-            SetUIEffectState(_previousSelectedView, false);
+        if (_selectedFurniture != null)
+            SetUIEffectState(_selectedFurniture.UIEffect, false);
 
-        if (newView != null && newView.ViewObject != null)
-        {
-            _previousSelectedView = newView.ViewObject.GetComponentInChildren<UIEffect>();
-            SetUIEffectState(_previousSelectedView, true);
-        }
+        if (newView != null)
+            SetUIEffectState(newView.UIEffect, true);
     }
     private void SetUIEffectState(UIEffect reference, bool selected)
     {

@@ -5,9 +5,10 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 
-public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IScrollHandler
+public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IScrollHandler
 {
     [Inject] FurnitureDataSaver _furnitureDataSaver;
+    [Inject] CursorController _cursorController;
 
     /// <summary>
     /// Save preview from render texture, byte[] is texture, string is extension
@@ -64,22 +65,6 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
     private const int _previewQuality = 85;
 
 
-    private void Awake()
-    {
-        if (_previewCamera == null)
-            _previewCamera = GetComponentInChildren<Camera>();
-
-        _horizontalAngle = _defaultHorizontalAngle;
-        _verticalAngle = Mathf.Clamp(_defaultVerticalAngle, _minVerticalAngle, _maxVerticalAngle);
-        _distance = Mathf.Clamp(_defaultDistance, _minDistance, _maxDistance);
-
-        ApplyCameraTransform();
-
-        _canvasGroup.alpha = 0;
-        _canvasGroup.interactable = false;
-        _canvasGroup.blocksRaycasts = false;
-    }
-
     private void OnEnable()
     {
         _rotateLeftButton.onClick.AddListener(RotateLeft);
@@ -109,6 +94,36 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
         _isDragging = false;
     }
 
+    private void Awake()
+    {
+        if (_previewCamera == null)
+            _previewCamera = GetComponentInChildren<Camera>();
+
+        _horizontalAngle = _defaultHorizontalAngle;
+        _verticalAngle = Mathf.Clamp(_defaultVerticalAngle, _minVerticalAngle, _maxVerticalAngle);
+        _distance = Mathf.Clamp(_defaultDistance, _minDistance, _maxDistance);
+
+        ApplyCameraTransform();
+
+        _canvasGroup.alpha = 0;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
+    }
+
+    private void Update()
+    {
+        if (!_isDragging)
+            return;
+
+        Vector2 delta = Input.mousePositionDelta;
+
+        _horizontalAngle += delta.x * _mouseRotationSpeed * Time.deltaTime;
+        _verticalAngle -= delta.y * _mouseRotationSpeed * Time.deltaTime;
+
+        ClampVerticalAngle();
+        ApplyCameraTransform();
+    }
+
     public void Show()
     {
         _canvasGroup.DOFade(1, 0.25f);
@@ -128,6 +143,7 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
             return;
 
         _isDragging = true;
+        _cursorController.ChangeCurcorState(false);
     }
     public void OnPointerUp(PointerEventData eventData)
     {
@@ -135,21 +151,9 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
             return;
 
         _isDragging = false;
+        _cursorController.ChangeCurcorState(true);
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!_isDragging)
-            return;
-
-        Vector2 delta = eventData.delta;
-
-        _horizontalAngle += delta.x * _mouseRotationSpeed * Time.deltaTime;
-        _verticalAngle -= delta.y * _mouseRotationSpeed * Time.deltaTime;
-
-        ClampVerticalAngle();
-        ApplyCameraTransform();
-    }
     public void OnScroll(PointerEventData eventData)
     {
         float scroll = eventData.scrollDelta.y;

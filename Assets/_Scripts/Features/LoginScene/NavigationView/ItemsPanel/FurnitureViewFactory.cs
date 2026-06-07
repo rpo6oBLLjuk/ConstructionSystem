@@ -37,6 +37,14 @@ public class FurnitureViewFactory : MonoBehaviour
         FillText(layout, "ItemColor", furniture.ColorTypeName);
 
         FillPreview(layout, "ItemPreviewContainer/ItemPreview", furniture.Id, furniture);
+
+        if(layout.Find("Background").TryGetComponent(out UIEffect uiEffect))
+            furniture.UIEffect = uiEffect;
+
+        if (layout.Find("ItemToggle").TryGetComponent(out Toggle toggle))
+            toggle.SetIsOnWithoutNotify(furniture.IsAvailable);
+        else
+            this.FastLog("Toggle Error");
     }
 
     private void InitializeViewData(GameObject viewObject, FurnitureViewData furniture, Action<FurnitureViewData> onFurnitureSelected)
@@ -46,8 +54,6 @@ public class FurnitureViewFactory : MonoBehaviour
 
         if (viewObject.TryGetComponent<Button>(out var selectButton))
             selectButton.onClick.AddListener(() => onFurnitureSelected?.Invoke(furniture));
-        else
-            DebugWrapper.LogWarning(this, "Button component not found on furniture view prefab");
     }
 
     private void FillText(Transform root, string objectName, string value) => root.Find(objectName).GetComponent<TMP_Text>().text = value;

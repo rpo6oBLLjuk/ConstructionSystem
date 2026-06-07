@@ -1,3 +1,4 @@
+using Coffee.UIEffects;
 using UnityEngine;
 
 public class FurnitureViewData
@@ -23,6 +24,8 @@ public class FurnitureViewData
     public bool HasModel { get; set; } = false;
     public bool HasPreview { get; set; } = false;
 
+    public bool ModelOrPreviewChanged { get; set; } = false;
+
     public double Price { get; set; }
 
     public bool IsAvailable { get; set; }
@@ -33,4 +36,5 @@ public class FurnitureViewData
     public Furniture SourceFurniture { get; set; }
     public Sprite Preview { get; set; }
     public GameObject ViewObject { get; set; }
+    public UIEffect UIEffect { get; set; }
 }

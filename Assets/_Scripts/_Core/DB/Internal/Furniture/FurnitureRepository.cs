@@ -10,6 +10,9 @@ public class FurnitureRepository : Repository<Furniture>
     public async UniTask<List<FurnitureType>> GetFurnitureTypes() => await Db.Table<FurnitureType>().ToListAsync();
     public async UniTask<List<ColorType>> GetColorTypes() => await Db.Table<ColorType>().ToListAsync();
 
+    public async UniTask InsertFurnitureTypes(List<FurnitureType> types) => await Db.InsertAllAsync(types);
+    public async UniTask InsertColorTypes(List<ColorType> types) => await Db.InsertAllAsync(types);
+
     public async UniTask<int> GetNextId()
     {
         var lastFurniture = await Db.Table<Furniture>().OrderByDescending(f => f.Id).FirstOrDefaultAsync();

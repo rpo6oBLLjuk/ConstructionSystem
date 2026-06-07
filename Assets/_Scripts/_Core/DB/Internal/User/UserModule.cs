@@ -51,6 +51,12 @@ public class UserModule
         user.PasswordHash = HashPassword(user.PasswordHash);
         user.CreatedAt = DateTime.Now;
 
+        if (await GetUsersCount() == 0) //If users count is null, first user is admin
+        {
+            await _userRepository.AddRoleTypes();
+            user.RoleId = 3;
+        }
+
         try
         {
             await _userRepository.Insert(user);

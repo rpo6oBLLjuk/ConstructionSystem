@@ -65,6 +65,7 @@ public class CameraSplineController : MonoBehaviour
         _cinemachineSplineDolly.CameraPosition = forward ? _splineStartEndValue.x : _splineStartEndValue.y;
         DOTween.To(() => _cinemachineSplineDolly.CameraPosition, x => _cinemachineSplineDolly.CameraPosition = x, forward ? _splineStartEndValue.y : _splineStartEndValue.x, Duration)
             .SetEase(forward ? _forwardEase : _backwardEase)
+            .SetUpdate(updateType: UpdateType.Late)
             .OnComplete(() =>
             {
                 SetActiveCamera(forward ? _secondCamera : _firstCamera);
