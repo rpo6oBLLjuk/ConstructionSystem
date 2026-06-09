@@ -18,17 +18,17 @@ public class NotificationService : MonoBehaviour
     public void ShowPopup(string message, string title, NotificationType notificationType = NotificationType.Info)
     {
         _popupFactory.CreatePopupNotification(message, title, notificationType);
-        DebugWrapper.InactiveLog(this, $"Popup Msg: {message}, title: {title}, type: {Enum.GetName(typeof(NotificationType), notificationType)}");
+        DebugWrapper.InactiveLog(this, $"Popup Msg: {message}, title: <b>{title}</b>, type: <color=#9c9c9c>{Enum.GetName(typeof(NotificationType), notificationType)}</color>");
     }
     public void ShowDialog(string message, string title, List<(string, Action)> buttons)
     {
         _dialogFactory.ShowDialog(message, title, buttons);
-        DebugWrapper.InactiveLog(this, $"Dialog Msg: {message}, title: {title}");
+        DebugWrapper.InactiveLog(this, $"Dialog Msg: {message}, title: <b>{title}</b>");
     }
     public void ShowInputDialog(string placeholder, string title, Action<string> onSubmit)
     {
         _dialogFactory.ShowInputDialog(placeholder, title, onSubmit);
-        DebugWrapper.InactiveLog(this, $"InputDialog Msg: {placeholder}, title: {title}");
+        DebugWrapper.InactiveLog(this, $"InputDialog Msg: {placeholder}, title: <b>{title}</b>");
     }
 
 #if UNITY_EDITOR

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Coffee.UIEffects;
-using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,12 +18,14 @@ public class FurniturePanelView : MonoBehaviour
     public event Action OnPreviousPageRequested;
 
     public event Action<string> OnSearchRequested;
+    public event Action<int?> OnFurnitureTypeFilterChanged;
+    public event Action<int?> OnColorTypeFilterChanged;
 
     public event Action<FurnitureViewData> OnFurnitureSaveRequested;
     public event Action<FurnitureViewData> OnOpenModelRequested;
     public event Action<FurnitureViewData> OnChangeModelRequested;
     public event Action<FurnitureViewData> OnChangePreviewRequested;
-    public event Action<FurnitureViewData> OnRemoveFurnitureRequsted;
+    public event Action<FurnitureViewData> OnRemoveFurnitureRequested;
     public event Action OnAddFurnitureRequested;
 
     [Header("List")]
@@ -31,6 +34,10 @@ public class FurniturePanelView : MonoBehaviour
 
     [Header("Search")]
     [SerializeField] private TMP_InputField _searchInputField;
+
+    [Header("Filters")]
+    [SerializeField] private TMP_Dropdown _typeFilterDropdown;
+    [SerializeField] private TMP_Dropdown _colorFilterDropdown;
 
     [Header("Pagination")]
     [SerializeField] private Button _previousPageButton;
@@ -73,6 +80,8 @@ public class FurniturePanelView : MonoBehaviour
     [SerializeField] private Color _defaultEdgeColor = Color.gray;
     [SerializeField] private Color _selectedEdgeColor = Color.orange;
 
+    [SerializeField] private Sprite _defaultPreview;
+
     private readonly List<GameObject> _createdViews = new();
     private readonly Dictionary<int, GameObject> _createdViewsByFurnitureId = new();
 
@@ -80,7 +89,7 @@ public class FurniturePanelView : MonoBehaviour
     private readonly List<int> _colorIds = new();
 
     private FurnitureViewData _selectedFurniture;
-    private Sprite _defaultPreview;
+    
     private bool _canEdit;
 
 
@@ -90,6 +99,8 @@ public class FurniturePanelView : MonoBehaviour
         _nextPageButton.onClick.AddListener(NextPageButtonClickHandler);
 
         _searchInputField.onEndEdit.AddListener(SearchEndEditHandler);
+        _typeFilterDropdown.onValueChanged.AddListener(TypeFilterChangedHandler);
+        _colorFilterDropdown.onValueChanged.AddListener(ColorFilterChangedHandler);
 
         _saveButton.onClick.AddListener(SaveButtonClickHandler);
         _openModelButton.onClick.AddListener(OpenModelButtonClickHandler);
@@ -97,6 +108,15 @@ public class FurniturePanelView : MonoBehaviour
         _changePreviewButton.onClick.AddListener(ChangePreviewButtonClickHandler);
         _addFurnitureButton.onClick.AddListener(AddFurnitureButtonClickHandler);
         _removeFurnitureButton.onClick.AddListener(RemoveFurnitureButtonClickHandler);
+
+        _priceInputField.onSelect.AddListener(value => _priceInputField.SetTextWithoutNotify(double.Parse(value).ToString()));
+        _priceInputField.onEndEdit.AddListener((value) =>
+        {
+            _priceInputField.SetTextWithoutNotify(ConvertDoubleToCurrentCulture(double.Parse(value)));
+            _priceInputField.DeactivateInputField();
+        });
+
+        ClearSelectedFurniturePanel();
     }
     private void OnDisable()
     {
@@ -104,6 +124,8 @@ public class FurniturePanelView : MonoBehaviour
         _nextPageButton.onClick.RemoveListener(NextPageButtonClickHandler);
 
         _searchInputField.onEndEdit.RemoveListener(SearchEndEditHandler);
+        _typeFilterDropdown.onValueChanged.RemoveListener(TypeFilterChangedHandler);
+        _colorFilterDropdown.onValueChanged.RemoveListener(ColorFilterChangedHandler);
 
         _saveButton.onClick.RemoveListener(SaveButtonClickHandler);
         _openModelButton.onClick.RemoveListener(OpenModelButtonClickHandler);
@@ -112,8 +134,6 @@ public class FurniturePanelView : MonoBehaviour
         _addFurnitureButton.onClick.RemoveListener(AddFurnitureButtonClickHandler);
         _removeFurnitureButton.onClick.RemoveListener(RemoveFurnitureButtonClickHandler);
     }
-
-    private void Start() => _defaultPreview = _preview.sprite;
 
     public void SetEditMode(bool canEdit)
     {
@@ -205,7 +225,7 @@ public class FurniturePanelView : MonoBehaviour
         _heightInputField.SetTextWithoutNotify(furniture.Height.ToString("0.##"));
         _depthInputField.SetTextWithoutNotify(furniture.Depth.ToString("0.##"));
 
-        _priceInputField.SetTextWithoutNotify(furniture.Price.ToString("0.##"));
+        _priceInputField.SetTextWithoutNotify(ConvertDoubleToCurrentCulture(furniture.Price));
 
         _createdAtInputField.SetTextWithoutNotify(furniture.CreatedAt);
         _updatedAtInputField.SetTextWithoutNotify(furniture.UpdatedAt);
@@ -214,12 +234,12 @@ public class FurniturePanelView : MonoBehaviour
 
         _statusToggle.SetIsOnWithoutNotify(furniture.IsAvailable);
 
-        _openModelButton.interactable = true;
+        _openModelButton.interactable = furniture.HasModel;
         _saveButton.interactable = _canEdit;
         _changeModelButton.interactable = _canEdit;
         _changePreviewButton.interactable = _canEdit;
 
-        _preview.sprite = furniture.Preview != null ? furniture.Preview : _defaultPreview;
+        _preview.sprite = furniture.HasPreview ? furniture.Preview : _defaultPreview;
 
         SetEditMode(_canEdit);
     }
@@ -227,34 +247,59 @@ public class FurniturePanelView : MonoBehaviour
     public void SetFurnitureTypes(List<FurnitureType> types)
     {
         _typeDropdown.ClearOptions();
+        _typeFilterDropdown.ClearOptions();
         _typeIds.Clear();
 
-        List<string> options = new();
+        List<string> editOptions = new();
+        List<string> filterOptions = new() { "All" };
 
         foreach (FurnitureType type in types)
         {
             _typeIds.Add(type.Id);
-            options.Add(type.Name);
+            editOptions.Add(type.Name);
+            filterOptions.Add(type.Name);
         }
 
-        _typeDropdown.AddOptions(options);
+        _typeDropdown.AddOptions(editOptions);
+        _typeFilterDropdown.AddOptions(filterOptions);
+
+        _typeDropdown.SetValueWithoutNotify(0);
+        _typeFilterDropdown.SetValueWithoutNotify(0);
     }
     public void SetColorTypes(List<ColorType> colors)
     {
         _colorDropdown.ClearOptions();
+        _colorFilterDropdown.ClearOptions();
         _colorIds.Clear();
 
-        List<string> options = new();
+        List<string> editOptions = new();
+        List<string> filterOptions = new() { "All" };
 
         foreach (ColorType color in colors)
         {
             _colorIds.Add(color.Id);
-            options.Add(color.Name);
+
+            editOptions.Add(color.Name);
+            filterOptions.Add(color.Name);
         }
 
-        _colorDropdown.AddOptions(options);
+        _colorDropdown.AddOptions(editOptions);
+        _colorFilterDropdown.AddOptions(filterOptions);
+
+        _colorDropdown.SetValueWithoutNotify(0);
+        _colorFilterDropdown.SetValueWithoutNotify(0);
     }
 
+    public void UpdateFurniturePreview(FurnitureViewData furniture, Sprite previewSprite)
+    {
+        if (furniture == null)
+            return;
+
+        furniture.Preview = previewSprite;
+
+        if (_selectedFurniture != null && _selectedFurniture.Id == furniture.Id)
+            _preview.sprite = previewSprite != null ? previewSprite : _defaultPreview;
+    }
     public void RefreshFurniture(FurnitureViewData furniture)
     {
         if (_createdViewsByFurnitureId.TryGetValue(furniture.Id, out GameObject viewObject))
@@ -275,7 +320,7 @@ public class FurniturePanelView : MonoBehaviour
         _heightInputField.SetTextWithoutNotify("");
         _depthInputField.SetTextWithoutNotify("");
 
-        _priceInputField.SetTextWithoutNotify("");
+        _priceInputField.SetTextWithoutNotify(ConvertDoubleToCurrentCulture(0));
 
         _createdAtInputField.SetTextWithoutNotify("");
         _updatedAtInputField.SetTextWithoutNotify("");
@@ -308,26 +353,21 @@ public class FurniturePanelView : MonoBehaviour
             return;
 
         ApplyPreviewDataToSelectedFurniture();
-
-        FurnitureViewData current = _selectedFurniture;
         OnFurnitureSaveRequested?.Invoke(_selectedFurniture);
-
-        if (current != null)
-            ShowSelectedFurniture(current);
     }
 
     private void OpenModelButtonClickHandler() => OnOpenModelRequested?.Invoke(_selectedFurniture);
     private void ChangeModelButtonClickHandler() => OnChangeModelRequested?.Invoke(_selectedFurniture);
     private void ChangePreviewButtonClickHandler() => OnChangePreviewRequested?.Invoke(_selectedFurniture);
     private void AddFurnitureButtonClickHandler() => OnAddFurnitureRequested?.Invoke();
-    private void RemoveFurnitureButtonClickHandler() => OnRemoveFurnitureRequsted?.Invoke(_selectedFurniture);
+    private void RemoveFurnitureButtonClickHandler() => OnRemoveFurnitureRequested?.Invoke(_selectedFurniture);
 
     private void ApplyPreviewDataToSelectedFurniture()
     {
         _selectedFurniture.Name = _nameInputField.text.Trim();
 
-        _selectedFurniture.FurnitureTypeId = GetSelectedId(_typeDropdown, _typeIds);
-        _selectedFurniture.ColorTypeId = GetSelectedId(_colorDropdown, _colorIds);
+        _selectedFurniture.FurnitureTypeId = GetDropdownSelectedId(_typeDropdown, _typeIds) ?? 0;
+        _selectedFurniture.ColorTypeId = GetDropdownSelectedId(_colorDropdown, _colorIds) ?? 0;
 
         _selectedFurniture.FurnitureTypeName = GetDropdownText(_typeDropdown);
         _selectedFurniture.ColorTypeName = GetDropdownText(_colorDropdown);
@@ -338,7 +378,7 @@ public class FurniturePanelView : MonoBehaviour
         _selectedFurniture.Height = ParseFloat(_heightInputField.text);
         _selectedFurniture.Depth = ParseFloat(_depthInputField.text);
 
-        _selectedFurniture.Price = ParseDouble(_priceInputField.text);
+        _selectedFurniture.Price = double.Parse(_priceInputField.text);
 
         _selectedFurniture.IsAvailable = _statusToggle.isOn;
         _selectedFurniture.Description = _descriptionInputField.text.Trim();
@@ -351,13 +391,24 @@ public class FurniturePanelView : MonoBehaviour
 
         return dropdown.options[dropdown.value].text;
     }
-    private int GetSelectedId(TMP_Dropdown dropdown, List<int> ids)
+    private int? GetDropdownSelectedId(TMP_Dropdown dropdown, List<int> ids, bool hasAllOption = false)
     {
-        if (ids.Count == 0)
-            return 0;
+        if (dropdown == null || ids == null || ids.Count == 0)
+            return null;
 
-        int index = Mathf.Clamp(dropdown.value, 0, ids.Count - 1);
-        return ids[index];
+        int dropdownIndex = dropdown.value;
+
+        if (hasAllOption)
+        {
+            if (dropdownIndex <= 0)
+                return null;
+
+            dropdownIndex--;
+        }
+
+        int idIndex = Mathf.Clamp(dropdownIndex, 0, ids.Count - 1);
+
+        return ids[idIndex];
     }
 
     private void SetDropdownValueById(TMP_Dropdown dropdown, List<int> ids, int id)
@@ -376,14 +427,11 @@ public class FurniturePanelView : MonoBehaviour
             ? result
             : 0f;
     }
-    private double ParseDouble(string value)
-    {
-        return double.TryParse(value.Replace(",", "."), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double result)
-            ? result
-            : 0d;
-    }
 
     private void SearchEndEditHandler(string value) => OnSearchRequested?.Invoke(value);
+    private void TypeFilterChangedHandler(int index) => OnFurnitureTypeFilterChanged?.Invoke(GetDropdownSelectedId(_typeFilterDropdown, _typeIds, true));
+    private void ColorFilterChangedHandler(int index) => OnColorTypeFilterChanged?.Invoke(GetDropdownSelectedId(_colorFilterDropdown, _colorIds, true));
+
     private void PreviousPageButtonClickHandler() => OnPreviousPageRequested?.Invoke();
     private void NextPageButtonClickHandler() => OnNextPageRequested?.Invoke();
 
@@ -415,4 +463,6 @@ public class FurniturePanelView : MonoBehaviour
         reference.edgeWidth = selected ? _selectedEdgeWidth : _defaultEdgeWidth;
         reference.edgeColor = selected ? _selectedEdgeColor : _defaultEdgeColor;
     }
+
+    private string ConvertDoubleToCurrentCulture(double value) => value.ToString("N2", CultureInfo.CurrentCulture);
 }

@@ -70,6 +70,10 @@ public class FurnitureDataSaver
             return;
         }
 
+        await LoadPreviewByAbsolutePath(path, onComplete, onError);
+    }
+    public async UniTask LoadPreviewByAbsolutePath(string path, Action<Sprite> onComplete, Action<string> onError = null)
+    {
         using UnityWebRequest request = UnityWebRequestTexture.GetTexture("file://" + path);
 
         await request.SendWebRequest();
@@ -82,13 +86,7 @@ public class FurnitureDataSaver
         Texture2D texture = DownloadHandlerTexture.GetContent(request);
         onComplete?.Invoke(ConvertTextureToSprite(texture));
     }
-    public Sprite ConvertTextureToSprite(Texture2D texture)
-    {
-        Rect rect = new(0, 0, texture.width, texture.height);
 
-        Sprite sprite = Sprite.Create(texture, rect, Vector2.one * 0.5f);
-        return sprite;
-    }
     public async UniTask LoadModelGameObject(int furnitureId, Transform parent, Action<GameObject> onComplete, Action<string> onError = null)
     {
         string path = GetModelPath(furnitureId);
@@ -99,6 +97,10 @@ public class FurnitureDataSaver
             return;
         }
 
+        await LoadModelByAbsolutePath(path, parent, onComplete, onError);
+    }
+    public async UniTask LoadModelByAbsolutePath(string path, Transform parent, Action<GameObject> onComplete, Action<string> onError = null)
+    {
         var gltfImport = new GLTFast.GltfImport();
         try
         {
@@ -110,7 +112,7 @@ public class FurnitureDataSaver
                 return;
             }
 
-            GameObject rootObject = new ("FurnitureModel");
+            GameObject rootObject = new("FurnitureModel");
             rootObject.transform.SetParent(parent, false);
 
             bool instantiated = await gltfImport.InstantiateMainSceneAsync(rootObject.transform);
@@ -133,6 +135,15 @@ public class FurnitureDataSaver
             onError?.Invoke($"Critical error while loading GLB: {ex.Message}");
         }
     }
+
+    public Sprite ConvertTextureToSprite(Texture2D texture)
+    {
+        Rect rect = new(0, 0, texture.width, texture.height);
+
+        Sprite sprite = Sprite.Create(texture, rect, Vector2.one * 0.5f);
+        return sprite;
+    }
+
 
     public bool DeleteFurnitureData(int furnitureId, Action<string> onMessage = null, Action<string> onError = null)
     {

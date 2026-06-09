@@ -75,6 +75,7 @@ public class NavigationView : BaseLayoutPresenter
 
         _currentActive = navigationViewRefsContainer;
         navigationViewRefsContainer.ListButton.Select();
+        
         DoAnimPreview(navigationViewRefsContainer, withoutAnim);
     }
 
@@ -87,7 +88,11 @@ public class NavigationView : BaseLayoutPresenter
         SetCanvasGroupState(true);
         SetActive(_projects, true);
     }
-    private void HandleShow() => _currentActive.Presenter?.Show();
+    private void HandleShow()
+    {
+        _currentActive.Presenter?.Show();
+        this.InactiveLog($"Opened panel: {_currentActive.Data.Title}");
+    }
 
     private void ApplyUserAccess() => _users.ListButton.gameObject.SetActive(_userModule.CurrentUser.RoleId == 3);
 

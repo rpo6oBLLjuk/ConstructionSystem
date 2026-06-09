@@ -19,6 +19,9 @@ public class OrderPanelView : MonoBehaviour
     [SerializeField] private Button _nextPageButton;
     [SerializeField] private TMP_Text _pageText;
 
+    [Space]
+    [SerializeField] private GameObject _noOrdersPanel;
+
     private readonly List<GameObject> _createdViews = new();
 
 
@@ -27,7 +30,6 @@ public class OrderPanelView : MonoBehaviour
         _previousPageButton.onClick.AddListener(PreviousPageButtonClickHandler);
         _nextPageButton.onClick.AddListener(NextPageButtonClickHandler);
     }
-
     private void OnDisable()
     {
         _previousPageButton.onClick.RemoveListener(PreviousPageButtonClickHandler);
@@ -37,6 +39,8 @@ public class OrderPanelView : MonoBehaviour
     public void SetOrders(List<OrderViewData> orders)
     {
         Clear();
+
+        _noOrdersPanel.SetActive(orders.Count == 0);
 
         foreach (OrderViewData order in orders)
         {
@@ -48,7 +52,6 @@ public class OrderPanelView : MonoBehaviour
             _createdViews.Add(view);
         }
     }
-
     public void SetPagination(int currentPage, int totalPages)
     {
         _pageText.text = $"{currentPage}/{totalPages}";

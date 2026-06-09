@@ -17,9 +17,13 @@ public class UserPanelView : MonoBehaviour
 
     public event Action<UserViewData, int, bool> OnUserSaveRequested;
 
-    [Header("List")]
+    [Header("Layout")]
     [SerializeField] private Transform _contentParent;
     [SerializeField] private UserViewFactory _factory;
+
+    [Header("Layout UI")]
+    [SerializeField] private Color _selectedColor;
+    [SerializeField] private Color _inactiveColor;
 
     [Header("Search")]
     [SerializeField] private TMP_InputField _idSearchInputField;
@@ -100,15 +104,27 @@ public class UserPanelView : MonoBehaviour
             _createdViewsByUserId[user.Id] = view;
         }
     }
-    public void ShowSelectedUser(UserViewData user)
+    public void ShowSelectedUser(UserViewData user, bool self = false)
     {
+        if (_selectedUser != null)
+        {
+            _selectedUser.UIEffect.edgeColor = _inactiveColor;
+            _selectedUser.UIEffect.edgeWidth = 0.3f;
+        }
+
         _selectedUser = user;
+
+        _selectedUser.UIEffect.edgeColor = _selectedColor;
+        _selectedUser.UIEffect.edgeWidth = 0.4f;
 
         if (user == null)
         {
             ClearSelectedUserPanel();
             return;
         }
+
+        _ordersAllowedToggle.interactable = !self;
+        _selectedRoleDropdown.interactable = !self;
 
         _selectedIdText.text = $"#{user.Id}";
         _selectedFullNameText.text = user.FullName;
@@ -131,7 +147,6 @@ public class UserPanelView : MonoBehaviour
         _previousPageButton.interactable = currentPage > 1;
         _nextPageButton.interactable = currentPage < totalPages;
     }
-
     public void RefreshUser(UserViewData user)
     {
         if (_createdViewsByUserId.TryGetValue(user.Id, out GameObject viewObject))

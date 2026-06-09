@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,7 +45,7 @@ public class ProjectPreviewPanel : MonoBehaviour
     {
         _currentProject = project;
 
-        if(blueprintData != null)
+        if (blueprintData != null)
         {
             _previewSize.text = $"Size\n{blueprintData.square} m²";
             _previewEditDate.text = $"Last edit\n{project.UpdatedAt}";

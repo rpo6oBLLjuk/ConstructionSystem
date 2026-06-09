@@ -32,7 +32,7 @@ public class BlueprintMetricsDisplay : MonoBehaviour
         await UniTask.WaitForEndOfFrame();
         
         List<Vector2> points = _blueprintManager.BlueprintPoints;
-        _metricsText.text = $"Points: {points.Count}, Perimeter: {CalculatePerimeter(points):F3}, Area: {CalculateArea(points):F3}";
+        _metricsText.text = $"Points: {points.Count}, Perimeter: {CalculatePerimeter(points):F3}, Area: {CalculateArea(points)}";
     }
 
     private float CalculatePerimeter(List<Vector2> points)
@@ -66,7 +66,7 @@ public class BlueprintMetricsDisplay : MonoBehaviour
         area = Mathf.Abs(area) / 2f;
         
         float pixelToMeter = _visualConfig.TextData.TextMetricPerPixel; // Пиксельные единицы в квадратные метры
-        return area / (pixelToMeter * pixelToMeter);
+        return Mathf.Floor(area / (pixelToMeter * pixelToMeter) * 1000) / 1000;
     }
 
 }

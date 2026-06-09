@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class ProjectData
 {
-    public int userId;
-
     public Vector2[] points = new Vector2[]
         {
             new Vector2(-50f, 50f),
@@ -14,12 +12,7 @@ public class ProjectData
 
     public float square;
 
-    public int[] items;             // Item Id
+    public int[] items;             // Items Id
     public Vector3[] positions;     // position
     public Quaternion[] rotations;  // rotation
-
-    public ProjectData(int userId)
-    {
-        this.userId = userId;
-    }
 }

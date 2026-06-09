@@ -78,7 +78,7 @@ public class BlueprintHistoryView : MonoBehaviour
                     button.onClick?.Invoke(); //Ёмул€ци€ клика по кнопке
                 })
                 .SetAutoKill(false) //«апрет автоудалени€ последовательности
-                .SetLoops(-1) //¬ключение бесконечного повторени€
+                .SetLoops(100) //¬ключение бесконечного повторени€
             )
             .Pause(); //ѕауза, т.к. это инциализаци€ последовательности
     }

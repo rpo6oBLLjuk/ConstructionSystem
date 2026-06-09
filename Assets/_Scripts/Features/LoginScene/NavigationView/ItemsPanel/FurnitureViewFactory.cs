@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Coffee.UIEffects;
 using Cysharp.Threading.Tasks;
 using TMPro;
@@ -35,6 +35,7 @@ public class FurnitureViewFactory : MonoBehaviour
         FillText(layout, "ItemName", furniture.Name);
         FillText(layout, "ItemType", furniture.FurnitureTypeName);
         FillText(layout, "ItemColor", furniture.ColorTypeName);
+        FillText(layout, "ItemPrice", $"{furniture.Price.ToString("N2", System.Globalization.CultureInfo.CurrentCulture)} ₽");
 
         FillPreview(layout, "ItemPreviewContainer/ItemPreview", furniture.Id, furniture);
 
@@ -59,7 +60,11 @@ public class FurnitureViewFactory : MonoBehaviour
     private void FillText(Transform root, string objectName, string value) => root.Find(objectName).GetComponent<TMP_Text>().text = value;
     private void FillPreview(Transform root, string objectName, int furnitureId, FurnitureViewData furniture)
     {
+        if (!furniture.HasPreview)
+            return;
+
         Image image = root.Find(objectName).GetComponent<Image>();
+
         _furnitureDataSaver.LoadPreviewSprite(furnitureId, onComplete: sprite =>
         {
             image.sprite = sprite;

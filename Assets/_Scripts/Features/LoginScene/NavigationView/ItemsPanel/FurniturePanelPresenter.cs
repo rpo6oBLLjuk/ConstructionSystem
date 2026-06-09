@@ -14,7 +14,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
     [Inject] private NotificationService _notificationService;
     [Inject] private FurnitureDataSaver _furnitureDataSaver;
 
-    [Inject] ModelPreviewCameraController _previewCameraController;
+    [Inject] private ModelPreviewController _previewModelController;
 
     [SerializeField] private FurniturePanelView _view;
 
@@ -24,11 +24,20 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
     private int _totalPages = 1;
 
     private string _currentSearch;
+    private int? _currentFurnitureTypeId;
+    private int? _currentColorTypeId;
 
     private List<FurnitureType> _types = new();
     private List<ColorType> _colors = new();
 
     private FurnitureViewData _selectedFurniture;
+
+    //For set preview/model without save
+    private FurnitureViewData _pendingFurniture;
+    private string _pendingModelPath;
+    private string _pendingPreviewPath;
+    private byte[] _pendingPreviewBytes;
+    private string _pendingPreviewExtension;
 
 
     protected override void OnEnable()
@@ -41,15 +50,17 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _view.OnPreviousPageRequested += HandlePreviousPageRequested;
 
         _view.OnSearchRequested += HandleSearchRequested;
+        _view.OnFurnitureTypeFilterChanged += HandleFurnitureTypeFilterChanged;
+        _view.OnColorTypeFilterChanged += HandleColorTypeFilterChanged;
 
         _view.OnFurnitureSaveRequested += HandleFurnitureSaveRequested;
         _view.OnOpenModelRequested += HandleOpenModelRequested;
         _view.OnChangeModelRequested += HandleChangeModelRequested;
         _view.OnChangePreviewRequested += HandleChangePreviewRequested;
-        _view.OnRemoveFurnitureRequsted += HandleRemoveFurniture;
+        _view.OnRemoveFurnitureRequested += HandleRemoveFurniture;
         _view.OnAddFurnitureRequested += HandleFurnitureAdd;
 
-        _previewCameraController.PreviewSaveRequested += HandlePreviewSave;
+        _previewModelController.PreviewSaveRequested += HandlePreviewSave;
     }
     protected override void OnDisable()
     {
@@ -61,15 +72,17 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _view.OnPreviousPageRequested -= HandlePreviousPageRequested;
 
         _view.OnSearchRequested -= HandleSearchRequested;
+        _view.OnFurnitureTypeFilterChanged -= HandleFurnitureTypeFilterChanged;
+        _view.OnColorTypeFilterChanged -= HandleColorTypeFilterChanged;
 
         _view.OnFurnitureSaveRequested -= HandleFurnitureSaveRequested;
         _view.OnOpenModelRequested -= HandleOpenModelRequested;
         _view.OnChangeModelRequested -= HandleChangeModelRequested;
         _view.OnChangePreviewRequested -= HandleChangePreviewRequested;
-        _view.OnRemoveFurnitureRequsted -= HandleRemoveFurniture;
+        _view.OnRemoveFurnitureRequested -= HandleRemoveFurniture;
         _view.OnAddFurnitureRequested -= HandleFurnitureAdd;
 
-        _previewCameraController.PreviewSaveRequested -= HandlePreviewSave;
+        _previewModelController.PreviewSaveRequested -= HandlePreviewSave;
     }
 
     public override void Show()
@@ -77,7 +90,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         base.Show();
         InitializePanel().Forget();
     }
-
     private async UniTask InitializePanel()
     {
         _types = await _furnitureModule.GetFurnitureTypes();
@@ -90,10 +102,14 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         await LoadPage(1);
     }
+
     private bool CanEditFurniture() => _userModule.CurrentUser.RoleId >= 3;
 
     private void HandleFurnitureSelected(FurnitureViewData furniture)
     {
+        if (_selectedFurniture != furniture)
+            ClearPendingData(resetFurnitureState: true);
+
         _selectedFurniture = furniture;
         _view.ShowSelectedFurniture(furniture);
     }
@@ -103,6 +119,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         if (_currentPage >= _totalPages)
             return;
 
+        ClearPendingData(resetFurnitureState: true);
         LoadPage(_currentPage + 1).Forget();
     }
     private void HandlePreviousPageRequested()
@@ -110,33 +127,43 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         if (_currentPage <= 1)
             return;
 
+        ClearPendingData(resetFurnitureState: true);
         LoadPage(_currentPage - 1).Forget();
     }
 
     private void HandleSearchRequested(string search)
     {
-        _currentSearch = string.IsNullOrWhiteSpace(search)
-            ? null
-            : search.Trim();
+        ClearPendingData(resetFurnitureState: true);
+
+        _currentSearch = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
 
         LoadPage(1).Forget();
     }
-
-    private async UniTask LoadPage(int page)
+    private void HandleFurnitureTypeFilterChanged(int? furnitureTypeId)
     {
-        int totalCount = await _furnitureModule.GetFurnitureCount(_currentSearch);
+        ClearPendingData(resetFurnitureState: true);
+
+        _currentFurnitureTypeId = furnitureTypeId;
+        LoadPage(1).Forget();
+    }
+    private void HandleColorTypeFilterChanged(int? colorTypeId)
+    {
+        ClearPendingData(resetFurnitureState: true);
+
+        _currentColorTypeId = colorTypeId;
+        LoadPage(1).Forget();
+    }
+
+    private async UniTask LoadPage(int page, int selectedItemId = -1)
+    {
+        int totalCount = await _furnitureModule.GetFurnitureCount(_currentSearch, _currentFurnitureTypeId, _currentColorTypeId);
 
         _totalPages = Mathf.Max(1, Mathf.CeilToInt(totalCount / (float)_pageSize));
         _currentPage = Mathf.Clamp(page, 1, _totalPages);
 
         int offset = (_currentPage - 1) * _pageSize;
 
-        List<Furniture> furniture = await _furnitureModule.GetFurniturePage(
-            offset,
-            _pageSize,
-            _currentSearch
-        );
-
+        List<Furniture> furniture = await _furnitureModule.GetFurniturePage(offset, _pageSize, _currentSearch, _currentFurnitureTypeId, _currentColorTypeId);
         List<FurnitureViewData> viewData = new();
 
         foreach (Furniture item in furniture)
@@ -144,6 +171,9 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         _view.SetFurniture(viewData);
         _view.SetPagination(_currentPage, _totalPages);
+
+        if (selectedItemId != -1)
+            HandleFurnitureSelected(viewData.Where(data => data.Id == selectedItemId).FirstOrDefault());
     }
     private async UniTask SaveFurnitureChanges(FurnitureViewData furnitureViewData)
     {
@@ -174,15 +204,17 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         source.HasModel = furnitureViewData.HasModel;
         source.HasPreview = furnitureViewData.HasPreview;
 
-        furnitureViewData.ModelOrPreviewChanged = false;
+        if (!TrySavePendingFiles(furnitureViewData, source))
+        {
+            _notificationService.ShowPopup("Furniture files could not be saved.", "Saving error", NotificationType.Error);
+            return;
+        }
 
         if (furnitureViewData.IsNew)
         {
             await _furnitureModule.CreateFurnitureWithCustomId(source);
 
             furnitureViewData.IsNew = false;
-            furnitureViewData.SourceFurniture = source;
-
             furnitureViewData.CreatedAt = GetFormatDate(source.CreatedAt);
         }
         else
@@ -190,16 +222,20 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             await _furnitureModule.UpdateFurniture(source);
         }
 
+        furnitureViewData.SourceFurniture = source;
         furnitureViewData.UpdatedAt = GetFormatDate(source.UpdatedAt);
+        furnitureViewData.ModelOrPreviewChanged = false;
 
-        await LoadPage(_currentPage);
-        _view.RefreshFurniture(furnitureViewData);
+        ClearPendingData(resetFurnitureState: false);
 
-        _notificationService.ShowPopup(
-            $"Furniture <b>{furnitureViewData.Name}</b> data has been saved successfully",
-            "Furniture saved",
-            NotificationType.Success
-        );
+        await LoadPage(_currentPage, furnitureViewData.Id);
+
+        if (_selectedFurniture != null)
+            _selectedFurniture.Preview = furnitureViewData.Preview;
+
+        HandleFurnitureSelected(_selectedFurniture);
+
+        _notificationService.ShowPopup($"Furniture <b>{furnitureViewData.Name}</b> data has been saved successfully", "Furniture saved", NotificationType.Success);
     }
 
     private void HandleFurnitureSaveRequested(FurnitureViewData furnitureViewData)
@@ -215,6 +251,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             return;
 
         ShowModelPreview(furniture);
+
     }
     private void HandleChangeModelRequested(FurnitureViewData furniture)
     {
@@ -222,21 +259,24 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             return;
 
         string selectedPath = OpenModelFileDialog();
+
         if (string.IsNullOrWhiteSpace(selectedPath))
             return;
 
-        _furnitureDataSaver.SaveModelFile(furniture.Id, selectedPath, onMessage: _ =>
-        {
-            furniture.HasModel = true;
-            furniture.ModelOrPreviewChanged = true;
+        SetPendingFurniture(furniture);
 
-            _furnitureDataSaver.LoadModelGameObject(furniture.Id, _previewCameraController.ModelContainer, onComplete: _ =>
-            {
-                _previewCameraController.Show();
-                _view.SetEditMode(CanEditFurniture());
-            }, onError: error => this.FastLog(error)).Forget();
-        });
+        _pendingModelPath = selectedPath;
+
+        furniture.HasModel = true;
+        furniture.ModelOrPreviewChanged = true;
+
+        ShowModelPreview(furniture);
+
+        _view.SetEditMode(CanEditFurniture());
+
+        _notificationService.ShowPopup("Model has been selected. Press Save to apply changes.", "Model selected", NotificationType.Info);
     }
+
     private void HandleChangePreviewRequested(FurnitureViewData furniture)
     {
         if (!CanEditFurniture() || furniture == null)
@@ -247,31 +287,54 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         if (string.IsNullOrWhiteSpace(selectedPath))
             return;
 
-        _furnitureDataSaver.SavePreviewFile(furniture.Id, selectedPath, onMessage: _ =>
-        {
-            furniture.HasPreview = true;
-            furniture.ModelOrPreviewChanged = true;
+        SetPendingFurniture(furniture);
 
-            _furnitureDataSaver.LoadPreviewSprite(furniture.Id, onComplete: sprite =>
+        _pendingPreviewPath = selectedPath;
+        _pendingPreviewBytes = null;
+        _pendingPreviewExtension = null;
+
+        furniture.HasPreview = true;
+        furniture.ModelOrPreviewChanged = true;
+
+        _furnitureDataSaver.LoadPreviewByAbsolutePath(selectedPath,
+            sprite =>
             {
                 furniture.Preview = sprite;
-            }).Forget();
-        });
+                _view.UpdateFurniturePreview(furniture, sprite);
+            }
+        ).Forget();
+
+        _notificationService.ShowPopup("Preview has been selected. Press Save to apply changes.", "Preview selected", NotificationType.Info);
     }
-    private async void HandleRemoveFurniture(FurnitureViewData furniture)
+    private void HandlePreviewSave(byte[] bytes, string extension, Texture2D texture2d)
     {
-        await _furnitureModule.DeleteFurniture(furniture.SourceFurniture);
+        if (!CanEditFurniture() || _selectedFurniture == null)
+            return;
 
-        _furnitureDataSaver.DeleteFurnitureData(furniture.Id);
-        _notificationService.ShowPopup("Deletion completed successfully", "Delete success", NotificationType.Success);
+        SetPendingFurniture(_selectedFurniture);
 
-        _selectedFurniture = null;
-        _view.ClearSelectedFurniturePanel();
-        await LoadPage(_currentPage);
+        _pendingPreviewPath = null;
+        _pendingPreviewBytes = bytes;
+        _pendingPreviewExtension = extension;
+
+        _selectedFurniture.HasPreview = true;
+        _selectedFurniture.ModelOrPreviewChanged = true;
+
+        _selectedFurniture.Preview = _furnitureDataSaver.ConvertTextureToSprite(texture2d);
+        _view.UpdateFurniturePreview(_selectedFurniture, _selectedFurniture.Preview);
+
+        _notificationService.ShowPopup("Preview has been generated. Press Save to apply changes.", "Preview generated", NotificationType.Info);
     }
+
     private async void HandleFurnitureAdd()
     {
+        ClearPendingData(resetFurnitureState: true);
+
         int newId = await _furnitureModule.GetNextId();
+
+        int defaultTypeId = _types.Count > 0 ? _types[0].Id : 0;
+        int defaultColorId = _colors.Count > 0 ? _colors[0].Id : 0;
+
         FurnitureViewData newFurniture = new()
         {
             Id = newId,
@@ -281,11 +344,11 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             Description = string.Empty,
             Manufacturer = string.Empty,
 
-            FurnitureTypeId = 1,
-            FurnitureTypeName = "",
+            FurnitureTypeId = defaultTypeId,
+            FurnitureTypeName = GetFurnitureTypeName(defaultTypeId),
 
-            ColorTypeId = 1,
-            ColorTypeName = "",
+            ColorTypeId = defaultColorId,
+            ColorTypeName = GetColorTypeName(defaultColorId),
 
             Width = 0,
             Height = 0,
@@ -306,18 +369,129 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         HandleFurnitureSelected(newFurniture);
     }
-
-    private void HandlePreviewSave(byte[] texture, string extension, Texture2D texture2d)
+    private async void HandleRemoveFurniture(FurnitureViewData furniture)
     {
-        _selectedFurniture.HasPreview = true;
-        _selectedFurniture.ModelOrPreviewChanged = true;
+        if (furniture == null)
+            return;
 
-        _furnitureDataSaver.SavePreviewBytes(_selectedFurniture.Id, texture, extension);
-        _selectedFurniture.Preview = _furnitureDataSaver.ConvertTextureToSprite(texture2d);
+        ClearPendingData(resetFurnitureState: false);
+
+        if (furniture.SourceFurniture != null)
+            await _furnitureModule.DeleteFurniture(furniture.SourceFurniture);
+
+        _furnitureDataSaver.DeleteFurnitureData(furniture.Id);
+
+        _notificationService.ShowPopup("Deletion completed successfully", "Delete success", NotificationType.Success);
+
+        _selectedFurniture = null;
+        _view.ClearSelectedFurniturePanel();
+
+        await LoadPage(_currentPage);
+    }
+
+    private void SetPendingFurniture(FurnitureViewData furniture)
+    {
+        if (_pendingFurniture != null && _pendingFurniture != furniture)
+            ClearPendingData(resetFurnitureState: true);
+
+        _pendingFurniture = furniture;
+    }
+
+    private bool HasPendingFor(FurnitureViewData furniture) => furniture != null && _pendingFurniture == furniture;
+    private bool HasPendingModelFor(FurnitureViewData furniture) => HasPendingFor(furniture) && !string.IsNullOrWhiteSpace(_pendingModelPath);
+    private bool TrySavePendingFiles(FurnitureViewData furnitureViewData, Furniture source)
+    {
+        if (!HasPendingFor(furnitureViewData))
+            return true;
+
+        if (!string.IsNullOrWhiteSpace(_pendingModelPath))
+        {
+            bool modelSaved = _furnitureDataSaver.SaveModelFile(source.Id, _pendingModelPath, message => DebugWrapper.InactiveLog(this, message), error => DebugWrapper.LogError(this, error));
+
+            if (!modelSaved)
+                return false;
+
+            source.HasModel = true;
+            furnitureViewData.HasModel = true;
+        }
+
+        if (_pendingPreviewBytes != null && !string.IsNullOrWhiteSpace(_pendingPreviewExtension))
+        {
+            bool previewSaved = _furnitureDataSaver.SavePreviewBytes(source.Id, _pendingPreviewBytes, _pendingPreviewExtension, message => DebugWrapper.InactiveLog(this, message), error => DebugWrapper.LogError(this, error));
+
+            if (!previewSaved)
+                return false;
+
+            source.HasPreview = true;
+            furnitureViewData.HasPreview = true;
+        }
+        else if (!string.IsNullOrWhiteSpace(_pendingPreviewPath))
+        {
+            bool previewSaved = _furnitureDataSaver.SavePreviewFile(source.Id, _pendingPreviewPath, message => DebugWrapper.InactiveLog(this, message), error => DebugWrapper.LogError(this, error));
+
+            if (!previewSaved)
+                return false;
+
+            source.HasPreview = true;
+            furnitureViewData.HasPreview = true;
+        }
+
+        return true;
+    }
+
+    private void ClearPendingData(bool resetFurnitureState)
+    {
+        if (resetFurnitureState && _pendingFurniture != null)
+            ResetPendingFurnitureState(_pendingFurniture);
+
+        _pendingFurniture = null;
+
+        _pendingModelPath = null;
+
+        _pendingPreviewPath = null;
+        _pendingPreviewBytes = null;
+        _pendingPreviewExtension = null;
+    }
+    private void ResetPendingFurnitureState(FurnitureViewData furniture)
+    {
+        furniture.ModelOrPreviewChanged = false;
+
+        if (furniture.SourceFurniture == null)
+        {
+            _view.UpdateFurniturePreview(furniture, null);
+            return;
+        }
+
+        furniture.HasModel = furniture.SourceFurniture.HasModel;
+        furniture.HasPreview = furniture.SourceFurniture.HasPreview;
+
+        if (!furniture.HasPreview)
+        {
+            furniture.Preview = null;
+            _view.UpdateFurniturePreview(furniture, null);
+            return;
+        }
+
+        _furnitureDataSaver.LoadPreviewSprite(furniture.Id,
+            sprite =>
+            {
+                furniture.Preview = sprite;
+                _view.UpdateFurniturePreview(furniture, sprite);
+            },
+            error =>
+            {
+                furniture.Preview = null;
+                _view.UpdateFurniturePreview(furniture, null);
+                DebugWrapper.LogError(this, error);
+            }
+        ).Forget();
     }
 
     private bool IsFurnitureDataValid(FurnitureViewData data)
     {
+        if (data == null)
+            return false;
+
         if (string.IsNullOrWhiteSpace(data.Name))
         {
             _notificationService.ShowPopup("Furniture name cannot be empty.", "Input warning", NotificationType.Warning);
@@ -355,22 +529,23 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         Furniture source = data.SourceFurniture;
 
         bool changed =
-        data.Name?.Trim() != source.Name?.Trim() ||
-        data.Description?.Trim() != source.Description?.Trim() ||
-        data.Manufacturer?.Trim() != source.Manufacturer?.Trim() ||
+            data.Name?.Trim() != source.Name?.Trim() ||
+            data.Description?.Trim() != source.Description?.Trim() ||
+            data.Manufacturer?.Trim() != source.Manufacturer?.Trim() ||
 
-        data.FurnitureTypeId != source.FurnitureTypeId ||
-        data.ColorTypeId != source.ColorTypeId ||
+            data.FurnitureTypeId != source.FurnitureTypeId ||
+            data.ColorTypeId != source.ColorTypeId ||
 
-        Mathf.Abs(data.Width - source.Width) > 0.001f ||
-        Mathf.Abs(data.Height - source.Height) > 0.001f ||
-        Mathf.Abs(data.Depth - source.Depth) > 0.001f ||
+            Mathf.Abs(data.Width - source.Width) > 0.001f ||
+            Mathf.Abs(data.Height - source.Height) > 0.001f ||
+            Mathf.Abs(data.Depth - source.Depth) > 0.001f ||
 
-        Math.Abs(data.Price - source.Price) > 0.001 ||
+            Math.Abs(data.Price - source.Price) > 0.001 ||
 
-        data.HasModel != source.HasModel ||
-        data.HasPreview != source.HasPreview ||
-        data.IsAvailable != source.IsAvailable || data.ModelOrPreviewChanged;
+            data.HasModel != source.HasModel ||
+            data.HasPreview != source.HasPreview ||
+            data.IsAvailable != source.IsAvailable ||
+            data.ModelOrPreviewChanged;
 
         if (!changed)
             _notificationService.ShowPopup("Furniture data has not been changed", "Saving canceled", NotificationType.Info);
@@ -378,57 +553,69 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         return changed;
     }
 
-    private string GetFurnitureTypeName(int typeId)
-    {
-        FurnitureType type = _types.FirstOrDefault(type => type.Id == typeId);
-        return type == null ? null : type.Name;
-    }
-    private string GetColorTypeName(int colorTypeId)
-    {
-        ColorType color = _colors.FirstOrDefault(color => color.Id == colorTypeId);
-        return color == null ? null : color.Name;
-    }
+    private string GetFurnitureTypeName(int typeId) => _types.FirstOrDefault(type => type.Id == typeId)?.Name;
+    private string GetColorTypeName(int colorTypeId) => _colors.FirstOrDefault(color => color.Id == colorTypeId)?.Name;
+
     private string GetFormatDate(DateTime dateTime) => $"{dateTime:dd.MM.yyyy} - {dateTime:HH:mm:ss}";
 
-    private bool Approximately(double a, double b) => Math.Abs(a - b) < 0.001d;
-    private FurnitureViewData ConvertToViewData(Furniture furniture)
+    private FurnitureViewData ConvertToViewData(Furniture furniture) => new()
     {
-        return new FurnitureViewData
-        {
-            Id = furniture.Id,
-            IsNew = false,
+        Id = furniture.Id,
+        IsNew = false,
 
-            Name = furniture.Name,
-            Description = furniture.Description,
+        Name = furniture.Name,
+        Description = furniture.Description,
 
-            FurnitureTypeId = furniture.FurnitureTypeId,
-            FurnitureTypeName = GetFurnitureTypeName(furniture.FurnitureTypeId),
+        FurnitureTypeId = furniture.FurnitureTypeId,
+        FurnitureTypeName = GetFurnitureTypeName(furniture.FurnitureTypeId),
 
-            ColorTypeId = furniture.ColorTypeId,
-            ColorTypeName = GetColorTypeName(furniture.ColorTypeId),
+        ColorTypeId = furniture.ColorTypeId,
+        ColorTypeName = GetColorTypeName(furniture.ColorTypeId),
 
-            Manufacturer = furniture.Manufacturer,
+        Manufacturer = furniture.Manufacturer,
 
-            Width = furniture.Width,
-            Height = furniture.Height,
-            Depth = furniture.Depth,
+        Width = furniture.Width,
+        Height = furniture.Height,
+        Depth = furniture.Depth,
 
-            HasModel = furniture.HasModel,
-            HasPreview = furniture.HasPreview,
+        HasModel = furniture.HasModel,
+        HasPreview = furniture.HasPreview,
 
-            Price = furniture.Price,
+        Price = furniture.Price,
 
-            IsAvailable = furniture.IsAvailable,
+        IsAvailable = furniture.IsAvailable,
 
-            CreatedAt = GetFormatDate(furniture.CreatedAt),
-            UpdatedAt = GetFormatDate(furniture.UpdatedAt),
+        CreatedAt = GetFormatDate(furniture.CreatedAt),
+        UpdatedAt = GetFormatDate(furniture.UpdatedAt),
 
-            SourceFurniture = furniture
-        };
+        SourceFurniture = furniture
+    };
+
+    private string OpenModelFileDialog()
+    {
+        string path = StandaloneFileBrowser.OpenFilePanel("Select 3D model", "", new ExtensionFilter[] { new("3D model", _furnitureDataSaver.ModelExtensions) }, false).FirstOrDefault();
+
+        this.InactiveLog($"File dialog for <b>3d model</b> opened, selected path: '<u>{path}</u>'");
+        return path;
+    }
+    private string OpenPreviewFileDialog()
+    {
+        string path = StandaloneFileBrowser.OpenFilePanel("Select preview image", "", new ExtensionFilter[] { new("Image", _furnitureDataSaver.PreviewExtensions) }, false).FirstOrDefault();
+
+        this.InactiveLog($"File dialog for <b>Preview</b> opened, selected path: '<u>{path}</u>'");
+        return path;
     }
 
-    private string OpenModelFileDialog() => StandaloneFileBrowser.OpenFilePanel("Select 3D model", "", new ExtensionFilter[] { new("3D model", _furnitureDataSaver.ModelExtensions) }, false).FirstOrDefault();
-    private string OpenPreviewFileDialog() => StandaloneFileBrowser.OpenFilePanel("Select preview image", "", new ExtensionFilter[] { new("Image", _furnitureDataSaver.PreviewExtensions) }, false).FirstOrDefault();
+    private void ShowModelPreview(FurnitureViewData furniture)
+    {
+        if (furniture == null)
+            return;
 
-    private void ShowModelPreview(FurnitureViewData furniture) => _furnitureDataSaver.LoadModelGameObject(furniture.Id, _previewCameraController.ModelContainer, onComplete: _ => _previewCameraController.Show()).Forget();
+        _previewModelController.SetUserAccess(CanEditFurniture());
+
+        if (HasPendingModelFor(furniture))
+            _furnitureDataSaver.LoadModelByAbsolutePath(_pendingModelPath, _previewModelController.ModelContainer, onComplete: _ => _previewModelController.Show(), onError: error => DebugWrapper.LogError(this, error)).Forget();
+        else
+            _furnitureDataSaver.LoadModelGameObject(furniture.Id, _previewModelController.ModelContainer, onComplete: _ => _previewModelController.Show(), onError: error => DebugWrapper.LogError(this, error)).Forget();
+    }
 }

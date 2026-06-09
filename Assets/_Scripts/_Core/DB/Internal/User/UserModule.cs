@@ -16,10 +16,8 @@ public class UserModule
     public event Action<User> LoggedOut;
 
     private string _incorrectPassword = "Incorrect password";
-    private string _userNotFound = "User <b>{0}</b> not found";
-    private string _userAlreadyExists = "Login <b>{0}</b> already exists";
-
-    private string _permissionDenied = "User <b>{0}</b> does not have sufficient permissions to perform this operation";
+    private string _userNotFound = "User <b>'{0}'</b> not found";
+    private string _userAlreadyExists = "Login <b>'{0}'</b> already exists";
 
 
     public UserModule(UserRepository userRepository) => _userRepository = userRepository;

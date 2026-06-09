@@ -56,10 +56,7 @@ public class ViewLayersController : MonoBehaviour
             }
         }
 
-        DebugWrapper.InactiveLog(this, $"Layers: {layers}, Mask: {mask}");
-
         _dropdown.SetValueWithoutNotify(mask);
         _dropdown.RefreshShownValue();
-
     }
 }

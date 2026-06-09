@@ -12,8 +12,8 @@ public class FurnitureModule
     public async UniTask<Furniture> GetFurnitureById(int id) => await _furnitureRepository.GetById(id);
     public async UniTask<List<Furniture>> GetFurnitureByIds(List<int> ids) => await _furnitureRepository.GetByIds(ids);
 
-    public async UniTask<int> GetFurnitureCount(string search) => (await GetFilteredFurniture(search)).Count;
-    public async UniTask<List<Furniture>> GetFurniturePage(int offset, int count, string search) => (await GetFilteredFurniture(search)).OrderBy(item => item.Id).Skip(offset).Take(count).ToList();
+    public async UniTask<int> GetFurnitureCount(string search, int? furnitureTypeId, int? colorTypeId) => (await GetFilteredFurniture(search, furnitureTypeId, colorTypeId)).Count;
+    public async UniTask<List<Furniture>> GetFurniturePage(int offset, int count, string search, int? furnitureTypeId, int? colorTypeId) => (await GetFilteredFurniture(search, furnitureTypeId, colorTypeId)).OrderBy(item => item.Id).Skip(offset).Take(count).ToList();
 
     public async UniTask CreateFurnitureWithCustomId(Furniture furniture)
     {
@@ -87,9 +87,33 @@ public class FurnitureModule
 
     public async UniTask<int> GetNextId() => await _furnitureRepository.GetNextId();
 
-    private async UniTask<List<Furniture>> GetFilteredFurniture(string search)
+    private async UniTask<List<Furniture>> GetFilteredFurniture(string search, int? furnitureTypeId, int? colorTypeId)
     {
-        List<Furniture> furniture = await _furnitureRepository.GetAll();
+        List<Furniture> furniture;
+
+        if (furnitureTypeId.HasValue)
+        {
+            furniture = await _furnitureRepository.GetWhere(
+                item => item.FurnitureTypeId == furnitureTypeId.Value
+            );
+        }
+        else if (colorTypeId.HasValue)
+        {
+            furniture = await _furnitureRepository.GetWhere(
+                item => item.ColorTypeId == colorTypeId.Value
+            );
+        }
+        else
+        {
+            furniture = await _furnitureRepository.GetAll();
+        }
+
+        if (furnitureTypeId.HasValue && colorTypeId.HasValue)
+        {
+            furniture = furniture
+                .Where(item => item.ColorTypeId == colorTypeId.Value)
+                .ToList();
+        }
 
         if (!string.IsNullOrWhiteSpace(search))
         {

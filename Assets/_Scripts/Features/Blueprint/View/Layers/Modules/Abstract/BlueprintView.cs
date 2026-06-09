@@ -30,7 +30,6 @@ public abstract class BlueprintView<T> : MonoBehaviour
                 case CanvasGroup canvasGroup:
                     canvasGroup.alpha = isVisible ? 1 : 0;
                     canvasGroup.blocksRaycasts = isVisible;
-                    Debug.Log($"After set {canvasGroup.name} alpha = {canvasGroup.alpha}", canvasGroup);
                     break;
                 default:
                     DebugWrapper.LogWarning(this, "Incorrect ViewType, add or check");

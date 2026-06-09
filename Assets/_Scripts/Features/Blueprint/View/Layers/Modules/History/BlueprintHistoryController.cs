@@ -17,7 +17,7 @@ public class BlueprintHistoryController : MonoBehaviour
 
     private class AddPointActionData : HistoryActionData
     {
-        private int _index;
+        private readonly int _index;
         private Vector2 _position;
 
         public AddPointActionData(int index, Vector2 position)
@@ -26,12 +26,20 @@ public class BlueprintHistoryController : MonoBehaviour
             _position = position;
         }
 
-        public override void Execute(BlueprintManager blueprintManager) => blueprintManager.AddPoint(_index, _position);
-        public override void Undo(BlueprintManager blueprintManager) => blueprintManager.RemovePoint(_index);
+        public override void Execute(BlueprintManager blueprintManager)
+        {
+            blueprintManager.AddPoint(_index, _position);
+            this.FastLog($"Redo: Point <b>{_index}</b> added", sender: nameof(BlueprintHistoryController));
+        }
+        public override void Undo(BlueprintManager blueprintManager)
+        {
+            blueprintManager.RemovePoint(_index);
+            this.SuccessLog($"Undo: Point <b>{_index}</b> removed", sender: nameof(BlueprintHistoryController));
+        }
     }
     private class RemovePointActionData : HistoryActionData
     {
-        private int _index;
+        private readonly int _index;
         private Vector2 _position;
 
         public RemovePointActionData(int index, Vector2 position)
@@ -40,13 +48,20 @@ public class BlueprintHistoryController : MonoBehaviour
             _position = position;
         }
 
-        public override void Execute(BlueprintManager blueprintManager) => blueprintManager.RemovePoint(_index);
-        public override void Undo(BlueprintManager blueprintManager) => blueprintManager.AddPoint(_index, _position);
+        public override void Execute(BlueprintManager blueprintManager)
+        {
+            blueprintManager.RemovePoint(_index);
+            this.FastLog($"Redo: Point <b>{_index}</b> removed", sender: nameof(BlueprintHistoryController));
+        }
+        public override void Undo(BlueprintManager blueprintManager)
+        {
+            blueprintManager.AddPoint(_index, _position);
+            this.SuccessLog($"Undo: Point <b>{_index}</b> added", sender: nameof(BlueprintHistoryController));
+        }
     }
-
     private class MovePointActionData : HistoryActionData
     {
-        private int _index;
+        private readonly int _index;
         private Vector2 _previousPosition;
         private Vector2 _nextPosition;
 
@@ -60,16 +75,14 @@ public class BlueprintHistoryController : MonoBehaviour
         public override void Execute(BlueprintManager blueprintManager)
         {
             blueprintManager.MovePoint(_index, _nextPosition);
-            DebugWrapper.FastLog(this, $"Redo: MoveToPos {_nextPosition}");
+            this.FastLog($"Redo: MoveToPos {_nextPosition}", sender: nameof(BlueprintHistoryController));
         }
-
         public override void Undo(BlueprintManager blueprintManager)
         {
             blueprintManager.MovePoint(_index, _previousPosition);
-            DebugWrapper.FastLog(this, $"Undo: MoveToPos {_nextPosition}");
+            this.SuccessLog($"Undo: MoveToPos {_nextPosition}", sender: nameof(BlueprintHistoryController));
         }
     }
-
     private class BlueprintChangeActionData : HistoryActionData
     {
         public Vector2[] _previousPoints;
@@ -78,8 +91,16 @@ public class BlueprintHistoryController : MonoBehaviour
         public BlueprintChangeActionData(Vector2[] points) => _previousPoints = points;
         public void AddNextPoints(Vector2[] nextPoints) => _nextPoints ??= nextPoints;
 
-        public override void Execute(BlueprintManager blueprintManager) => blueprintManager.SetBlueprintData(_nextPoints.ToList());
-        public override void Undo(BlueprintManager blueprintManager) => blueprintManager.SetBlueprintData(_previousPoints.ToList());
+        public override void Execute(BlueprintManager blueprintManager)
+        {
+            blueprintManager.SetBlueprintData(_nextPoints.ToList());
+            this.FastLog("Redo: blueprint data changed", sender: nameof(BlueprintHistoryController));
+        }
+        public override void Undo(BlueprintManager blueprintManager)
+        {
+            blueprintManager.SetBlueprintData(_previousPoints.ToList());
+            this.SuccessLog("Redo: blueprint data changed", sender: nameof(BlueprintHistoryController));
+        }
     }
 
     public List<HistoryActionData> History { get; private set; } = new();
@@ -97,6 +118,8 @@ public class BlueprintHistoryController : MonoBehaviour
 
         _blueprintManager.OnBlueprintDataChanging += BlueprintDataChangingAction;
         _blueprintManager.OnBlueprintDataChanged += BlueprintDataChangeAction;
+
+        this.InactiveLog("=== Start recording ===");
     }
     public void OnDisable()
     {
@@ -111,19 +134,17 @@ public class BlueprintHistoryController : MonoBehaviour
     public void AddPointAction(int index, Vector2 position)
     {
         if (AddActionData(new AddPointActionData(index, position)))
-            DebugWrapper.InactiveLog(this, "Point Added");
+            DebugWrapper.InactiveLog(this, $"Point <b>{index}</b> Added");
     }
-
     public void RemovePointAction(int index, Vector2 position)
     {
         if (AddActionData(new RemovePointActionData(index, position)))
-            DebugWrapper.InactiveLog(this, "Point Removed");
+            DebugWrapper.InactiveLog(this, $"Point <b>{index}</b> Removed");
     }
-
     public void MovePointAction(int index, Vector2 previousPosition, Vector2 nextPosition)
     {
         if (AddActionData(new MovePointActionData(index, previousPosition, nextPosition)))
-            DebugWrapper.InactiveLog(this, "Point Moved");
+            DebugWrapper.InactiveLog(this, $"Point <b>{index}</b> Moved from <u>{previousPosition}</u> to <u>{nextPosition}</u>");
     }
 
     public void BlueprintDataChangingAction(List<Vector2> points)
@@ -161,10 +182,8 @@ public class BlueprintHistoryController : MonoBehaviour
         History.RemoveAt(History.Count - 1);
         RedoHistory.Add(had);
 
-        DebugWrapper.InactiveLog(this, "<color=green>Undo</color> completed");
         _isPerformingUndoRedo = false;
     }
-
     public void Redo()
     {
         if (RedoHistory.Count == 0)
@@ -178,7 +197,6 @@ public class BlueprintHistoryController : MonoBehaviour
         RedoHistory.RemoveAt(RedoHistory.Count - 1);
         History.Add(had);
 
-        DebugWrapper.InactiveLog(this, "<color=green>Redo</color> completed");
         _isPerformingUndoRedo = false;
     }
 

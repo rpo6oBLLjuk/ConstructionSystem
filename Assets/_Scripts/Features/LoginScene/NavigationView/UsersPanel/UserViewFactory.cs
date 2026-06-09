@@ -1,4 +1,5 @@
 using System;
+using Coffee.UIEffects;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +32,8 @@ public class UserViewFactory : MonoBehaviour
         FillText(layout, "Group2/FullName Text (TMP)", user.FullName);
         FillText(layout, "Group2/Role Text (TMP)", user.RoleName);
         FillText(layout, "Group3/Date Text (TMP)", user.CreatedAt);
+
+        user.UIEffect = viewObject.transform.GetComponentInChildren<UIEffect>();
     }
 
     private void InitializeViewData(GameObject viewObject, UserViewData user, Action<UserViewData> onUserSelected)

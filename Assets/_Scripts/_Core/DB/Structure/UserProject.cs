@@ -13,9 +13,6 @@ public class UserProject : IDBEntity
     [NotNull]
     public string ProjectName { get; set; }
 
-    [NotNull]
-    public string FilePath { get; set; }
-
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

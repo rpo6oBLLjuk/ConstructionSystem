@@ -2218,7 +2218,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1192235281877503089}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5690dbd952f390749a937b3629b1de29, type: 3}
+  m_Script: {fileID: 11500000, guid: 2462216e23f34fe439c75ae454794156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ModelPreviewCameraController
   <ModelContainer>k__BackingField: {fileID: 8107802324944370459}
@@ -6854,8 +6854,8 @@ RectTransform:
   - {fileID: 5871234011308530723}
   - {fileID: 4621770566633198362}
   - {fileID: 6357882663943225194}
-  - {fileID: 3738085792123313836}
   - {fileID: 2787030697773167160}
+  - {fileID: 3738085792123313836}
   m_Father: {fileID: 7536146634617262777}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}

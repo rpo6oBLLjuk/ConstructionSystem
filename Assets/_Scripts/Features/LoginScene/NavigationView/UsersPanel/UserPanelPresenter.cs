@@ -20,7 +20,6 @@ public class UserPanelPresenter : BaseLayoutPresenter
     private string _currentFullNameSearch;
     private int? _currentRoleFilter;
 
-    private UserViewData _selectedUser;
 
     protected override void OnEnable()
     {
@@ -37,7 +36,6 @@ public class UserPanelPresenter : BaseLayoutPresenter
 
         _view.OnUserSaveRequested += HandleUserSaveRequested;
     }
-
     protected override void OnDisable()
     {
         base.OnDisable();
@@ -60,11 +58,7 @@ public class UserPanelPresenter : BaseLayoutPresenter
         base.Show();
     }
 
-    private void HandleUserSelected(UserViewData user)
-    {
-        _selectedUser = user;
-        _view.ShowSelectedUser(user);
-    }
+    private void HandleUserSelected(UserViewData user) => _view.ShowSelectedUser(user, _userModule.CurrentUser.Id == user.SourceUser.Id);
 
     private void HandleNextPageRequested()
     {
@@ -73,7 +67,6 @@ public class UserPanelPresenter : BaseLayoutPresenter
 
         LoadPage(_currentPage + 1).Forget();
     }
-
     private void HandlePreviousPageRequested()
     {
         if (_currentPage <= 1)
@@ -104,42 +97,36 @@ public class UserPanelPresenter : BaseLayoutPresenter
 
         LoadPage(1).Forget();
     }
-
     private void HandleFullNameSearchRequested(string fullName)
     {
-        _currentFullNameSearch = string.IsNullOrWhiteSpace(fullName)
-            ? null
-            : fullName.Trim();
+        _currentFullNameSearch = string.IsNullOrWhiteSpace(fullName) ? null : fullName.Trim();
 
         LoadPage(1).Forget();
     }
-
     private void HandleRoleFilterChanged(int? roleId)
     {
         _currentRoleFilter = roleId;
         LoadPage(1).Forget();
     }
 
+    private void HandleUserSaveRequested(UserViewData userViewData, int newRoleId, bool orderingEnabled)
+    {
+        if (userViewData == null)
+            return;
+
+        SaveUserChanges(userViewData, newRoleId, orderingEnabled).Forget();
+    }
+
     private async UniTask LoadPage(int page)
     {
-        int totalCount = await _userModule.GetUsersCount(
-            _currentUserIdSearch,
-            _currentFullNameSearch,
-            _currentRoleFilter
-        );
+        int totalCount = await _userModule.GetUsersCount(_currentUserIdSearch, _currentFullNameSearch, _currentRoleFilter);
 
         _totalPages = Mathf.Max(1, Mathf.CeilToInt(totalCount / (float)_pageSize));
         _currentPage = Mathf.Clamp(page, 1, _totalPages);
 
         int offset = (_currentPage - 1) * _pageSize;
 
-        List<User> users = await _userModule.GetUsersPage(
-            offset,
-            _pageSize,
-            _currentUserIdSearch,
-            _currentFullNameSearch,
-            _currentRoleFilter
-        );
+        List<User> users = await _userModule.GetUsersPage(offset, _pageSize, _currentUserIdSearch, _currentFullNameSearch, _currentRoleFilter);
 
         List<UserViewData> viewData = new();
 
@@ -149,25 +136,15 @@ public class UserPanelPresenter : BaseLayoutPresenter
         _view.SetUsers(viewData);
         _view.SetPagination(_currentPage, _totalPages);
 
-        if (viewData.Count > 0)
-            HandleUserSelected(viewData[0]);
-        else
-            HandleUserSelected(null);
+        HandleUserSelected(viewData.Count > 0 ? viewData[0] : null);
     }
-
-    private void HandleUserSaveRequested(
-        UserViewData userViewData,
-        int newRoleId,
-        bool orderingEnabled)
-    {
-        if (userViewData == null)
-            return;
-
-        SaveUserChanges(userViewData, newRoleId, orderingEnabled).Forget();
-    }
-
     private async UniTask SaveUserChanges(UserViewData userViewData, int newRoleId, bool orderingEnabled)
     {
+        if (_userModule.CurrentUser.Id == userViewData.SourceUser.Id)
+        {
+            _notificationService.ShowPopup("You cannot change your data.", "User save cancelled", NotificationType.Warning);
+            return;
+        }
         bool changed = userViewData.RoleId != newRoleId || userViewData.OrderingEnabled != orderingEnabled;
 
         if (!changed)
@@ -208,15 +185,11 @@ public class UserPanelPresenter : BaseLayoutPresenter
     }
 
     private string GetUserFullName(User user) => user == null ? "Unknown User" : $"{user.FirstName} {user.LastName}".Trim();
-
-    private string GetRoleName(int roleId)
+    private string GetRoleName(int roleId) => roleId switch
     {
-        return roleId switch
-        {
-            1 => "Client",
-            2 => "Manager",
-            3 => "Admin",
-            _ => "Unknown Role"
-        };
-    }
+        1 => "Client",
+        2 => "Manager",
+        3 => "Admin",
+        _ => "Unknown Role"
+    };
 }

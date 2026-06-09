@@ -1,4 +1,4 @@
-using System;
+using Coffee.UIEffects;
 
 public class UserViewData
 {
@@ -19,4 +19,5 @@ public class UserViewData
     public string LastLoginAt { get; set; }
 
     public User SourceUser { get; set; }
+    public UIEffect UIEffect { get; set; }
 }

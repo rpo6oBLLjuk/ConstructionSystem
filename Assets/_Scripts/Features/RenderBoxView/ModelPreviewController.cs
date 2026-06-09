@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 
-public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IScrollHandler
+public class ModelPreviewController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IScrollHandler
 {
     [Inject] FurnitureDataSaver _furnitureDataSaver;
     [Inject] CursorController _cursorController;
@@ -87,7 +87,7 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
 
         _resetButton.onClick.RemoveListener(ResetCamera);
 
-        _saveButton.onClick.AddListener(SaveHandler);
+        _saveButton.onClick.RemoveListener(SaveHandler);
         _closeButton.onClick.RemoveListener(Hide);
         _wallsButton.onClick.RemoveListener(ToggleWalls);
 
@@ -136,6 +136,8 @@ public class ModelPreviewCameraController : MonoBehaviour, IPointerDownHandler, 
         _canvasGroup.interactable = false;
         _canvasGroup.blocksRaycasts = false;
     }
+
+    public void SetUserAccess(bool admin) => _saveButton.gameObject.SetActive(admin);
 
     public void OnPointerDown(PointerEventData eventData)
     {

@@ -44,7 +44,17 @@ public class BlueprintManager : MonoBehaviour
         ScaleFactor = (transform.localScale.x + transform.localScale.y) / 2;
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
+#if UNITY_EDITOR
+        if(blueprintService.SelectedProject == null)
+        {
+            this.FastLog("<b><u> ––– START PLAY FROM LOGIN SCENE TO LOAD PROJECT BLUEPRINT</u></b> –––");
+            UnityEditor.EditorApplication.isPlaying = false;
+            return;
+        }
+#endif
         SetBlueprintData(blueprintService.SelectedProject.points.ToList());
+
+        this.InactiveLog($"Points initialized: " + string.Join(" ", blueprintService.SelectedProject.points.ToList()));
     }
 
     public void MovePoint(int index, Vector2 newPosition)
@@ -63,8 +73,6 @@ public class BlueprintManager : MonoBehaviour
         LinesController.AddLine(index);
 
         OnPointAdded?.Invoke(index, position);
-
-        DebugWrapper.InactiveLog(this,$"Point added by position: {position}");
     }
     public void RemovePoint(int index, bool forceDelete = false)
     {
