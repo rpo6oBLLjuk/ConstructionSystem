@@ -494,25 +494,25 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         if (string.IsNullOrWhiteSpace(data.Name))
         {
-            _notificationService.ShowPopup("Furniture name cannot be empty.", "Input warning", NotificationType.Warning);
+            _notificationService.ShowPopup("Furniture <u>name</u> cannot be empty.", "Input warning", NotificationType.Warning);
             return false;
         }
 
         if (!data.HasModel)
         {
-            _notificationService.ShowPopup("Model cannot be empty.", "Input warning", NotificationType.Warning);
+            _notificationService.ShowPopup("<u>Model</u> cannot be empty.", "Input warning", NotificationType.Warning);
             return false;
         }
 
         if (data.Width < 0 || data.Height < 0 || data.Depth < 0)
         {
-            _notificationService.ShowPopup("Furniture size cannot contain negative values.", "Input warning", NotificationType.Warning);
+            _notificationService.ShowPopup("Furniture <u>size<u> cannot contain <b>negative</b> values.", "Input warning", NotificationType.Warning);
             return false;
         }
 
         if (data.Price < 0)
         {
-            _notificationService.ShowPopup("Furniture price cannot be negative.", "Input warning", NotificationType.Warning);
+            _notificationService.ShowPopup("Furniture <u>price</u> cannot be negative.", "Input warning", NotificationType.Warning);
             return false;
         }
 
@@ -548,7 +548,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             data.ModelOrPreviewChanged;
 
         if (!changed)
-            _notificationService.ShowPopup("Furniture data has not been changed", "Saving canceled", NotificationType.Info);
+            _notificationService.ShowPopup("Furniture data has <u>not been changed</u>", "Saving canceled", NotificationType.Info);
 
         return changed;
     }

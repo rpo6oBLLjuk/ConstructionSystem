@@ -58,7 +58,7 @@ public class UserPanelPresenter : BaseLayoutPresenter
         base.Show();
     }
 
-    private void HandleUserSelected(UserViewData user) => _view.ShowSelectedUser(user, _userModule.CurrentUser.Id == user.SourceUser.Id);
+    private void HandleUserSelected(UserViewData user) => _view.ShowSelectedUser(user, _userModule.CurrentUser.Id == user?.SourceUser?.Id);
 
     private void HandleNextPageRequested()
     {

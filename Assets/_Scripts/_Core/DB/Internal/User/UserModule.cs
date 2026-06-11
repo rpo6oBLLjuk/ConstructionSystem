@@ -37,7 +37,7 @@ public class UserModule
         List<User> users = await GetFilteredUsers(id, login, roleId);
 
         return users
-            .OrderBy(user => user.RoleId)
+            .OrderBy(user => user.Id)
             .ThenBy(user => user.Id)
             .Skip(offset)
             .Take(count)
@@ -145,29 +145,22 @@ public class UserModule
     {
         List<User> users;
 
+        users = await _userRepository.GetAll();
+
         if (id.HasValue)
-            users = await _userRepository.GetWhere(user => user.Id == id.Value);
-        else if (roleId.HasValue)
-            users = await _userRepository.GetWhere(user => user.RoleId == roleId.Value);
-        else
-            users = await _userRepository.GetAll();
+            users = users.Where(user => user.Id.ToString().Contains(id.ToString())).ToList();
+
+        if (roleId.HasValue)
+            users = users.Where(user => user.RoleId == roleId.Value).ToList();
 
         if (!string.IsNullOrWhiteSpace(fullNameSearch))
         {
             string search = NormalizeSearch(fullNameSearch);
 
-            users = users
-                .Where(user =>
-                    NormalizeSearch($"{user.FirstName} {user.LastName}").Contains(search) ||
-                    NormalizeSearch($"{user.LastName} {user.FirstName}").Contains(search))
-                .ToList();
-        }
-
-        if (roleId.HasValue && id.HasValue)
-        {
-            users = users
-                .Where(user => user.RoleId == roleId.Value)
-                .ToList();
+            users = users.Where(user =>
+                NormalizeSearch($"{user.FirstName} {user.LastName}").Contains(search) ||
+                NormalizeSearch($"{user.LastName} {user.FirstName}").Contains(search))
+            .ToList();
         }
 
         return users;

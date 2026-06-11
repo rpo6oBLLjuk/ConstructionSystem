@@ -47,8 +47,8 @@ public class ProjectPreviewPanel : MonoBehaviour
 
         if (blueprintData != null)
         {
-            _previewSize.text = $"Size\n{blueprintData.square} m²";
-            _previewEditDate.text = $"Last edit\n{project.UpdatedAt}";
+            _previewSize.text = $"{blueprintData.square} m²";
+            _previewEditDate.text = $"{project.UpdatedAt}";
         }
 
         _renameField.text = project.ProjectName;

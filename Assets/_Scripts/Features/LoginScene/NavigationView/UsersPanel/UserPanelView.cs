@@ -114,14 +114,14 @@ public class UserPanelView : MonoBehaviour
 
         _selectedUser = user;
 
-        _selectedUser.UIEffect.edgeColor = _selectedColor;
-        _selectedUser.UIEffect.edgeWidth = 0.4f;
-
         if (user == null)
         {
             ClearSelectedUserPanel();
             return;
         }
+
+        _selectedUser.UIEffect.edgeColor = _selectedColor;
+        _selectedUser.UIEffect.edgeWidth = 0.4f;
 
         _ordersAllowedToggle.interactable = !self;
         _selectedRoleDropdown.interactable = !self;
