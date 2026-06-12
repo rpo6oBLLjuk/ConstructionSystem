@@ -7,7 +7,7 @@ using Zenject;
 
 public class BlueprintManager : MonoBehaviour
 {
-    [Inject] ActiveProjectService blueprintService;
+    [Inject] ActiveProjectService activePrijectService;
 
     public List<Vector2> BlueprintPoints { get; private set; } = new();
 
@@ -45,16 +45,16 @@ public class BlueprintManager : MonoBehaviour
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
 #if UNITY_EDITOR
-        if(blueprintService.ProjectData == null)
+        if(activePrijectService.ProjectData == null)
         {
             this.FastLog("<b><u> ––– START PLAY FROM LOGIN SCENE TO LOAD PROJECT BLUEPRINT</u></b> –––");
             UnityEditor.EditorApplication.isPlaying = false;
             return;
         }
 #endif
-        SetBlueprintData(blueprintService.ProjectData.Points.ToList());
+        SetBlueprintData(activePrijectService.ProjectData.Points.ToList());
 
-        this.InactiveLog($"Points initialized: " + string.Join(" ", blueprintService.ProjectData.Points.ToList()));
+        this.InactiveLog($"Points initialized: " + string.Join(" ", activePrijectService.ProjectData.Points.ToList()));
     }
 
     public void MovePoint(int index, Vector2 newPosition)

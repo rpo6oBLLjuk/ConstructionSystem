@@ -3,6 +3,8 @@ using Zenject;
 
 public class CameraRotator : MonoBehaviour
 {
+    [Inject] CursorController cursorController;
+
     [SerializeField] private float _rotateSpeed = 10;
     [SerializeField] private float _moveDamping = 0.1f;
 
@@ -22,6 +24,9 @@ public class CameraRotator : MonoBehaviour
 
     private void RotateCamera()
     {
+        if (cursorController.IsVisible)
+            return;
+
         Vector3 _smoothedVelocity = Vector3.SmoothDamp(previousVelocity, inputVelocity, ref refVector, _moveDamping * Application.targetFrameRate * Time.deltaTime);
         previousVelocity = _smoothedVelocity;
 

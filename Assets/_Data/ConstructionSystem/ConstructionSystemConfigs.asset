@@ -12,12 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96e2f277460fa9d4db22f54b4bf174f3, type: 3}
   m_Name: ConstructionSystemConfigs
   m_EditorClassIdentifier: 
-  <BuilderLayerMask>k__BackingField:
-    serializedVersion: 2
-    m_Bits: 243
-  <RaycasterLayerMask>k__BackingField:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  <MaxCameraRaycastDistance>k__BackingField: 10
-  <MaxSnapRaycastDistance>k__BackingField: 100
-  <MouseScrollMultiplier>k__BackingField: 250
+  UnitsToMeters: 0.0125
+  WallHeightMeters: 2.5
+  WallThicknessMeters: 0.01
+  BaseboardHeightMeters: 0.04
+  BaseboardWidthMeters: 0.02

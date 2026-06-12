@@ -11,7 +11,7 @@ public class ProjectPreviewPanel : MonoBehaviour
     [Inject] ProjectDataSaver _projectDataSaver;
 
     public event Action OnBlueprintDelete;
-    public event Action OnBlueprintOpen;
+    public event Action<bool> OnBlueprintOpen; //As space
 
     public event Action<string> OnBlueprintRename;
 
@@ -24,6 +24,7 @@ public class ProjectPreviewPanel : MonoBehaviour
 
     [SerializeField] Button _deleteButton;
     [SerializeField] Button _openButton;
+    [SerializeField] Button _openAsSpaceButton;
 
     private Sprite _defaultPreview;
 
@@ -34,6 +35,7 @@ public class ProjectPreviewPanel : MonoBehaviour
 
         _deleteButton.onClick.AddListener(DeleteBlueprint);
         _openButton.onClick.AddListener(OpenBlueprint);
+        _openAsSpaceButton.onClick.AddListener(OpenAsSpaceBlueprint);
     }
     private void OnDisable()
     {
@@ -41,6 +43,7 @@ public class ProjectPreviewPanel : MonoBehaviour
 
         _deleteButton.onClick.RemoveListener(DeleteBlueprint);
         _openButton.onClick.RemoveListener(OpenBlueprint);
+        _openAsSpaceButton.onClick.RemoveListener(OpenAsSpaceBlueprint);
     }
 
     private void Start() => _defaultPreview = _previewImage.sprite;
@@ -60,5 +63,6 @@ public class ProjectPreviewPanel : MonoBehaviour
 
     private void RenameBlueprint() => OnBlueprintRename?.Invoke(_renameField.text);
     private void DeleteBlueprint() => OnBlueprintDelete?.Invoke();
-    private void OpenBlueprint() => OnBlueprintOpen?.Invoke();
+    private void OpenBlueprint() => OnBlueprintOpen?.Invoke(false);
+    private void OpenAsSpaceBlueprint() => OnBlueprintOpen?.Invoke(true);
 }

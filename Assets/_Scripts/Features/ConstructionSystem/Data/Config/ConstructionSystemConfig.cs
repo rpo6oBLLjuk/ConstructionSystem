@@ -10,13 +10,10 @@ public class ConstructionSystemConfig : ScriptableObject
     [Min(0.1f)] public float WallHeightMeters = 2.5f;
     [Min(0.01f)] public float WallThicknessMeters = 0.15f;
 
-    public Vector3 BlueprintPointToWorld(Vector2 point)
-    {
-        return new Vector3(point.x * UnitsToMeters, 0f, point.y * UnitsToMeters);
-    }
+    [Header("Baseboard")]
+    [Min(0f)] public float BaseboardHeightMeters = 0.08f;
+    [Min(0f)] public float BaseboardWidthMeters = 0.04f;
 
-    public float ToWorldSize(float value)
-    {
-        return value * UnitsToMeters;
-    }
+    public Vector3 BlueprintPointToWorld(Vector2 point) => new(point.x * UnitsToMeters, 0f, point.y * UnitsToMeters);
+    public float ToWorldSize(float value) => value * UnitsToMeters;
 }

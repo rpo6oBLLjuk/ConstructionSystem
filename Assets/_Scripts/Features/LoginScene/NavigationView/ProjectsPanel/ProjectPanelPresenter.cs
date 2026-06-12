@@ -71,7 +71,7 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
     }
     private void HandleNewProjectRequest() => _notificationService.ShowInputDialog("Enter blueprint name...", "Create New Blueprint", (newName) => CreateNewProject(newName).Forget());
 
-    private void OnProjectOpenRequested()
+    private void OnProjectOpenRequested(bool asSpace)
     {
         if (!CheckProjectSelection())
             return;
@@ -79,7 +79,7 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
         ProjectData projectData = _projectSaver.Load(_currentSelectedProject, OnError: error => _notificationService.ShowPopup(error, "Project opening error", NotificationType.Error));
         _activeBlueprintService.SetActiveProject(_currentSelectedProject, projectData);
 
-        _sceneTransitionController.LoadScene(AppScene.Blueprint);
+        _sceneTransitionController.LoadScene(asSpace? AppScene.Construction : AppScene.Blueprint);
     }
     private void OnProjectDeleteRequested()
     {
