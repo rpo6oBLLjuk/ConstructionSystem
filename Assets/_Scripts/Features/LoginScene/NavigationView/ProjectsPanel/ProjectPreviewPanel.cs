@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +8,7 @@ using Zenject;
 [Serializable]
 public class ProjectPreviewPanel : MonoBehaviour
 {
-    [Inject] NotificationService _notificationService;
+    [Inject] ProjectDataSaver _projectDataSaver;
 
     public event Action OnBlueprintDelete;
     public event Action OnBlueprintOpen;
@@ -24,7 +25,8 @@ public class ProjectPreviewPanel : MonoBehaviour
     [SerializeField] Button _deleteButton;
     [SerializeField] Button _openButton;
 
-    private UserProject _currentProject;
+    private Sprite _defaultPreview;
+
 
     private void OnEnable()
     {
@@ -41,15 +43,17 @@ public class ProjectPreviewPanel : MonoBehaviour
         _openButton.onClick.RemoveListener(OpenBlueprint);
     }
 
+    private void Start() => _defaultPreview = _previewImage.sprite;
+
     public void ShowBlueprintPreview(ProjectData blueprintData, UserProject project)
     {
-        _currentProject = project;
+        _projectDataSaver.LoadPreviewSprite(project,
+            onComplete: sprite => _previewImage.sprite = sprite,
+            onError: _ => _previewImage.sprite = _defaultPreview
+        ).Forget();
 
-        if (blueprintData != null)
-        {
-            _previewSize.text = $"{blueprintData.square} m²";
-            _previewEditDate.text = $"{project.UpdatedAt}";
-        }
+        _previewSize.text = $"{blueprintData.Square} m²";
+        _previewEditDate.text = $"{project.UpdatedAt}";
 
         _renameField.text = project.ProjectName;
     }

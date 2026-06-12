@@ -13,11 +13,12 @@ public class SceneTransitionController : MonoBehaviour
     [SerializeField] SceneTransitionConfig _config;
     [SerializeField] CanvasGroup _loadScreen;
 
+#if UNITY_EDITOR
     [Header("editor only")]
     [SerializeField] float _delayBeforeTransition = 0f;
     [SerializeField] float _minimalTransitionDuration = 0f;
     [SerializeField] bool _sceneLoadOnStart = false;
-
+#endif
 
     private void Start()
     {
@@ -29,6 +30,7 @@ public class SceneTransitionController : MonoBehaviour
 
     public void LoadScene(AppScene scene)
     {
+        this.InactiveLog($"Scene load request: {scene}");
         LoadAdditiveSceneAsync(_config.Scenes
             .Find(data => data.AppScene == scene).Index)
         .Forget();
@@ -60,6 +62,7 @@ public class SceneTransitionController : MonoBehaviour
             await UniTask.WaitForSeconds(awaitDuration);
 #endif
         asyncSceneLoad.allowSceneActivation = true;
+        IsInTransition = false;
 
         await UniTask.WaitUntil(() => asyncSceneLoad.isDone);
         SetLoadscreenState(false, out _);

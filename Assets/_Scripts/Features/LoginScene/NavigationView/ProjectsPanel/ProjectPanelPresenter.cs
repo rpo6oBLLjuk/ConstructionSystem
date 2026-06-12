@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -79,7 +77,7 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
             return;
 
         ProjectData projectData = _projectSaver.Load(_currentSelectedProject, OnError: error => _notificationService.ShowPopup(error, "Project opening error", NotificationType.Error));
-        _activeBlueprintService.SetActiveProject(projectData);
+        _activeBlueprintService.SetActiveProject(_currentSelectedProject, projectData);
 
         _sceneTransitionController.LoadScene(AppScene.Blueprint);
     }
@@ -138,15 +136,18 @@ public class ProjectPanelPresenter : BaseLayoutPresenter
         if (!CheckProjectSelection())
             return;
 
-        UserProject userProject = _currentSelectedProject;
-
-        _projectSaver.Rename(userProject, newName, notification =>
+        if (_currentSelectedProject.ProjectName == newName)
         {
-            _userProjectModule.RenameProject(userProject, newName).Forget();
-            _projectGridView.RefreshUIElement(userProject);
+            _notificationService.ShowPopup("You have already created a project with an identical name", "Project renaming error", NotificationType.Info);
+            return;
+        }
 
-            _notificationService.ShowPopup(notification, "Project renamed", NotificationType.Success);
-        }, error => _notificationService.ShowPopup(error, "Project renaming error", NotificationType.Error));
+        UserProject userProject = _currentSelectedProject;
+        _userProjectModule.RenameProject(userProject, newName, OnComplete: _ =>
+        {
+            _projectGridView.RefreshUIElement(userProject);
+            _notificationService.ShowPopup($"Project renamed to <b>{newName}</b>.", "Project renamed", NotificationType.Success);
+        }).Forget();
     }
 
     private bool CheckProjectSelection()

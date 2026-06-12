@@ -7,13 +7,12 @@ using Zenject;
 
 public class ModelPreviewController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IScrollHandler
 {
-    [Inject] FurnitureDataSaver _furnitureDataSaver;
     [Inject] CursorController _cursorController;
 
     /// <summary>
     /// Save preview from render texture, byte[] is texture, string is extension
     /// </summary>
-    public event Action<byte[], string, Texture2D> PreviewSaveRequested;
+    public event Action<byte[], Texture2D> PreviewSaveRequested;
 
     [Header("RenderZone")]
     [field: SerializeField] public Transform ModelContainer { get; private set; }
@@ -60,8 +59,6 @@ public class ModelPreviewController : MonoBehaviour, IPointerDownHandler, IPoint
     private float _horizontalAngle;
     private float _verticalAngle;
     private float _distance;
-
-    private const string _previewExtension = ".jpg";
     private const int _previewQuality = 85;
 
 
@@ -208,7 +205,7 @@ public class ModelPreviewController : MonoBehaviour, IPointerDownHandler, IPoint
         Texture2D previewTexture = BuildPreviewTexture();
         byte[] bytes = previewTexture.EncodeToJPG(_previewQuality);
 
-        PreviewSaveRequested?.Invoke(bytes, _previewExtension, previewTexture);
+        PreviewSaveRequested?.Invoke(bytes, previewTexture);
     }
 
     private void SnapAnglesToStep()
@@ -231,8 +228,7 @@ public class ModelPreviewController : MonoBehaviour, IPointerDownHandler, IPoint
         {
             _cameraContainer.rotation = Quaternion.Euler(_verticalAngle, _horizontalAngle, 0f);
 
-            cameraTransform.localPosition = new Vector3(0f, 0f, -_distance);
-            cameraTransform.localRotation = Quaternion.identity;
+            cameraTransform.SetLocalPositionAndRotation(new Vector3(0f, 0f, -_distance), Quaternion.identity);
         }
         else
         {

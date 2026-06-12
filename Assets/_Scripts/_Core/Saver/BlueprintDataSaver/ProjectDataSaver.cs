@@ -1,36 +1,36 @@
 using System;
-using System.IO;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class ProjectDataSaver
+public class ProjectDataSaver : AbstractSaver
 {
-    private string BaseDirectory { get; } = "S3/ProjectsData";
-    private string Format { get; } = "json";
+    private const string DataFileName = "projectData.json";
+    private const string PreviewFileName = "preview.jpg";
 
-
-    public ProjectDataSaver()
-    {
-        BaseDirectory = Path.Combine(Application.persistentDataPath, BaseDirectory);
-        if (!Directory.Exists(BaseDirectory))
-            Directory.CreateDirectory(BaseDirectory);
-    }
+    public ProjectDataSaver() : base("S3/ProjectsData") { }
 
     public bool Save(UserProject project, ProjectData data, Action<string> OnMessage = null, Action<string> OnError = null)
     {
-        if (string.IsNullOrWhiteSpace(project.ProjectName))
+        if (!IsProjectValid(project, OnError))
+            return false;
+
+        if (data == null)
         {
-            OnError?.Invoke("Save name is empty");
+            OnError?.Invoke("Project data is empty.");
             return false;
         }
 
-        string path = GetPath(project);
+        string path = GetProjectDataPath(project);
+
         try
         {
             string json = JsonUtility.ToJson(data, false);
-            File.WriteAllText(path, json);
+            bool saved = SaveText(path, json, null, OnError);
 
-            OnMessage?.Invoke($"Project <b>{project.ProjectName}</b> saved successfully.");
-            return true;
+            if (saved)
+                OnMessage?.Invoke($"Project <b>{project.ProjectName}</b> saved successfully.");
+
+            return saved;
         }
         catch (Exception e)
         {
@@ -40,18 +40,18 @@ public class ProjectDataSaver
     }
     public ProjectData Load(UserProject project, Action<string> OnMessage = null, Action<string> OnError = null)
     {
-        string path = GetPath(project);
-        if (!Exists(path))
-        {
-            OnError?.Invoke($"Save not found: <b>{project.ProjectName}</b>");
+        if (!IsProjectValid(project, OnError))
             return default;
-        }
+
+        string path = GetProjectDataPath(project);
+        string json = LoadText(path, OnError);
+
+        if (string.IsNullOrWhiteSpace(json))
+            return default;
 
         try
         {
-            string json = File.ReadAllText(path);
             ProjectData data = JsonUtility.FromJson<ProjectData>(json);
-
             OnMessage?.Invoke($"Project <b>{project.ProjectName}</b> loaded.");
             return data;
         }
@@ -63,56 +63,85 @@ public class ProjectDataSaver
     }
     public bool Delete(UserProject project, Action<string> OnMessage = null, Action<string> OnError = null)
     {
-        string path = GetPath(project);
-        if (!Exists(path))
-        {
-            OnError?.Invoke($"Save not found: <b>{project.ProjectName}</b>");
+        if (!IsProjectValid(project, OnError))
             return false;
-        }
 
-        try
-        {
-            this.FastLog(path);
-            File.Delete(path);
-            OnMessage?.Invoke($"Project <b>{project.ProjectName}</b> deleted.");
-            return true;
-        }
-        catch (Exception e)
-        {
-            OnError?.Invoke($"Delete failed: <b>{e.Message}</b>");
-            return false;
-        }
+        string path = GetProjectDirectory(project);
+
+        return DeleteDirectory(path, message => OnMessage?.Invoke($"Project <b>{project.ProjectName}</b> deleted."), OnError);
     }
 
-    public bool Rename(UserProject project, string newName, Action<string> OnMessage = null, Action<string> OnError = null)
+    public bool SavePreviewBytes(UserProject project, byte[] bytes, Action<string> OnMessage = null, Action<string> OnError = null)
     {
-        if (string.IsNullOrWhiteSpace(newName))
+        if (!IsProjectValid(project, OnError))
             return false;
 
-        string oldPath = GetPath(project);
-        string newPath = GetPath(project.UserId, newName);
-
-        if (Exists(oldPath) && !Exists(newPath))
+        string path = GetProjectPreviewPath(project);
+        return SaveBytes(path, bytes, OnMessage, OnError);
+    }
+    public bool SavePreviewTexture(UserProject project, Texture2D texture, Action<string> OnMessage = null, Action<string> OnError = null)
+    {
+        if (texture == null)
         {
-            File.Move(oldPath, newPath);
-            OnMessage?.Invoke($"Project <b>{project.ProjectName}</b> renamed to <b>{newName}</b>.");
-            return true;
+            OnError?.Invoke("Preview texture is empty.");
+            return false;
         }
 
-        OnError?.Invoke("You have already created a project with an identical name");
-        return false;
+        byte[] bytes = texture.EncodeToJPG(90);
+        return SavePreviewBytes(project, bytes, OnMessage, OnError);
+    }
+    public bool SavePreviewSprite(UserProject project, Sprite sprite, Action<string> OnMessage = null, Action<string> OnError = null)
+    {
+        if (sprite == null || sprite.texture == null)
+        {
+            OnError?.Invoke("Preview sprite is empty.");
+            return false;
+        }
+
+        byte[] bytes = sprite.texture.EncodeToJPG(90);
+        return SavePreviewBytes(project, bytes, OnMessage, OnError);
     }
 
-    //private bool Exists(int id, string name) => Exists(GetPath(id, name));
-    private bool Exists(string path) => File.Exists(path);
-
-    private string GetPath(UserProject project) => GetPath(project.UserId, project.ProjectName);
-    private string GetPath(int id, string name)
+    public async UniTask LoadPreviewSprite(UserProject project, Action<Sprite> onComplete = null, Action<string> onError = null)
     {
-        string pathWithUserId = Path.Combine(BaseDirectory, id.ToString());
-        if (!Directory.Exists(pathWithUserId))
-            Directory.CreateDirectory(pathWithUserId);
+        if (!IsProjectValid(project, onError))
+            return;
 
-        return Path.Combine(pathWithUserId, $"{name}.{Format}");
+        if (!HasPreview(project))
+        {
+            onError?.Invoke("Project preview not found.");
+            return;
+        }
+
+        await LoadSpriteFromPath(GetProjectPreviewPath(project), onComplete, onError);
+    }
+
+    public bool HasPreview(UserProject project) => IsProjectValid(project) && Exists(GetProjectPreviewPath(project));
+
+    private string GetProjectDirectory(UserProject project) => GetDirectory(true, project.UserId.ToString(), project.Id.ToString());
+    private string GetProjectDataPath(UserProject project) => GetFilePath(DataFileName, true, project.UserId.ToString(), project.Id.ToString());
+    private string GetProjectPreviewPath(UserProject project) => GetFilePath(PreviewFileName, true, project.UserId.ToString(), project.Id.ToString());
+
+    private bool IsProjectValid(UserProject project, Action<string> OnError = null)
+    {
+        if (project == null)
+        {
+            OnError?.Invoke("Project is null.");
+            return false;
+        }
+
+        if (project.UserId <= 0)
+        {
+            OnError?.Invoke("Project user id is incorrect.");
+            return false;
+        }
+
+        if (project.Id <= 0)
+        {
+            OnError?.Invoke("Project id is incorrect.");
+            return false;
+        }
+
+        return true;
     }
 }

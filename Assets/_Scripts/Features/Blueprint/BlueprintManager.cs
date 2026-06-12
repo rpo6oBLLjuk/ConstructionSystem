@@ -45,16 +45,16 @@ public class BlueprintManager : MonoBehaviour
         SetBlueprintScaleFactor(_visualConfig.DefaultBlueprintScaleFactor);
 
 #if UNITY_EDITOR
-        if(blueprintService.SelectedProject == null)
+        if(blueprintService.ProjectData == null)
         {
             this.FastLog("<b><u> ––– START PLAY FROM LOGIN SCENE TO LOAD PROJECT BLUEPRINT</u></b> –––");
             UnityEditor.EditorApplication.isPlaying = false;
             return;
         }
 #endif
-        SetBlueprintData(blueprintService.SelectedProject.points.ToList());
+        SetBlueprintData(blueprintService.ProjectData.Points.ToList());
 
-        this.InactiveLog($"Points initialized: " + string.Join(" ", blueprintService.SelectedProject.points.ToList()));
+        this.InactiveLog($"Points initialized: " + string.Join(" ", blueprintService.ProjectData.Points.ToList()));
     }
 
     public void MovePoint(int index, Vector2 newPosition)

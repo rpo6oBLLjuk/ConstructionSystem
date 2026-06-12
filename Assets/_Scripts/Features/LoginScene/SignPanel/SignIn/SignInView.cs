@@ -27,13 +27,11 @@ public class SignInView : MonoBehaviour
     private void OnEnable()
     {
         _submitButton.onClick.AddListener(() => OnSubmit?.Invoke(_loginField.text, _passwordField.text));
-
         _switchButton.onClick.AddListener(HandleSwitch);
     }
     private void OnDisable()
     {
         _submitButton.onClick.RemoveAllListeners();
-
         _switchButton.onClick.RemoveListener(HandleSwitch);
     }
 

@@ -37,7 +37,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
     private string _pendingModelPath;
     private string _pendingPreviewPath;
     private byte[] _pendingPreviewBytes;
-    private string _pendingPreviewExtension;
 
 
     protected override void OnEnable()
@@ -291,7 +290,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         _pendingPreviewPath = selectedPath;
         _pendingPreviewBytes = null;
-        _pendingPreviewExtension = null;
 
         furniture.HasPreview = true;
         furniture.ModelOrPreviewChanged = true;
@@ -306,7 +304,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         _notificationService.ShowPopup("Preview has been selected. Press Save to apply changes.", "Preview selected", NotificationType.Info);
     }
-    private void HandlePreviewSave(byte[] bytes, string extension, Texture2D texture2d)
+    private void HandlePreviewSave(byte[] bytes, Texture2D texture2d)
     {
         if (!CanEditFurniture() || _selectedFurniture == null)
             return;
@@ -315,7 +313,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         _pendingPreviewPath = null;
         _pendingPreviewBytes = bytes;
-        _pendingPreviewExtension = extension;
 
         _selectedFurniture.HasPreview = true;
         _selectedFurniture.ModelOrPreviewChanged = true;
@@ -415,9 +412,9 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
             furnitureViewData.HasModel = true;
         }
 
-        if (_pendingPreviewBytes != null && !string.IsNullOrWhiteSpace(_pendingPreviewExtension))
+        if (_pendingPreviewBytes != null)
         {
-            bool previewSaved = _furnitureDataSaver.SavePreviewBytes(source.Id, _pendingPreviewBytes, _pendingPreviewExtension, message => DebugWrapper.InactiveLog(this, message), error => DebugWrapper.LogError(this, error));
+            bool previewSaved = _furnitureDataSaver.SavePreviewBytes(source.Id, _pendingPreviewBytes, message => DebugWrapper.InactiveLog(this, message), error => DebugWrapper.LogError(this, error));
 
             if (!previewSaved)
                 return false;
@@ -450,7 +447,6 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
 
         _pendingPreviewPath = null;
         _pendingPreviewBytes = null;
-        _pendingPreviewExtension = null;
     }
     private void ResetPendingFurnitureState(FurnitureViewData furniture)
     {

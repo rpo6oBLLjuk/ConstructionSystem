@@ -9732,7 +9732,7 @@ MonoBehaviour:
   _config: {fileID: 11400000, guid: 25063df127b80bc44b1aef6c73d6ea40, type: 2}
   _loadScreen: {fileID: 1948405095599445446}
   _delayBeforeTransition: 0
-  _minimalTransitionDuration: 2
+  _minimalTransitionDuration: 0
   _sceneLoadOnStart: 0
 --- !u!114 &9137894784395095994
 MonoBehaviour:

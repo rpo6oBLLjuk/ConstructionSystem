@@ -54,16 +54,19 @@ public class CameraSplineController : MonoBehaviour
 #endif
 
     //Move camera between SignIn & Project windows
-    public void AnimateCameraSpline(bool forward)
+    public void AnimateCameraSpline(bool forward, bool instant = false)
     {
+        float duration = Duration;
         IsForward = forward;
 
         SetActiveCamera(_firstCamera);
 
         (forward ? OnForwardAnimStarted : OnBackAnimStarted)?.Invoke();
 
+        if (instant)
+            duration = 0;
         _cinemachineSplineDolly.CameraPosition = forward ? _splineStartEndValue.x : _splineStartEndValue.y;
-        DOTween.To(() => _cinemachineSplineDolly.CameraPosition, x => _cinemachineSplineDolly.CameraPosition = x, forward ? _splineStartEndValue.y : _splineStartEndValue.x, Duration)
+        DOTween.To(() => _cinemachineSplineDolly.CameraPosition, x => _cinemachineSplineDolly.CameraPosition = x, forward ? _splineStartEndValue.y : _splineStartEndValue.x, duration)
             .SetEase(forward ? _forwardEase : _backwardEase)
             .SetUpdate(updateType: UpdateType.Late)
             .OnComplete(() =>

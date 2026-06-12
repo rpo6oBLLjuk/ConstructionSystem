@@ -3,7 +3,6 @@ using Zenject;
 
 public class ConstructionBuilder
 {
-    [Inject] InputSystem _inputSystem;
     [Inject] ConstructionSystem _constructionSystem;
     [Inject] ConstructionSystemConfig _constructionSystemConfig;
 
@@ -17,7 +16,7 @@ public class ConstructionBuilder
         if (Physics.CheckBox(position + (Vector3.up * size.y / 2), size / 2 * 0.99999f, rotation, _constructionSystemConfig.BuilderLayerMask, QueryTriggerInteraction.Ignore))
             return (true, Physics.OverlapBox(position + (Vector3.up * size.y / 2), size / 2 * 0.99999f, rotation, _constructionSystemConfig.BuilderLayerMask, QueryTriggerInteraction.Ignore));
 
-        if (Input.GetMouseButtonDown(0) && _inputSystem.InputActionAsset.Player.enabled)
+        if (Input.GetMouseButtonDown(0))
             InstantiateConstruction(position, rotation);
 
         return (false, null);

@@ -1,285 +1,156 @@
 using System;
 using System.IO;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class FurnitureDataSaver
+public class FurnitureDataSaver : AbstractSaver
 {
-    public string[] ModelExtensions => _modelExtensions.Select(ext => ext.TrimStart('.')).ToArray();
-    public string[] PreviewExtensions => _previewExtensions.Select(ext => ext.TrimStart('.')).ToArray();
-
-    private const string RootDirectory = "S3/FurnitureData";
-
     private const string ModelFileName = "model";
     private const string PreviewFileName = "preview";
 
-    private readonly string[] _modelExtensions = { ".glb" };
-    private readonly string[] _previewExtensions = { ".jpg", ".jpeg", ".png" };
+    private readonly GltfModelLoader _gltfModelLoader = new();
 
-    private string BaseDirectory => Path.Combine(Application.persistentDataPath, RootDirectory);
+    public string[] ModelExtensions { get; } = { "glb" };
+    public string[] PreviewExtensions { get; } = { "jpg", "jpeg", "png" };
 
 
-    public FurnitureDataSaver() => EnsureBaseDirectory();
+    public FurnitureDataSaver() : base("S3/FurnitureData") { }
 
-    public bool SaveModelFile(int furnitureId, string sourceFilePath, Action<string> onMessage = null, Action<string> onError = null) => SaveFurnitureFile(furnitureId, sourceFilePath, ModelFileName, _modelExtensions, onMessage, onError);
-    public bool SavePreviewFile(int furnitureId, string sourceFilePath, Action<string> onMessage = null, Action<string> onError = null) => SaveFurnitureFile(furnitureId, sourceFilePath, PreviewFileName, _previewExtensions, onMessage, onError);
-    public bool SavePreviewBytes(int furnitureId, byte[] bytes, string extension, Action<string> onMessage = null, Action<string> onError = null)
+    public bool SaveModelFile(int furnitureId, string sourcePath, Action<string> OnMessage = null, Action<string> OnError = null)
     {
-        extension = NormalizeExtension(extension);
+        string extension = Path.GetExtension(sourcePath);
 
-        if (!IsExtensionAllowed(extension, _previewExtensions))
+        if (string.IsNullOrWhiteSpace(extension))
         {
-            onError?.Invoke($"Invalid preview format: {extension}");
+            OnError?.Invoke("Model extension is empty.");
             return false;
         }
 
-        string directory = GetFurnitureDirectory(furnitureId);
-        DeleteExistingFiles(directory, PreviewFileName, _previewExtensions);
-
-        string fileName = $"{PreviewFileName}{extension}";
-        string path = Path.Combine(directory, fileName);
-
-        try
+        if (!IsExtensionAllowed(extension, ModelExtensions))
         {
-            File.WriteAllBytes(path, bytes);
-            onMessage?.Invoke($"Preview saved: {fileName}");
-            return true;
-        }
-        catch (Exception e)
-        {
-            onError?.Invoke($"Failed to save preview: {e.Message}");
+            OnError?.Invoke($"Model extension <b>{extension}</b> is not supported.");
             return false;
         }
+
+        string targetPath = GetFilePath($"{ModelFileName}{NormalizeExtension(extension)}", true, furnitureId.ToString());
+        return CopyFile(sourcePath, targetPath, OnMessage, OnError);
+    }
+    public bool SavePreviewFile(int furnitureId, string sourcePath, Action<string> OnMessage = null, Action<string> OnError = null)
+    {
+        string extension = Path.GetExtension(sourcePath);
+
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            OnError?.Invoke("Preview extension is empty.");
+            return false;
+        }
+
+        if (!IsExtensionAllowed(extension, PreviewExtensions))
+        {
+            OnError?.Invoke($"Preview extension <b>{extension}</b> is not supported.");
+            return false;
+        }
+
+        return CopyFile(sourcePath, GetPreviewSavePath(furnitureId), OnMessage, OnError);
     }
 
-    public bool HasModel(int furnitureId) => !string.IsNullOrWhiteSpace(GetModelPath(furnitureId));
-    public bool HasPreview(int furnitureId) => !string.IsNullOrWhiteSpace(GetPreviewPath(furnitureId));
+    public bool SavePreviewBytes(int furnitureId, byte[] bytes, Action<string> OnMessage = null, Action<string> OnError = null) => SaveBytes(GetPreviewSavePath(furnitureId), bytes, OnMessage, OnError);
 
-    public string GetModelPath(int furnitureId) => GetExistingFurnitureFilePath(furnitureId, ModelFileName, _modelExtensions);
-    public string GetPreviewPath(int furnitureId) => GetExistingFurnitureFilePath(furnitureId, PreviewFileName, _previewExtensions);
-
-    public async UniTask LoadPreviewSprite(int furnitureId, Action<Sprite> onComplete, Action<string> onError = null)
+    public async UniTask LoadPreviewSprite(int furnitureId, Action<Sprite> onComplete = null, Action<string> onError = null)
     {
-        string path = GetPreviewPath(furnitureId);
+        await LoadSpriteFromPath(GetPreviewPath(furnitureId), onComplete, onError);
+    }
+    public async UniTask LoadPreviewByAbsolutePath(string path, Action<Sprite> onComplete = null, Action<string> onError = null)
+    {
+        await LoadSpriteByAbsolutePath(path, onComplete, onError);
+    }
 
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+    public async UniTask LoadModelGameObject(int furnitureId, Transform parent, Action<GameObject> onComplete = null, Action<string> onError = null)
+    {
+        string modelPath = GetModelPath(furnitureId);
+
+        if (string.IsNullOrWhiteSpace(modelPath))
         {
-            onError?.Invoke("Preview file not found");
+            onError?.Invoke("Model file not found.");
             return;
         }
 
-        await LoadPreviewByAbsolutePath(path, onComplete, onError);
+        await LoadModelByAbsolutePath(modelPath, parent, onComplete, onError);
     }
-    public async UniTask LoadPreviewByAbsolutePath(string path, Action<Sprite> onComplete, Action<string> onError = null)
+    public async UniTask LoadModelByAbsolutePath(string modelPath, Transform parent, Action<GameObject> onComplete = null, Action<string> onError = null)
     {
-        using UnityWebRequest request = UnityWebRequestTexture.GetTexture("file://" + path);
-
-        await request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
+        if (string.IsNullOrWhiteSpace(modelPath))
         {
-            onError?.Invoke(request.error);
-            return;
-        }
-        Texture2D texture = DownloadHandlerTexture.GetContent(request);
-        onComplete?.Invoke(ConvertTextureToSprite(texture));
-    }
-
-    public async UniTask LoadModelGameObject(int furnitureId, Transform parent, Action<GameObject> onComplete, Action<string> onError = null)
-    {
-        string path = GetModelPath(furnitureId);
-
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-        {
-            onError?.Invoke("Model file not found");
+            onError?.Invoke("Model path is empty.");
             return;
         }
 
-        await LoadModelByAbsolutePath(path, parent, onComplete, onError);
-    }
-    public async UniTask LoadModelByAbsolutePath(string path, Transform parent, Action<GameObject> onComplete, Action<string> onError = null)
-    {
-        var gltfImport = new GLTFast.GltfImport();
-        try
+        if (!File.Exists(modelPath))
         {
-            bool loaded = await gltfImport.Load(path, null);
-
-            if (!loaded)
-            {
-                onError?.Invoke("glTFast failed to load or parse the GLB file");
-                return;
-            }
-
-            GameObject rootObject = new("FurnitureModel");
-            rootObject.transform.SetParent(parent, false);
-
-            bool instantiated = await gltfImport.InstantiateMainSceneAsync(rootObject.transform);
-
-            if (!instantiated)
-            {
-                GameObject.Destroy(rootObject);
-                onError?.Invoke("Failed to instantiate glTF scene components");
-                return;
-            }
-
-            onComplete?.Invoke(rootObject);
+            onError?.Invoke($"Model file not found: <b>{Path.GetFileName(modelPath)}</b>");
+            return;
         }
-        catch (OperationCanceledException)
-        {
-            Debug.Log("GLB loading was cancelled.");
-        }
-        catch (Exception ex)
-        {
-            onError?.Invoke($"Critical error while loading GLB: {ex.Message}");
-        }
+
+        await _gltfModelLoader.LoadModel(modelPath, parent, onComplete, onError);
     }
 
-    public Sprite ConvertTextureToSprite(Texture2D texture)
+    public bool DeleteFurnitureData(int furnitureId, Action<string> OnMessage = null, Action<string> OnError = null)
     {
-        Rect rect = new(0, 0, texture.width, texture.height);
-
-        Sprite sprite = Sprite.Create(texture, rect, Vector2.one * 0.5f);
-        return sprite;
+        string path = GetFurnitureDirectory(furnitureId);
+        return DeleteDirectory(path, OnMessage, OnError);
     }
 
+    public string GetFurnitureDirectory(int furnitureId) => GetDirectory(true, furnitureId.ToString());
 
-    public bool DeleteFurnitureData(int furnitureId, Action<string> onMessage = null, Action<string> onError = null)
+    public string GetPreviewSavePath(int furnitureId) => GetFilePath($"{PreviewFileName}{NormalizeExtension(PreviewExtensions[0])}", true, furnitureId.ToString());
+    public string GetPreviewPath(int furnitureId)
     {
-        if (furnitureId <= 0)
-        {
-            onError?.Invoke("Invalid furniture id.");
-            return false;
-        }
-
-        string directory = GetFurnitureDirectory(furnitureId);
-        if (!Directory.Exists(directory))
-        {
-            onMessage?.Invoke($"Furniture directory does not exist: {furnitureId}");
-            return true;
-        }
-
-        try
-        {
-            Directory.Delete(directory, true);
-            onMessage?.Invoke($"Furniture data deleted: {furnitureId}");
-            return true;
-        }
-        catch (Exception e)
-        {
-            onError?.Invoke($"Failed to delete furniture data: {e.Message}");
-            return false;
-        }
-    }
-
-    private bool SaveFurnitureFile(int furnitureId, string sourceFilePath, string targetFileNameWithoutExtension, string[] allowedExtensions, Action<string> onMessage, Action<string> onError)
-    {
-        if (furnitureId <= 0)
-        {
-            onError?.Invoke("Invalid furniture id.");
-            return false;
-        }
-
-        if (string.IsNullOrWhiteSpace(sourceFilePath) || !File.Exists(sourceFilePath))
-        {
-            onError?.Invoke($"File not found: {sourceFilePath}");
-            return false;
-        }
-
-        string extension = Path.GetExtension(sourceFilePath).ToLowerInvariant();
-
-        if (!IsExtensionAllowed(extension, allowedExtensions))
-        {
-            onError?.Invoke($"Invalid file format: {extension}");
-            return false;
-        }
-
-        string furnitureDirectory = GetFurnitureDirectory(furnitureId);
-
-        DeleteExistingFiles(furnitureDirectory, targetFileNameWithoutExtension, allowedExtensions);
-
-        string targetFileName = $"{targetFileNameWithoutExtension}{extension}";
-        string destinationPath = Path.Combine(furnitureDirectory, targetFileName);
-
-        try
-        {
-            File.Copy(sourceFilePath, destinationPath, true);
-            onMessage?.Invoke($"File saved: {targetFileName}");
-            return true;
-        }
-        catch (Exception e)
-        {
-            onError?.Invoke($"Failed to save file: {e.Message}");
-            return false;
-        }
-    }
-    private void DeleteExistingFiles(string directory, string fileNameWithoutExtension, string[] extensions)
-    {
-        foreach (string extension in extensions)
-        {
-            string path = Path.Combine(directory, $"{fileNameWithoutExtension}{extension}");
-
-            if (File.Exists(path))
-                File.Delete(path);
-        }
-    }
-
-    private string GetFurnitureDirectory(int furnitureId)
-    {
-        EnsureBaseDirectory();
-
-        string furnitureDirectory = Path.Combine(BaseDirectory, furnitureId.ToString());
-
-        if (!Directory.Exists(furnitureDirectory))
-            Directory.CreateDirectory(furnitureDirectory);
-
-        return furnitureDirectory;
-    }
-    private string GetExistingFurnitureFilePath(int furnitureId, string fileNameWithoutExtension, string[] allowedExtensions)
-    {
-        if (furnitureId <= 0)
-            return string.Empty;
-
         string directory = GetFurnitureDirectory(furnitureId);
 
-        foreach (string extension in allowedExtensions)
+        if (PreviewExtensions == null || PreviewExtensions.Length == 0)
         {
-            string path = Path.Combine(directory, $"{fileNameWithoutExtension}{extension}");
+            string path = Path.Combine(directory, PreviewFileName);
+            return File.Exists(path) ? path : null;
+        }
+
+        foreach (string extension in PreviewExtensions)
+        {
+            string path = Path.Combine(directory, $"{PreviewFileName}{NormalizeExtension(extension)}");
+
             if (File.Exists(path))
                 return path;
         }
 
-        return string.Empty;
+        return null;
     }
-
-    private void EnsureBaseDirectory()
+    public string GetModelPath(int furnitureId)
     {
-        if (!Directory.Exists(BaseDirectory))
-            Directory.CreateDirectory(BaseDirectory);
+        string directory = GetFurnitureDirectory(furnitureId);
+
+        foreach (string extension in ModelExtensions)
+        {
+            string path = Path.Combine(directory, $"{ModelFileName}{NormalizeExtension(extension)}");
+
+            if (File.Exists(path))
+                return path;
+        }
+
+        return null;
     }
 
     private bool IsExtensionAllowed(string extension, string[] allowedExtensions)
     {
-        extension = NormalizeExtension(extension);
+        extension = NormalizeExtension(extension).ToLowerInvariant();
+
+        if (allowedExtensions == null || allowedExtensions.Length == 0)
+            return false;
 
         foreach (string allowedExtension in allowedExtensions)
         {
-            if (extension == allowedExtension)
+            if (NormalizeExtension(allowedExtension).ToLowerInvariant() == extension)
                 return true;
         }
 
         return false;
-    }
-    private string NormalizeExtension(string extension)
-    {
-        if (string.IsNullOrWhiteSpace(extension))
-            return string.Empty;
-
-        extension = extension.ToLowerInvariant();
-
-        return extension.StartsWith(".")
-            ? extension
-            : $".{extension}";
     }
 }

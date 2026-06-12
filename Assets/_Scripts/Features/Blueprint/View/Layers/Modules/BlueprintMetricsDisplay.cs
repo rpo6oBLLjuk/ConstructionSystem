@@ -6,6 +6,7 @@ using Zenject;
 
 public class BlueprintMetricsDisplay : MonoBehaviour
 {
+    [Inject] ActiveProjectService _activeProjectService;
     [Inject] BlueprintManager _blueprintManager;
     [Inject] BlueprintVisualConfig _visualConfig;
     [SerializeField] TMP_Text _metricsText;
@@ -30,9 +31,15 @@ public class BlueprintMetricsDisplay : MonoBehaviour
     private async UniTask CalculateMetrics()
     {
         await UniTask.WaitForEndOfFrame();
-        
+
         List<Vector2> points = _blueprintManager.BlueprintPoints;
-        _metricsText.text = $"Points: {points.Count}, Perimeter: {CalculatePerimeter(points):F3}, Area: {CalculateArea(points)}";
+
+        float perimeter = CalculatePerimeter(points);
+        float square = CalculateArea(points);
+        _metricsText.text = $"Points: <color=#E29900>{points.Count}</color>, Perimeter: <color=#E29900>{perimeter:F3}</color>, Area: <color=#E29900>{square:F3}</color>";
+
+        _activeProjectService.ProjectData.Perimeter = perimeter;
+        _activeProjectService.ProjectData.Square = square;
     }
 
     private float CalculatePerimeter(List<Vector2> points)
@@ -64,9 +71,8 @@ public class BlueprintMetricsDisplay : MonoBehaviour
         }
 
         area = Mathf.Abs(area) / 2f;
-        
-        float pixelToMeter = _visualConfig.TextData.TextMetricPerPixel; // Пиксельные единицы в квадратные метры
-        return Mathf.Floor(area / (pixelToMeter * pixelToMeter) * 1000) / 1000;
-    }
 
+        float pixelToMeter = _visualConfig.TextData.TextMetricPerPixel; // Пиксельные единицы в квадратные метры
+        return Mathf.Round(area / (pixelToMeter * pixelToMeter) * 1000) / 1000;
+    }
 }

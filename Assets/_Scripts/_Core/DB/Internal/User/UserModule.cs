@@ -49,14 +49,14 @@ public class UserModule
         user.PasswordHash = HashPassword(user.PasswordHash);
         user.CreatedAt = DateTime.Now;
 
-        if (await GetUsersCount() == 0) //If users count is null, first user is admin
-        {
-            await _userRepository.AddRoleTypes();
-            user.RoleId = 3;
-        }
-
         try
         {
+            if (await GetUsersCount() == 0) //If users count is null, first user is admin
+            {
+                await _userRepository.AddRoleTypes();
+                user.RoleId = 3;
+            }
+
             await _userRepository.Insert(user);
             await SetCurrentSession(user);
 
@@ -87,22 +87,29 @@ public class UserModule
 
     public async UniTask LogIn(string login, string password, Action<User> onLoginSuccess, Action<string> onLoginFailed)
     {
-        User user = await _userRepository.GetByLogin(login);
-
-        if (user == null)
+        try
         {
-            onLoginFailed?.Invoke(string.Format(_userNotFound, login));
-            return;
-        }
+            User user = await _userRepository.GetByLogin(login);
 
-        if (!VerifyPassword(password, user.PasswordHash))
+            if (user == null)
+            {
+                onLoginFailed?.Invoke(string.Format(_userNotFound, login));
+                return;
+            }
+
+            if (!VerifyPassword(password, user.PasswordHash))
+            {
+                onLoginFailed?.Invoke(_incorrectPassword);
+                return;
+            }
+
+            await SetCurrentSession(user);
+            onLoginSuccess?.Invoke(user);
+        }
+        catch(Exception ex)
         {
-            onLoginFailed?.Invoke(_incorrectPassword);
-            return;
+            onLoginFailed?.Invoke(ex.ToString());
         }
-
-        await SetCurrentSession(user);
-        onLoginSuccess?.Invoke(user);
     }
     public void LogOut()
     {

@@ -11,13 +11,26 @@ public class PopupFactory
     [SerializeField] NotificationConfig _notificationConfig;
     [SerializeField] GameObject _defaultPopup;
 
-    List<CanvasGroup> _popupsPool;
+    [SerializeField] private int _maxCount = 7;    
+    
+
+    List<CanvasGroup> _popupsPool = new();
 
 
     public void Start() => _defaultPopup?.SetActive(false);
 
     public CanvasGroup CreatePopupNotification(string message, string title, NotificationType notificationType)
     {
+        if (_popupsPool.Count >= _maxCount)
+        {
+            CanvasGroup firstPopup = _popupsPool[0];
+            firstPopup.DOKill();
+            firstPopup.GetComponentInChildren<Slider>().DOKill();
+            GameObject.Destroy(firstPopup.gameObject);
+
+            _popupsPool.RemoveAt(0);
+        }
+
         GameObject popup = GameObject.Instantiate(_defaultPopup, _defaultPopup.transform.parent);
         popup.SetActive(true);
 
@@ -35,6 +48,7 @@ public class PopupFactory
             return null;
         }
 
+        _popupsPool.Add(canvasGroup);
         AnimatePopup(canvasGroup, popup.GetComponentInChildren<Slider>());
 
         return popup.GetComponent<CanvasGroup>();
@@ -86,12 +100,15 @@ public class PopupFactory
         };
     }
 
-
     //Твин анимации уведомления
     private Tween AnimatePopup(CanvasGroup canvasGroup, Slider slider) => DOTween.Sequence(canvasGroup) // Создание последовательности с ссылкой на компонент
         .Append(canvasGroup.DOFade(1, _notificationConfig.PopupShowDuration).From(0)                    // Добавление в секвенцию анимации появления альфа-канала
             .OnComplete(() => slider.DOValue(1, _notificationConfig.PopupAliveDuration)))               // По окончании появления начинается интерполяция слайдера
         .AppendInterval(_notificationConfig.PopupAliveDuration)                                         // К секвенции добавляется ожилание существования уведомления
         .Append(canvasGroup.DOFade(0, _notificationConfig.PopupHideDuration))                           // Анимация исчезновения альфа-канала
-        .OnComplete(() => GameObject.Destroy(canvasGroup.gameObject));                                  // По завершении анимации удаляется объект
+        .OnComplete(() =>
+        {
+            _popupsPool.Remove(canvasGroup);
+            GameObject.Destroy(canvasGroup.gameObject);                                                 // По завершении анимации удаляется объект
+        });                                 
 }
