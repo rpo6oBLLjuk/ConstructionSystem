@@ -6,12 +6,14 @@ namespace rpoboBLLjuk.SpaceCanvas
 {
     public class MeshCombiner
     {
+
+
         private readonly List<MeshFilter> _meshFilters = new();
         private readonly List<Material> _materials = new();
         private readonly Dictionary<Material, List<CombineInstance>> _combineByMaterial = new();
 
 
-        public (Mesh, Material[]) Combine(Transform root)
+        public (Mesh, Material[]) Combine(Furniture furniture, Transform root, ConstructionSystemConfig config)
         {
             _meshFilters.Clear();
             _materials.Clear();
@@ -22,10 +24,31 @@ namespace rpoboBLLjuk.SpaceCanvas
 
             Mesh combinedMesh = BuildCombinedMesh(root);
 
+            ApplySize(root, combinedMesh.bounds, furniture, config);
+
             _meshFilters.Clear();
             _combineByMaterial.Clear();
-
             return new(combinedMesh, _materials.ToArray());
+        }
+
+        private void ApplySize(Transform root, Bounds bounds, Furniture furniture, ConstructionSystemConfig config)
+        {
+            Vector3 currentSize = bounds.size;
+
+
+            Vector3 targetSize = new(
+                furniture.Width / 100,
+                furniture.Height / 100,
+                furniture.Depth / 100
+            );
+
+            Vector3 scale = new(
+                targetSize.x / currentSize.x,
+                targetSize.y / currentSize.y,
+                targetSize.z / currentSize.z
+            );
+
+            root.transform.localScale = scale;
         }
 
         private void CollectMeshFilters(Transform root)

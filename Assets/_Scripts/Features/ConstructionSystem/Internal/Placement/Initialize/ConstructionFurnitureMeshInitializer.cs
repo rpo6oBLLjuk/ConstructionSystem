@@ -7,12 +7,12 @@ namespace rpoboBLLjuk.SpaceCanvas
         private readonly MeshCombiner _meshCombiner = new();
 
 
-        public bool TryInitialize(GameObject target)
+        public bool TryInitialize(Furniture furniture, GameObject target, ConstructionSystemConfig constructionSystemConfig)
         {
             if (target.GetComponent<Collider>() != null)
                 return false;
 
-            (Mesh, Material[]) result = _meshCombiner.Combine(target.transform);
+            (Mesh, Material[]) result = _meshCombiner.Combine(furniture, target.transform, constructionSystemConfig);
 
             MeshFilter meshFilter = target.GetOrAddComponent<MeshFilter>();
             MeshRenderer meshRenderer = target.GetOrAddComponent<MeshRenderer>();

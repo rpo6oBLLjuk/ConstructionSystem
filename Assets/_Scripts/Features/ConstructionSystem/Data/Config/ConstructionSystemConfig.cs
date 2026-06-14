@@ -16,4 +16,5 @@ public class ConstructionSystemConfig : ScriptableObject
 
     public Vector3 BlueprintPointToWorld(Vector2 point) => new(point.x * UnitsToMeters, 0f, point.y * UnitsToMeters);
     public float ToWorldSize(float value) => value * UnitsToMeters;
+    public float ToWorldSize(float value, bool valie) => value * 0.01f;
 }

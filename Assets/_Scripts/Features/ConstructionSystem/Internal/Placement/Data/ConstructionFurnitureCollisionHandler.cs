@@ -4,6 +4,8 @@ namespace rpoboBLLjuk.SpaceCanvas
 {
     public class ConstructionFurnitureCollisionHandler : MonoBehaviour
     {
+        public bool Placed = false;
+
         [SerializeField] private BoxCollider _boundsCollider;
         [SerializeField] private MeshCollider _detailedCollider;
 

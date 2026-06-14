@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class OrderPanelView : MonoBehaviour
 {
     public event Action<OrderViewData, OrderStatus> OnStatusChangeRequested;
+    public event Action<OrderViewData> OnDeleteRequested;
+
     public event Action OnNextPageRequested;
     public event Action OnPreviousPageRequested;
 
@@ -30,6 +32,7 @@ public class OrderPanelView : MonoBehaviour
         _previousPageButton.onClick.AddListener(PreviousPageButtonClickHandler);
         _nextPageButton.onClick.AddListener(NextPageButtonClickHandler);
     }
+
     private void OnDisable()
     {
         _previousPageButton.onClick.RemoveListener(PreviousPageButtonClickHandler);
@@ -46,12 +49,14 @@ public class OrderPanelView : MonoBehaviour
         {
             GameObject view = _factory.Create(
                 order,
-                StatusChangeRequestHandler
+                StatusChangeRequestHandler,
+                DeleteRequestHandler
             );
 
             _createdViews.Add(view);
         }
     }
+
     public void SetPagination(int currentPage, int totalPages)
     {
         _pageText.text = $"{currentPage}/{totalPages}";
@@ -73,7 +78,15 @@ public class OrderPanelView : MonoBehaviour
         _createdViews.Clear();
     }
 
-    private void StatusChangeRequestHandler(OrderViewData order, OrderStatus newStatus) => OnStatusChangeRequested?.Invoke(order, newStatus);
+    private void StatusChangeRequestHandler(OrderViewData order, OrderStatus newStatus)
+    {
+        OnStatusChangeRequested?.Invoke(order, newStatus);
+    }
+
+    private void DeleteRequestHandler(OrderViewData order)
+    {
+        OnDeleteRequested?.Invoke(order);
+    }
 
     private void PreviousPageButtonClickHandler() => OnPreviousPageRequested?.Invoke();
     private void NextPageButtonClickHandler() => OnNextPageRequested?.Invoke();

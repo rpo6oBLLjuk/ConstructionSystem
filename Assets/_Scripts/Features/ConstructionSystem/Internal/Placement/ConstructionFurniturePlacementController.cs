@@ -8,6 +8,7 @@ namespace rpoboBLLjuk.SpaceCanvas
     {
         [Header("References")]
         [Inject] private ConstructionManager _constructionManager;
+        [Inject] private ConstructionSystemConfig _constructionSystemConfig;
 
         [SerializeField] private ConstructionFurnitureMeshInitializer _meshInitializer = new();
         [SerializeField] private ConstructionPlacementCollisionChecker _collisionChecker;
@@ -34,6 +35,8 @@ namespace rpoboBLLjuk.SpaceCanvas
 
         private void Update()
         {
+            TryRemoveFurnitureByRightClick();
+
             if (!_isPlacing || _activeObject == null)
                 return;
 
@@ -63,8 +66,28 @@ namespace rpoboBLLjuk.SpaceCanvas
             _currentRotationY = _activeObject.transform.eulerAngles.y;
 
             _activeObject.SetActive(true);
-            _meshInitializer.TryInitialize(_activeObject);
+            _meshInitializer.TryInitialize(furniture, _activeObject, _constructionSystemConfig);
             _collisionChecker.Check(_activeObject);
+        }
+
+        private void TryRemoveFurnitureByRightClick()
+        {
+            if (!Input.GetMouseButtonDown(1))
+                return;
+
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+            if (!Physics.Raycast(ray, out RaycastHit hit, 100f))
+                return;
+
+            ConstructionFurnitureCollisionHandler marker = hit.collider.GetComponentInParent<ConstructionFurnitureCollisionHandler>();
+
+            if (marker == null || !marker.Placed)
+                return;
+
+            _constructionManager.RemoveFurnitureInstance(marker.gameObject);
         }
 
         private void UpdatePosition()
@@ -72,7 +95,7 @@ namespace rpoboBLLjuk.SpaceCanvas
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
             Plane floorPlane = new(Vector3.up, new Vector3(0f, _floorHeight, 0f));
 
-            if (!floorPlane.Raycast(ray, out float distance))
+            if (!floorPlane.Raycast(ray, out float distance) || distance > 30f)
                 return;
 
             Vector3 targetPosition = ray.GetPoint(distance);
@@ -105,8 +128,13 @@ namespace rpoboBLLjuk.SpaceCanvas
             if (!_collisionChecker.CurrentResult.IsValid)
                 return;
 
+            var prototypeHandler = _activeObject.GetComponent<ConstructionFurnitureCollisionHandler>();
+            prototypeHandler.Placed = true;
+
             _constructionManager.CreateFurnitureInstanceByPrototype(_activeObject);
             _constructionManager.DecelectFurniturePrototype(_activeFurniture, _activeObject);
+
+            prototypeHandler.Placed = false;
 
             _isPlacing = false;
             _activeFurniture = null;
@@ -114,7 +142,7 @@ namespace rpoboBLLjuk.SpaceCanvas
         }
         private void CancelPlacement()
         {
-            if (!Input.GetMouseButtonDown(1) && !Input.GetKeyDown(KeyCode.Escape))
+            if (!Input.GetKeyDown(KeyCode.Escape))
                 return;
 
             _constructionManager.DecelectFurniturePrototype(_activeFurniture, _activeObject);

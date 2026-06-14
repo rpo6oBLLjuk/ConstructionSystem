@@ -10,17 +10,24 @@ public class OrderViewFactory : MonoBehaviour
 
     private void Start() => _orderViewPrefab.SetActive(false);
 
-    public GameObject Create(OrderViewData order, Action<OrderViewData, OrderStatus> onStatusChangeRequested)
+    public GameObject Create(
+        OrderViewData order,
+        Action<OrderViewData, OrderStatus> onStatusChangeRequested,
+        Action<OrderViewData> onDeleteRequested)
     {
         GameObject viewObject = Instantiate(_orderViewPrefab, _orderViewPrefab.transform.parent);
         viewObject.SetActive(true);
 
-        InitializeViewData(viewObject, order, onStatusChangeRequested);
+        InitializeViewData(viewObject, order, onStatusChangeRequested, onDeleteRequested);
 
         return viewObject;
     }
 
-    private void InitializeViewData(GameObject viewGO, OrderViewData order, Action<OrderViewData, OrderStatus> onStatusChangeRequested)
+    private void InitializeViewData(
+        GameObject viewGO,
+        OrderViewData order,
+        Action<OrderViewData, OrderStatus> onStatusChangeRequested,
+        Action<OrderViewData> onDeleteRequested)
     {
         var layout = viewGO.transform.Find("Layout");
 
@@ -32,10 +39,18 @@ public class OrderViewFactory : MonoBehaviour
         dropdown.onValueChanged.AddListener(index => dropdown.captionText.color = dropdown.options[index].color);
         dropdown.onValueChanged?.Invoke(order.Status.GetHashCode());
         dropdown.value = order.Status.GetHashCode();
+        dropdown.interactable = order.CanChangeStatus;
 
-        layout.transform.Find("Group4/SaveOrderButton").GetComponent<Button>().onClick.AddListener(() => onStatusChangeRequested?.Invoke(order, (OrderStatus)dropdown.value));
+        Button saveButton = layout.transform.Find("Group4/SaveOrderButton").GetComponent<Button>();
+        saveButton.gameObject.SetActive(order.CanChangeStatus);
+        saveButton.onClick.AddListener(() => onStatusChangeRequested?.Invoke(order, (OrderStatus)dropdown.value));
+
+        Button deleteButton = layout.transform.Find("Group4/DeleteOrderBtn").GetComponent<Button>();
+        deleteButton.gameObject.SetActive(order.CanDelete);
+        deleteButton.onClick.AddListener(() => onDeleteRequested?.Invoke(order));
 
         var itemContainer = layout.Find("Group4/Scroll View/Viewport/Content/ItemContainer");
+
         foreach (var item in order.Items)
         {
             GameObject itemInstance = Instantiate(itemContainer.gameObject, itemContainer.parent);
@@ -45,5 +60,8 @@ public class OrderViewFactory : MonoBehaviour
         Destroy(itemContainer.gameObject);
     }
 
-    private void FillText(Transform transform, string name, string value) => transform.Find(name).GetComponent<TMP_Text>().text = value;
+    private void FillText(Transform transform, string name, string value)
+    {
+        transform.Find(name).GetComponent<TMP_Text>().text = value;
+    }
 }

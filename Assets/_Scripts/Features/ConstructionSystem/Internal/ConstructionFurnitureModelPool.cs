@@ -19,6 +19,24 @@ namespace rpoboBLLjuk.SpaceCanvas
         private List<GameObject> _createdObjects = new();
 
 
+        public async UniTask<GameObject> CreateInstance(Furniture furniture)
+        {
+            GameObject prototype = await GetOrLoadPrototype(furniture);
+
+            if (prototype == null)
+                return null;
+
+            return InstantiateCopy(prototype);
+        }
+        private async UniTask<GameObject> GetOrLoadPrototype(Furniture furniture)
+        {
+            if (_loadedModels.TryGetValue(furniture.Id, out GameObject loadedModel))
+                return loadedModel;
+
+            return await LoadInternal(furniture);
+        }
+
+
         public async UniTask LoadPrototype(Furniture furniture, Action<GameObject> onComplete = null)
         {
             if (_loadedModels.TryGetValue(furniture.Id, out GameObject loadedModel))
@@ -37,7 +55,6 @@ namespace rpoboBLLjuk.SpaceCanvas
             onComplete?.Invoke(loadedModel);
         }
         public void DisableLoadedPrototype(GameObject instance) => instance.SetActive(false);
-
 
         public GameObject GetInstance(GameObject prototype) => InstantiateCopy(prototype);
         public void RemoveInstance(GameObject instance)

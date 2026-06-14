@@ -24,7 +24,7 @@ namespace rpoboBLLjuk.SpaceCanvas
         [SerializeField] private float _additionalOffset = 0f;
         [SerializeField] private float _duration = 0.25f;
         [SerializeField] private Ease _showEase = Ease.OutBack;
-        [SerializeField] private Ease _hideEase = Ease.OutBack;
+        [SerializeField] private Ease _hideEase = Ease.InBack;
         [SerializeField] private bool _hideOnStart = true;
 
         private Vector2 _shownPosition;

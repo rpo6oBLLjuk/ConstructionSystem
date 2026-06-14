@@ -7,7 +7,6 @@ using Zenject;
 
 public class OrderPanelPresenter : BaseLayoutPresenter
 {
-
     [Inject] private OrderModule _orderModule;
     [Inject] private UserModule _userModule;
     [Inject] private NotificationService _notificationService;
@@ -24,16 +23,21 @@ public class OrderPanelPresenter : BaseLayoutPresenter
         base.OnEnable();
 
         _view.OnStatusChangeRequested += HandleStatusChangeRequested;
+        _view.OnDeleteRequested += HandleDeleteRequested;
+
         _view.OnNextPageRequested += HandleNextPageRequested;
         _view.OnPreviousPageRequested += HandlePreviousPageRequested;
 
         _orderModule.OrderUpdated += HandleStatusUpdated;
     }
+
     protected override void OnDisable()
     {
         base.OnDisable();
 
         _view.OnStatusChangeRequested -= HandleStatusChangeRequested;
+        _view.OnDeleteRequested -= HandleDeleteRequested;
+
         _view.OnNextPageRequested -= HandleNextPageRequested;
         _view.OnPreviousPageRequested -= HandlePreviousPageRequested;
 
@@ -53,6 +57,7 @@ public class OrderPanelPresenter : BaseLayoutPresenter
 
         LoadPage(_currentPage + 1).Forget();
     }
+
     private void HandlePreviousPageRequested()
     {
         if (_currentPage <= 1)
@@ -66,6 +71,16 @@ public class OrderPanelPresenter : BaseLayoutPresenter
         if (orderViewData == null)
             return;
 
+        if (!orderViewData.CanChangeStatus)
+        {
+            _notificationService.ShowPopup(
+                "You do not have permission to change the order status.",
+                "Status change",
+                NotificationType.Warning
+            );
+            return;
+        }
+
         if (newStatus == orderViewData.Status)
         {
             _notificationService.ShowPopup(
@@ -78,21 +93,51 @@ public class OrderPanelPresenter : BaseLayoutPresenter
 
         ChangeOrderStatus(orderViewData, newStatus).Forget();
     }
-    private void HandleStatusUpdated(Order order) => _notificationService.ShowPopup($"Order '{order.Id}' status has been updated to <b>{Enum.GetName(typeof(OrderStatus), order.Status)}</b>", "Status changed", NotificationType.Success);
+
+    private void HandleDeleteRequested(OrderViewData orderViewData)
+    {
+        if (orderViewData == null)
+            return;
+
+        if (!orderViewData.CanDelete)
+        {
+            _notificationService.ShowPopup(
+                "You do not have permission to delete this order.",
+                "Delete order",
+                NotificationType.Warning
+            );
+            return;
+        }
+
+        DeleteOrder(orderViewData).Forget();
+    }
+
+    private void HandleStatusUpdated(Order order)
+    {
+        _notificationService.ShowPopup(
+            $"Order '{order.Id}' status has been updated to <b>{Enum.GetName(typeof(OrderStatus), order.Status)}</b>",
+            "Status changed",
+            NotificationType.Success
+        );
+    }
 
     private async UniTask LoadPage(int page)
     {
         bool loadOnlyCurrentUserOrders = _userModule.CurrentUser.RoleId < 2;
         int? targetUserId = loadOnlyCurrentUserOrders ? _userModule.CurrentUser.Id : null;
 
-        int totalCount = targetUserId.HasValue ? await _orderModule.GetOrdersCountByUserId(targetUserId.Value) : await _orderModule.GetOrdersCount();
+        int totalCount = targetUserId.HasValue
+            ? await _orderModule.GetOrdersCountByUserId(targetUserId.Value)
+            : await _orderModule.GetOrdersCount();
 
         _totalPages = Mathf.Max(1, Mathf.CeilToInt(totalCount / (float)_pageSize));
         _currentPage = Mathf.Clamp(page, 1, _totalPages);
 
         int offset = (_currentPage - 1) * _pageSize;
 
-        List<Order> orders = targetUserId.HasValue ? await _orderModule.GetOrdersPageByUserId(targetUserId.Value, offset, _pageSize) : await _orderModule.GetOrdersPage(offset, _pageSize);
+        List<Order> orders = targetUserId.HasValue
+            ? await _orderModule.GetOrdersPageByUserId(targetUserId.Value, offset, _pageSize)
+            : await _orderModule.GetOrdersPage(offset, _pageSize);
 
         if (orders == null || orders.Count == 0)
         {
@@ -107,8 +152,13 @@ public class OrderPanelPresenter : BaseLayoutPresenter
         List<User> users = await _userModule.GetUsersByIds(userIds);
         List<OrderItem> orderItems = await _orderModule.GetOrderItemsByOrderIds(orderIds);
 
-        Dictionary<int, User> usersById = users.GroupBy(user => user.Id).ToDictionary(group => group.Key, group => group.First());
-        Dictionary<int, List<OrderItem>> itemsByOrderId = orderItems.GroupBy(item => item.OrderId).ToDictionary(group => group.Key, group => group.ToList());
+        Dictionary<int, User> usersById = users
+            .GroupBy(user => user.Id)
+            .ToDictionary(group => group.Key, group => group.First());
+
+        Dictionary<int, List<OrderItem>> itemsByOrderId = orderItems
+            .GroupBy(item => item.OrderId)
+            .ToDictionary(group => group.Key, group => group.ToList());
 
         List<OrderViewData> viewData = new();
 
@@ -123,6 +173,7 @@ public class OrderPanelPresenter : BaseLayoutPresenter
         _view.SetOrders(viewData);
         _view.SetPagination(_currentPage, _totalPages);
     }
+
     private async UniTask ChangeOrderStatus(OrderViewData orderViewData, OrderStatus newStatus)
     {
         OrderStatus previousStatus = orderViewData.Status;
@@ -145,8 +196,39 @@ public class OrderPanelPresenter : BaseLayoutPresenter
         await LoadPage(_currentPage);
     }
 
+    private async UniTask DeleteOrder(OrderViewData orderViewData)
+    {
+        await _orderModule.DeleteOrder(
+            orderViewData.SourceOrder,
+            OnComplete: order =>
+            {
+                _notificationService.ShowPopup(
+                    $"Order '{order.Id}' has been deleted.",
+                    "Delete order",
+                    NotificationType.Success
+                );
+            },
+            OnError: error =>
+            {
+                _notificationService.ShowPopup(
+                    error,
+                    "Delete order error",
+                    NotificationType.Error
+                );
+            }
+        );
+
+        await LoadPage(_currentPage);
+    }
+
     private OrderViewData ConvertToViewData(Order order, User customer, List<OrderItem> orderItems)
     {
+        int currentUserId = _userModule.CurrentUser.Id;
+        int currentUserRoleId = _userModule.CurrentUser.RoleId;
+
+        bool canChangeStatus = currentUserRoleId >= 2;
+        bool canDelete = currentUserRoleId >= 3 || order.UserId == currentUserId;
+
         return new OrderViewData
         {
             Id = order.Id,
@@ -154,9 +236,14 @@ public class OrderPanelPresenter : BaseLayoutPresenter
             Status = order.Status,
             CreatedAt = $"{order.CreatedAt:dd.MM.yyyy}\n{order.CreatedAt:HH:mm:ss}",
             Items = ConvertItemsToDisplayString(orderItems),
+
+            CanChangeStatus = canChangeStatus,
+            CanDelete = canDelete,
+
             SourceOrder = order
         };
     }
+
     private List<string> ConvertItemsToDisplayString(List<OrderItem> items)
     {
         if (items == null || items.Count == 0)
@@ -166,6 +253,7 @@ public class OrderPanelPresenter : BaseLayoutPresenter
             $"'{item.FurnitureId}' – {item.Count} x {item.UnitPrice} = {item.Count * item.UnitPrice}"
         );
     }
+
     private string ConvertUsername(User user)
     {
         if (user == null)

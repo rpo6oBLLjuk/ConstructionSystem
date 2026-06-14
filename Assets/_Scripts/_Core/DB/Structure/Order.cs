@@ -20,9 +20,6 @@ public class Order : IDBEntity
 
     public double TotalAmount { get; set; } // Сумма заказа (по списку OrderItem'ов)
     public string Comment { get; set; }     // Комментарии к заказу
-
-    [NotNull]
-    public string Address { get; set; }
 }
 
 

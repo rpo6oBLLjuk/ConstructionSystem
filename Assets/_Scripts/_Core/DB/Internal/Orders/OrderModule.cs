@@ -39,7 +39,7 @@ public class OrderModule
     public async UniTask<List<Order>> GetOrdersPage(int offset, int count) => await _orderRepository.Paging(offset, count);
     public async UniTask<List<Order>> GetOrdersPageByUserId(int userId, int offset, int count) => await _orderRepository.PagingByUserId(userId, offset, count);
 
-    public async UniTask CreateOrder(int userId, List<(int furnitureId, int count, double unitPrice)> items, string comment, string address, Action<Order> OnComplete = null, Action<string> OnError = null)
+    public async UniTask CreateOrder(int userId, int userProjectId, List<(int furnitureId, int count, double unitPrice)> items, string comment, Action<Order> OnComplete = null, Action<string> OnError = null)
     {
         if (items == null || items.Count == 0)
         {
@@ -52,13 +52,12 @@ public class OrderModule
         Order order = new()
         {
             UserId = userId,
+            UserProjectId = userProjectId,
             CreatedAt = DateTime.Now,
             UpdatedAt = DateTime.Now,
             Status = OrderStatus.New,
             TotalAmount = totalAmount,
-            Comment = comment,
-            Address = address,
-            UserProjectId = userId,
+            Comment = comment
         };
 
         try
@@ -66,6 +65,7 @@ public class OrderModule
             await _orderRepository.Insert(order);
 
             List<OrderItem> orderItems = new();
+
             items.ForEach(item => orderItems.Add(new OrderItem
             {
                 OrderId = order.Id,
@@ -204,6 +204,32 @@ public class OrderModule
             order.TotalAmount = previousTotalAmount;
             order.UpdatedAt = previousUpdatedAt;
 
+            Debug.LogError(ex.ToString());
+            OnError?.Invoke(ex.Message);
+        }
+    }
+
+    public async UniTask DeleteOrder(Order order, Action<Order> OnComplete = null, Action<string> OnError = null)
+    {
+        if (order == null)
+        {
+            OnError?.Invoke("Order is null.");
+            return;
+        }
+
+        try
+        {
+            List<OrderItem> items = await _orderItemRepository.GetItemsByOrderId(order.Id);
+
+            if (items != null && items.Count > 0)
+                await _orderItemRepository.DeleteMany(items);
+
+            await _orderRepository.Delete(order);
+
+            OnComplete?.Invoke(order);
+        }
+        catch (SQLiteException ex)
+        {
             Debug.LogError(ex.ToString());
             OnError?.Invoke(ex.Message);
         }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b632500a6aead9b4f9a86b985927bb89, type: 3}
   m_Name: BlueprintVisualData
   m_EditorClassIdentifier: Assembly-CSharp::BlueprintVisualData
-  <BlueprintViewLayers>k__BackingField: 39
+  <BlueprintViewLayers>k__BackingField: 55
   <DefaultBlueprintScaleFactor>k__BackingField: 2
   <BlueprintScaleFactorMinMax>k__BackingField: {x: 1, y: 10}
   <DefaultBordersSize>k__BackingField: 2

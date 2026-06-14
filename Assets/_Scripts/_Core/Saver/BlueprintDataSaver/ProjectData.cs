@@ -14,7 +14,7 @@ public class ProjectData
     public float Perimeter;
     public float Square;
 
-    public PlacedFurnitureData Furniture;
+    public PlacedFurnitureData[] Furniture;
 }
 
 [Serializable]

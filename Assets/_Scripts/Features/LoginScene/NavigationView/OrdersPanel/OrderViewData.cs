@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 public class OrderViewData
@@ -8,6 +7,9 @@ public class OrderViewData
     public string CustomerFullName { get; set; }
     public OrderStatus Status { get; set; }
     public string CreatedAt { get; set; }
+
+    public bool CanChangeStatus { get; set; }
+    public bool CanDelete { get; set; }
 
     public List<string> Items { get; set; }
 

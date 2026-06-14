@@ -62,12 +62,12 @@ public class CameraRotator : MonoBehaviour
 
     private bool ActiveRotation()
     {
-        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(0))
         {
             if (!EventSystem.current.IsPointerOverGameObject())
                 SetRotationActivity(true);
         }
-        else if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
+        else if (Input.GetMouseButtonUp(0))
             SetRotationActivity(false);
 
         return _activeRotation;
