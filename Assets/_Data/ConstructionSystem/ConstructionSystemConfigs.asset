@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ConstructionSystemConfigs
   m_EditorClassIdentifier: 
   UnitsToMeters: 0.0125
-  WallHeightMeters: 2.5
+  WallHeightMeters: 2
   WallThicknessMeters: 0.01
   BaseboardHeightMeters: 0.04
   BaseboardWidthMeters: 0.02

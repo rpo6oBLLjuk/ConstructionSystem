@@ -45,7 +45,7 @@ public class FurniturePanelView : MonoBehaviour
     [SerializeField] private TMP_Text _pageText;
 
     [Header("Selected furniture fields")]
-    [SerializeField] private Image _preview;
+    [SerializeField] private RawImage _preview;
 
     [SerializeField] private TMP_InputField _idInputField;
     [SerializeField] private TMP_InputField _nameInputField;
@@ -80,7 +80,7 @@ public class FurniturePanelView : MonoBehaviour
     [SerializeField] private Color _defaultEdgeColor = Color.gray;
     [SerializeField] private Color _selectedEdgeColor = Color.orange;
 
-    [SerializeField] private Sprite _defaultPreview;
+    [SerializeField] private Texture _defaultPreview;
 
     private readonly List<GameObject> _createdViews = new();
     private readonly Dictionary<int, GameObject> _createdViewsByFurnitureId = new();
@@ -239,7 +239,7 @@ public class FurniturePanelView : MonoBehaviour
         _changeModelButton.interactable = _canEdit;
         _changePreviewButton.interactable = _canEdit;
 
-        _preview.sprite = furniture.HasPreview ? furniture.Preview : _defaultPreview;
+        _preview.texture = furniture.HasPreview ? furniture.Preview : _defaultPreview;
 
         SetEditMode(_canEdit);
     }
@@ -290,15 +290,15 @@ public class FurniturePanelView : MonoBehaviour
         _colorFilterDropdown.SetValueWithoutNotify(0);
     }
 
-    public void UpdateFurniturePreview(FurnitureViewData furniture, Sprite previewSprite)
+    public void UpdateFurniturePreview(FurnitureViewData furniture, Texture preview)
     {
         if (furniture == null)
             return;
 
-        furniture.Preview = previewSprite;
+        furniture.Preview = preview;
 
         if (_selectedFurniture != null && _selectedFurniture.Id == furniture.Id)
-            _preview.sprite = previewSprite != null ? previewSprite : _defaultPreview;
+            _preview.texture = preview != null ? preview : _defaultPreview;
     }
     public void RefreshFurniture(FurnitureViewData furniture)
     {
@@ -336,7 +336,7 @@ public class FurniturePanelView : MonoBehaviour
         _changePreviewButton.interactable = false;
         _openModelButton.interactable = false;
 
-        _preview.sprite = _defaultPreview;
+        _preview.texture = _defaultPreview;
 
         SetEditMode(_canEdit);
         DisablePreviousUIEffect(null);

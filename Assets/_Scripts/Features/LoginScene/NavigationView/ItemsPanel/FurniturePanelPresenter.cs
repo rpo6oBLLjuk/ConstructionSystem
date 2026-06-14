@@ -317,7 +317,7 @@ public class FurniturePanelPresenter : BaseLayoutPresenter
         _selectedFurniture.HasPreview = true;
         _selectedFurniture.ModelOrPreviewChanged = true;
 
-        _selectedFurniture.Preview = _furnitureDataSaver.ConvertTextureToSprite(texture2d);
+        _selectedFurniture.Preview = texture2d;
         _view.UpdateFurniturePreview(_selectedFurniture, _selectedFurniture.Preview);
 
         _notificationService.ShowPopup("Preview has been generated. Press Save to apply changes.", "Preview generated", NotificationType.Info);

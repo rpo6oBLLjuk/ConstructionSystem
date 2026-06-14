@@ -11,12 +11,13 @@ public class FurnitureViewFactory : MonoBehaviour
     [Inject] FurnitureDataSaver _furnitureDataSaver;
 
     [SerializeField] private GameObject _furnitureViewPrefab;
+    [SerializeField] private Texture _defaultTexture;
 
 
     private void Awake()
     {
-        if (_furnitureViewPrefab != null)
-            _furnitureViewPrefab.SetActive(false);
+        _furnitureViewPrefab.SetActive(false);
+        _defaultTexture = _furnitureViewPrefab.transform.Find("ItemPreviewContainer/ItemPreview").GetComponent<RawImage>().texture;
     }
 
     public GameObject Create(FurnitureViewData furniture, Transform parent, Action<FurnitureViewData> onFurnitureSelected)
@@ -39,7 +40,7 @@ public class FurnitureViewFactory : MonoBehaviour
 
         FillPreview(layout, "ItemPreviewContainer/ItemPreview", furniture.Id, furniture);
 
-        if(layout.Find("Background").TryGetComponent(out UIEffect uiEffect))
+        if (layout.Find("Background").TryGetComponent(out UIEffect uiEffect))
             furniture.UIEffect = uiEffect;
 
         if (layout.Find("ItemToggle").TryGetComponent(out Toggle toggle))
@@ -60,15 +61,18 @@ public class FurnitureViewFactory : MonoBehaviour
     private void FillText(Transform root, string objectName, string value) => root.Find(objectName).GetComponent<TMP_Text>().text = value;
     private void FillPreview(Transform root, string objectName, int furnitureId, FurnitureViewData furniture)
     {
-        if (!furniture.HasPreview)
-            return;
+        RawImage image = root.Find(objectName).GetComponent<RawImage>();
+        image.texture = _defaultTexture;
 
-        Image image = root.Find(objectName).GetComponent<Image>();
+        //if (!furniture.HasPreview)
+        //return;
 
-        _furnitureDataSaver.LoadPreviewSprite(furnitureId, onComplete: sprite =>
+        _furnitureDataSaver.LoadPreviewSprite(furnitureId, onComplete: texture =>
         {
-            image.sprite = sprite;
-            furniture.Preview = image.sprite;
-        }, onError: error => this.FastLog(error)).Forget();
+            furniture.HasPreview = true;
+
+            image.texture = texture;
+            furniture.Preview = texture;
+        }, onError: error => this.InactiveLog($"Furniture [{furnitureId}] {error}")).Forget();
     }
 }

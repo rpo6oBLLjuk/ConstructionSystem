@@ -102,7 +102,7 @@ public class ProjectDataSaver : AbstractSaver
         return SavePreviewBytes(project, bytes, OnMessage, OnError);
     }
 
-    public async UniTask LoadPreviewSprite(UserProject project, Action<Sprite> onComplete = null, Action<string> onError = null)
+    public async UniTask LoadPreviewSprite(UserProject project, Action<Texture> onComplete = null, Action<string> onError = null)
     {
         if (!IsProjectValid(project, onError))
             return;

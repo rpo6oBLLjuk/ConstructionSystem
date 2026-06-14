@@ -56,27 +56,10 @@ public class FurnitureDataSaver : AbstractSaver
 
     public bool SavePreviewBytes(int furnitureId, byte[] bytes, Action<string> OnMessage = null, Action<string> OnError = null) => SaveBytes(GetPreviewSavePath(furnitureId), bytes, OnMessage, OnError);
 
-    public async UniTask LoadPreviewSprite(int furnitureId, Action<Sprite> onComplete = null, Action<string> onError = null)
-    {
-        await LoadSpriteFromPath(GetPreviewPath(furnitureId), onComplete, onError);
-    }
-    public async UniTask LoadPreviewByAbsolutePath(string path, Action<Sprite> onComplete = null, Action<string> onError = null)
-    {
-        await LoadSpriteByAbsolutePath(path, onComplete, onError);
-    }
+    public async UniTask LoadPreviewSprite(int furnitureId, Action<Texture> onComplete = null, Action<string> onError = null) => await LoadSpriteFromPath(GetPreviewPath(furnitureId), onComplete, onError);
+    public async UniTask LoadPreviewByAbsolutePath(string path, Action<Texture> onComplete = null, Action<string> onError = null) => await LoadSpriteByAbsolutePath(path, onComplete, onError);
 
-    public async UniTask LoadModelGameObject(int furnitureId, Transform parent, Action<GameObject> onComplete = null, Action<string> onError = null)
-    {
-        string modelPath = GetModelPath(furnitureId);
-
-        if (string.IsNullOrWhiteSpace(modelPath))
-        {
-            onError?.Invoke("Model file not found.");
-            return;
-        }
-
-        await LoadModelByAbsolutePath(modelPath, parent, onComplete, onError);
-    }
+    public async UniTask LoadModelGameObject(int furnitureId, Transform parent, Action<GameObject> onComplete = null, Action<string> onError = null) => await LoadModelByAbsolutePath(GetModelPath(furnitureId), parent, onComplete, onError);
     public async UniTask LoadModelByAbsolutePath(string modelPath, Transform parent, Action<GameObject> onComplete = null, Action<string> onError = null)
     {
         if (string.IsNullOrWhiteSpace(modelPath))

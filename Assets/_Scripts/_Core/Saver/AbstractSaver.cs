@@ -17,16 +17,16 @@ public abstract class AbstractSaver
             Directory.CreateDirectory(BaseDirectory);
     }
 
-    public Sprite ConvertTextureToSprite(Texture2D texture)
-    {
-        if (texture == null)
-            return null;
+    //public Sprite ConvertTextureToSprite(Texture2D texture)
+    //{
+    //    if (texture == null)
+    //        return null;
 
-        Rect rect = new(0, 0, texture.width, texture.height);
-        Vector2 pivot = new(0.5f, 0.5f);
+    //    Rect rect = new(0, 0, texture.width, texture.height);
+    //    Vector2 pivot = new(0.5f, 0.5f);
 
-        return Sprite.Create(texture, rect, pivot);
-    }
+    //    return Sprite.Create(texture, rect, pivot);
+    //}
 
     protected string GetDirectory(bool create, params string[] parts)
     {
@@ -159,11 +159,11 @@ public abstract class AbstractSaver
         }
     }
 
-    protected async UniTask LoadSpriteFromPath(string path, Action<Sprite> onComplete = null, Action<string> onError = null)
+    protected async UniTask LoadSpriteFromPath(string path, Action<Texture> onComplete = null, Action<string> onError = null)
     {
         if (!Exists(path))
         {
-            onError?.Invoke($"Image not found: <b>{Path.GetFileName(path)}</b>");
+            onError?.Invoke($"Image not found. Path: '<b>{path}</b>'");
             return;
         }
 
@@ -178,14 +178,11 @@ public abstract class AbstractSaver
         }
 
         Texture2D texture = DownloadHandlerTexture.GetContent(request);
-        Sprite sprite = ConvertTextureToSprite(texture);
+        //Sprite sprite = ConvertTextureToSprite(texture);
 
-        onComplete?.Invoke(sprite);
+        onComplete?.Invoke(texture);
     }
-    public async UniTask LoadSpriteByAbsolutePath(string path, Action<Sprite> onComplete = null, Action<string> onError = null)
-    {
-        await LoadSpriteFromPath(path, onComplete, onError);
-    }
+    public async UniTask LoadSpriteByAbsolutePath(string path, Action<Texture> onComplete = null, Action<string> onError = null) => await LoadSpriteFromPath(path, onComplete, onError);
 
     protected string NormalizeExtension(string extension)
     {

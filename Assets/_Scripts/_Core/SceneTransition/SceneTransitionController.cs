@@ -28,13 +28,7 @@ public class SceneTransitionController : MonoBehaviour
 #endif
     }
 
-    public void LoadScene(AppScene scene)
-    {
-        this.InactiveLog($"Scene load request: {scene}");
-        LoadAdditiveSceneAsync(_config.Scenes
-            .Find(data => data.AppScene == scene).Index)
-        .Forget();
-    }
+    public void LoadScene(AppScene scene) => LoadAdditiveSceneAsync(_config.Scenes.Find(data => data.AppScene == scene).Index).Forget();
 
     public async UniTask LoadAdditiveSceneAsync(int index)
     {
@@ -45,7 +39,6 @@ public class SceneTransitionController : MonoBehaviour
 #if UNITY_EDITOR
         await UniTask.WaitForSeconds(_delayBeforeTransition); //TEST ONLY
 #endif
-
         SetLoadscreenState(true, out Tween loadScreenTween);
 
         AsyncOperation asyncSceneLoad = SceneManager.LoadSceneAsync(index, LoadSceneMode.Single);
@@ -54,7 +47,7 @@ public class SceneTransitionController : MonoBehaviour
         float time = Time.time;
         await UniTask.WaitUntil(() => asyncSceneLoad.progress >= 0.9f && !loadScreenTween.IsPlaying());
 
-        DebugWrapper.Log(this, $"Loaded scene: {System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(index))}");
+        this.InactiveLog($"Loaded scene: {System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(index))}");
 
 #if UNITY_EDITOR
         float awaitDuration = _minimalTransitionDuration - (Time.time - time);

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8200632928102544bb37bc81b1c598b3, type: 3}
+  m_Name: RoomMaterialListConfig_Walls
+  m_EditorClassIdentifier: Assembly-CSharp::rpoboBLLjuk.SpaceCanvas.RoomMaterialListConfig
+  Materials:
+  - {fileID: 11400000, guid: aea0b82e052344742a19f97afa6c9dcf, type: 2}
+  - {fileID: 11400000, guid: 1ac01405c3a8eaf4fb1d8fcb5d620da2, type: 2}
+  - {fileID: 11400000, guid: 94e628a23e47bcb429b9b948dde9a2a9, type: 2}
+  - {fileID: 11400000, guid: 88e3456069b23a84e968534f7b034ef1, type: 2}
+  - {fileID: 11400000, guid: 735754efbf51c4b42899ebe28f791604, type: 2}
+  - {fileID: 11400000, guid: 6596407fd66f320449da6a831a4939ef, type: 2}
+  - {fileID: 11400000, guid: 1831d0a83075b8843ae2ea0d73dba42f, type: 2}
+  - {fileID: 11400000, guid: 0d984aa05b7914142a23c151b030ea7c, type: 2}
+  - {fileID: 11400000, guid: 7d45fd8fa298c7b4dafc3a41a013ea86, type: 2}
+  - {fileID: 11400000, guid: c8113eebf71c5df47ab3f95e062d75b9, type: 2}

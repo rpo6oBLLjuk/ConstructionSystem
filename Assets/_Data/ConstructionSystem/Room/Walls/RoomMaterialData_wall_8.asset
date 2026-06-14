@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df12465b203006d428cbbcc123905ba6, type: 3}
+  m_Name: RoomMaterialData_wall_8
+  m_EditorClassIdentifier: Assembly-CSharp::rpoboBLLjuk.SpaceCanvas.RoomMaterialData
+  MaterialName: 2K-walllpaper_22
+  BaseTexture: {fileID: 2800000, guid: 39bef197ccd7b5a4ea82fd85d2ba1aa6, type: 3}
+  NormalTexture: {fileID: 2800000, guid: c1c81659303dee041b3b9781d40b4b9e, type: 3}
+  NormalStrength: 2

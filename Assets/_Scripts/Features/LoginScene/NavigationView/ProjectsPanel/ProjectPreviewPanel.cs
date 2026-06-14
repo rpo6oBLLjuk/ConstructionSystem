@@ -15,7 +15,7 @@ public class ProjectPreviewPanel : MonoBehaviour
 
     public event Action<string> OnBlueprintRename;
 
-    [SerializeField] Image _previewImage;
+    [SerializeField] RawImage _previewImage;
     [SerializeField] TMP_Text _previewSize;
     [SerializeField] TMP_Text _previewEditDate;
 
@@ -26,7 +26,7 @@ public class ProjectPreviewPanel : MonoBehaviour
     [SerializeField] Button _openButton;
     [SerializeField] Button _openAsSpaceButton;
 
-    private Sprite _defaultPreview;
+    private Texture _defaultPreview;
 
 
     private void OnEnable()
@@ -46,13 +46,13 @@ public class ProjectPreviewPanel : MonoBehaviour
         _openAsSpaceButton.onClick.RemoveListener(OpenAsSpaceBlueprint);
     }
 
-    private void Start() => _defaultPreview = _previewImage.sprite;
+    private void Start() => _defaultPreview = _previewImage.texture;
 
     public void ShowBlueprintPreview(ProjectData blueprintData, UserProject project)
     {
         _projectDataSaver.LoadPreviewSprite(project,
-            onComplete: sprite => _previewImage.sprite = sprite,
-            onError: _ => _previewImage.sprite = _defaultPreview
+            onComplete: texture => _previewImage.texture = texture,
+            onError: _ => _previewImage.texture = _defaultPreview
         ).Forget();
 
         _previewSize.text = $"{blueprintData.Square} m²";

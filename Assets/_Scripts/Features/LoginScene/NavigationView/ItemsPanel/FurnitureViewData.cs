@@ -34,7 +34,7 @@ public class FurnitureViewData
     public string UpdatedAt { get; set; }
 
     public Furniture SourceFurniture { get; set; }
-    public Sprite Preview { get; set; }
+    public Texture Preview { get; set; }
     public GameObject ViewObject { get; set; }
     public UIEffect UIEffect { get; set; }
 }

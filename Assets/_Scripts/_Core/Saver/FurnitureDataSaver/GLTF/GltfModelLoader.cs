@@ -1,12 +1,26 @@
+using System;
 using Cysharp.Threading.Tasks;
 using GLTFast;
-using System;
+using GLTFast.Loading;
 using UnityEngine;
 
 public class GltfModelLoader
 {
+    private TimeBudgetPerFrameDeferAgent _deferAgentComponent;
+    private IDeferAgent _deferAgent;
+    private bool _isLoading = false;
+
+    public GltfModelLoader() => _deferAgent = GetDeferAgent();
+
+
     public async UniTask LoadModel(string modelPath, Transform parent, Action<GameObject> onComplete = null, Action<string> onError = null)
     {
+        if (_isLoading)
+        {
+            onError?.Invoke("During the model upload process.");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(modelPath))
         {
             onError?.Invoke("Model path is empty.");
@@ -19,11 +33,13 @@ public class GltfModelLoader
             return;
         }
 
-        ClearParent(parent);
+        _isLoading = true;
 
         try
         {
-            GltfImport gltf = new();
+            var settings = new DefaultDownloadProvider();
+
+            GltfImport gltf = new(deferAgent: _deferAgent);
             string uri = new Uri(modelPath).AbsoluteUri;
 
             bool loaded = await gltf.Load(uri);
@@ -33,6 +49,8 @@ public class GltfModelLoader
                 onError?.Invoke("glTF model loading failed.");
                 return;
             }
+
+            await UniTask.Yield(PlayerLoopTiming.Update);
 
             GameObject container = new("LoadedModel");
             container.transform.SetParent(parent, false);
@@ -52,10 +70,24 @@ public class GltfModelLoader
         {
             onError?.Invoke(e.Message);
         }
+        finally
+        {
+            _isLoading = false;
+        }
     }
-    private void ClearParent(Transform parent)
+
+    private IDeferAgent GetDeferAgent()
     {
-        for (int i = parent.childCount - 1; i >= 0; i--)
-            UnityEngine.Object.Destroy(parent.GetChild(i).gameObject);
+        if (_deferAgent != null)
+            return _deferAgent;
+
+        GameObject deferAgentObject = new("Gltf Defer Agent");
+        UnityEngine.Object.DontDestroyOnLoad(deferAgentObject);
+
+        _deferAgentComponent = deferAgentObject.AddComponent<TimeBudgetPerFrameDeferAgent>();
+        _deferAgent = _deferAgentComponent;
+
+        return _deferAgent;
     }
+
 }
